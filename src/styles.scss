@@ -3,8 +3,14 @@ body {
 	margin: 0;
 }
 
-canvas, video {
-	border: 1px solid black;
-	width: 33%;
+video, canvas {
+	height: 250px;
 	transform: scaleX(-1);
+}
+
+canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
 }

@@ -1,0 +1,14 @@
+<div class = "flex justify-content-between pl-2 pr-2">
+	<div class = "video-container relative">
+		<video #video [srcObject] = "src" class = "absolute w-full top-0 left-0"></video>
+	</div>
+	<div>
+		<label *ngFor = "let filter of filters; let i = index" class = "block text-white">
+			{{filter.name}}
+			<input type = "checkbox" name = "filter.name" id="" [(ngModel)] = "filter.enabled"><br><br>
+		</label>
+	</div>
+	<div class = "video-container relative">
+		<canvas #replaceWithCanvas></canvas>
+	</div>
+</div>
