@@ -5,10 +5,11 @@
 	<div>
 		<label *ngFor = "let filter of filters; let i = index" class = "block text-white">
 			{{filter.name}}
-			<input type = "checkbox" name = "filter.name" id="" [(ngModel)] = "filter.enabled"><br><br>
+			<input type = "checkbox" name = "filter.name" id="" [(ngModel)] = "filter.enabled" (change) = "setEnabledFilters()"><br><br>
 		</label>
+		<div class = "text-white">{{fps}}</div>
 	</div>
 	<div class = "video-container relative">
-		<canvas #replaceWithCanvas></canvas>
+		<div #replaceWithCanvas></div>
 	</div>
 </div>

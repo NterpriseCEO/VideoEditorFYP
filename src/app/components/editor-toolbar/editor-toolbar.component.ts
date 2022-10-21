@@ -6,7 +6,7 @@ import { MenuItem, PrimeIcons } from 'primeng/api';
 	templateUrl: './editor-toolbar.component.html',
 	styleUrls: ['./editor-toolbar.component.scss']
 })
-export class EditorToollbarComponent implements OnInit {
+export class EditorToollbarComponent {
 
 	items:MenuItem[] = [
 		{
@@ -94,8 +94,4 @@ export class EditorToollbarComponent implements OnInit {
 	]
 
 	constructor() { }
-
-	ngOnInit(): void {
-	}
-
 }
