@@ -1,5 +1,5 @@
-const { app, BrowserWindow, ipcMain, protocol } = require("electron");
-// const path = require("path");
+const { app, BrowserWindow, ipcMain, protocol, desktopCapturer } = require("electron");
+const path = require("path");
 const windowStateKeeper = require('electron-window-state');
 
 // const { globals } = require("../globals");
@@ -33,6 +33,12 @@ MainWindow.prototype.listenForEvents = function() {
 	ipcMain.on("minimise-window", () => {
 		this.window.minimize();
 	});
+
+	ipcMain.on("get-stream", () => {
+		desktopCapturer.getSources({ types: ['window', 'screen'] }).then(sources => {
+			this.window.webContents.send("stream", sources);
+		});
+	});
 	
 	// ipcMain.on("maximise-window", () => {
 	// 	this.isFullScreen = !this.isFullScreen;
@@ -63,7 +69,7 @@ MainWindow.prototype.createWindow = function() {
 		y: 200,
 		webPreferences: {
 			contextIsolation: true,
-			// preload: path.join(__dirname, "preload.js")
+			preload: path.join(__dirname, "preload.js")
 		}
 	});
 
