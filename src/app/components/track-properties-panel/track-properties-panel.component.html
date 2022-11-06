@@ -1,3 +1,14 @@
 <p-panel header = "Track Filters">
-	Filter applied to the selected track will go here
+	<div>
+		Source:
+		<select [(ngModel)] = "selectedSource" (change) = "changeSource()">
+			<option value = "webcam">Webcam</option>
+			<option value = "screen">Screen capture</option>
+			<option value = "video">Video file</option>
+		</select>
+	</div>
+	<label *ngFor = "let filter of filters; let i = index" class = "block text-white">
+		{{filter.name}}
+		<input type = "checkbox" name = "filter.name" id="" [(ngModel)] = "filter.enabled" (change) = "setEnabledFilters()"><br><br>
+	</label>
 </p-panel>

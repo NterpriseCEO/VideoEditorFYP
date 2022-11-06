@@ -36,8 +36,15 @@ MainWindow.prototype.listenForEvents = function() {
 
 	ipcMain.on("get-stream", () => {
 		desktopCapturer.getSources({ types: ['window', 'screen'] }).then(sources => {
-			this.window.webContents.send("stream", sources);
+			this.previewWindow.webContents.send("stream", sources);
 		});
+	});
+
+	ipcMain.on("set-filters", (_, filters) => {
+		this.previewWindow.webContents.send("get-filters", filters);
+	});
+	ipcMain.on("change-source", (_, source) => {
+		this.previewWindow.webContents.send("source-changed", source);
 	});
 	
 	// ipcMain.on("maximise-window", () => {
@@ -73,17 +80,34 @@ MainWindow.prototype.createWindow = function() {
 		}
 	});
 
+	this.previewWindow = new BrowserWindow({
+		titlebarStyle: 'hidden',
+		width: 200,
+		height: 200,
+		minWidth: 800,
+		minHeight: 600,
+		x: 200,
+		y: 200,
+		webPreferences: {
+			contextIsolation: true,
+			preload: path.join(__dirname, "preload.js")
+		}
+	});
+
 	// this.isFullScreen = mainWindowState.isMaximized;
 
 	// mainWindowState.manage(this.window);
 
 	//Hides the top menu bar
 	this.window.setMenu(null);
+	this.previewWindow.setMenu(null);
 
 	if(this.serve) {
 		//Development mode
-		this.window.loadURL('http://localhost:4200');
+		this.window.loadURL('http://localhost:4200/mainview');
+		this.previewWindow.loadURL('http://localhost:4200/preview');
 		this.window.webContents.openDevTools();
+		this.previewWindow.webContents.openDevTools();
 	}else {
 		//Production mode
 		// this.window.loadURL(path.join(__dirname, "../../dist/music-streaming/index.html"));

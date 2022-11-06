@@ -34,24 +34,22 @@ export class VideoPreviewComponent {
 
 	worker: any;
 
-	filters: Filter[] = [
-		// {name: "zoomBlur", properties: [231.99996948242188, 293, 1], enabled: false, type: FilterLibrary.GLFX},
-		// {name: "bulgePinch", properties: [320, 239.5, 200, 1], enabled: false, type: FilterLibrary.GLFX},
-		// {name: "edgeWork", properties: [10], enabled: true, type: FilterLibrary.GLFX},
-		{name: "oil", properties: [5, 32], enabled: true, type: FilterLibrary.IMAGE_FILTERS},
-		// {name: "invert", properties: [], enabled: true, type: FilterLibrary.IMAGE_FILTERS},
-		// {name: "sepia", properties: [1], enabled: true, type: FilterLibrary.GLFX},
-		// {name: "vignette", properties: [0.5, 0.5], enabled: true, type: FilterLibrary.GLFX},
-		// {name: "colorHalftone", properties: [320, 239.5, 0.25, 4], enabled: true, type: FilterLibrary.GLFX}
-		{name: "twirl", properties: [0.5, 0.5, 200, 360], enabled: true, type: FilterLibrary.IMAGE_FILTERS},
-	];
-
 	enabledFilters: Filter[] = [];
 
 	constructor(
 		private changeDetectorRef: ChangeDetectorRef,
 		private ngZone: NgZone
 	) {
+		window.api.on('get-filters', (_, filters) => this.ngZone.run(() => {
+			this.enabledFilters = filters;
+			this.changeDetectorRef.detectChanges();
+		}));
+
+		window.api.on("source-changed", (_, source) => this.ngZone.run(() => {
+			this.selectedSource = source;
+			this.changeSource();
+			this.changeDetectorRef.detectChanges();
+		}));
 
 		//KEEP THIS CODE FOR REFERENCE
 		// if(typeof Worker !== 'undefined') {
@@ -67,7 +65,7 @@ export class VideoPreviewComponent {
 		// }
 
 		//Sets the initial source
-		this.changeSource("webcam");
+		this.changeSource();
 	}
 
 	//page resize event
@@ -76,11 +74,6 @@ export class VideoPreviewComponent {
 		//Resizes the canvas when the window is resized
 		//to make sure the canvas is always the same size as the video
 		this.setCanvasDimensions();
-	}
-
-	setEnabledFilters() {
-		//Gets a list of all the filters that are enabled
-		this.enabledFilters = this.filters.filter(filter => filter.enabled);
 	}
 
 
@@ -263,7 +256,6 @@ export class VideoPreviewComponent {
 			//Once the video is loaded, the video is played and the filters canvas is created
 			this.videoNativeElement.play();
 
-			this.enabledFilters = this.filters.filter(filter => filter.enabled);
 			this.drawCanvas();
 		};
 	}

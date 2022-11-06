@@ -15,7 +15,7 @@ export class ImageFilters {
 
 	//set canvas variable but as null
 	canvas: OffscreenCanvas = new OffscreenCanvas(333, 250);
-	ctx: OffscreenCanvasRenderingContext2D = this.canvas.getContext("2d")!;
+	ctx: OffscreenCanvasRenderingContext2D = this.canvas.getContext("2d", {willReadFrequently: true})!;
 	imageData: ImageData | undefined;
 
 	constructor() { }

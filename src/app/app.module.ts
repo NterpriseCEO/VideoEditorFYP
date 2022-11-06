@@ -11,6 +11,8 @@ import { EditorToollbarComponent } from './components/editor-toolbar/editor-tool
 import { VideoPreviewComponent } from './components/video-preview/video-preview.component';
 import { TracksPanelComponent } from './components/tracks-panel/tracks-panel.component';
 import { TrackPropertiesPanelComponent } from './components/track-properties-panel/track-properties-panel.component';
+import { PreviewComponent } from './views/preview/preview.component';
+import { MainViewComponent } from './views/main-view/main-view.component';
 
 @NgModule({
 	declarations: [
@@ -18,7 +20,9 @@ import { TrackPropertiesPanelComponent } from './components/track-properties-pan
 		EditorToollbarComponent,
 		VideoPreviewComponent,
 		TracksPanelComponent,
-		TrackPropertiesPanelComponent
+		TrackPropertiesPanelComponent,
+		PreviewComponent,
+		MainViewComponent
 	],
 	imports: [
 		BrowserModule,
