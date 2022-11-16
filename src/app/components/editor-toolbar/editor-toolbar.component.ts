@@ -8,6 +8,8 @@ import { MenuItem, PrimeIcons } from 'primeng/api';
 })
 export class EditorToollbarComponent {
 
+	title = 'Editor Toolbar';
+
 	items:MenuItem[] = [
 		{
 			label: 'File',

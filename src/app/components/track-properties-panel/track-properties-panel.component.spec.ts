@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { PanelModule } from 'primeng/panel';
 
 import { TrackPropertiesPanelComponent } from './track-properties-panel.component';
 
@@ -8,7 +10,12 @@ describe('TrackPropertiesPanelComponent', () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [TrackPropertiesPanelComponent]
+			declarations: [
+				TrackPropertiesPanelComponent
+			],
+			imports: [
+				FormsModule
+			]
 		})
 			.compileComponents();
 

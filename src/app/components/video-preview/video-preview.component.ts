@@ -193,9 +193,9 @@ export class VideoPreviewComponent {
 			// this.fps = window.performance.now() - start;
 
 			// console.timeEnd("draw");
-			this.animationFrame = window.requestAnimationFrame(step);
+			this.animationFrame = this.videoNativeElement.requestVideoFrameCallback(step);
 		};
-		window.requestAnimationFrame(step);
+		this.videoNativeElement.requestVideoFrameCallback(step);
 	}
 
 	changeSource(source?: string) {

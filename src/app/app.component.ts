@@ -14,5 +14,7 @@ declare global {
 })
 export class AppComponent {
 
+	title = 'VideoEditor';
+
 	constructor() {}
 }

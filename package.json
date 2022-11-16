@@ -43,6 +43,7 @@
     "karma-coverage": "~2.1.0",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
+    "ng-mocks": "^14.3.2",
     "node-gyp": "9.3.0",
     "tslib": "^2.4.0",
     "tslint": "^6.1.3",
