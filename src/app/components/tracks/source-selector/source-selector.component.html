@@ -1,0 +1,45 @@
+<p-dialog header = "Select a sourcce" [(visible)] = "display" [style] = "{width: '50vw', height: '50vh'}">
+	<p-tabView>
+		<p-tabPanel header = "Webcam">
+			<button (click) = "selectSource('webcam')">Select webcam</button>
+		</p-tabPanel>
+		<p-tabPanel header = "Screen capture">
+			<!-- <div *ngFor = "let source of screenShareSources">
+				<button (click) = "selectSource('screen', source.id)">{{source.name}}</button><br>
+			</div> -->
+			<p-dataView [value] = "screenShareSources">
+				<ng-template let-source pTemplate = "listItem">
+					<div
+						class = "col-3 sm:col-6 shadow-2 cursor-pointer surface-ground p-2"
+						(click) = "selectSource('screen', source.id)"
+						[title] = "source.name"
+					>
+						<div class = "col-12">
+							<div>
+								<img
+									[src] = "source.thumbnail"
+									[alt] = "source.name"
+									class = "w-full"
+								/>
+								<div class = "w-full text-overflow-ellipsis overflow-hidden white-space-nowrap">
+									{{source.name}}
+								</div>
+							</div>
+						</div>
+					</div>
+				</ng-template>
+			</p-dataView>
+			
+		</p-tabPanel>
+		<p-tabPanel header = "Video">
+			<button (click) = "selectSource('video')">Select video</button>
+		</p-tabPanel>
+	</p-tabView>
+</p-dialog>
+
+<p-button
+	(click) = "showDialog()"
+	styleClass = "p-button-sm"
+	icon = "pi pi-desktop"
+	label = "Select source"
+></p-button>

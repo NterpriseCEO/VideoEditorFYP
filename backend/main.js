@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, protocol, desktopCapturer } = require("electron");
 const path = require("path");
-const windowStateKeeper = require('electron-window-state');
+const windowStateKeeper = require("electron-window-state");
 
 // const { globals } = require("../globals");
 
@@ -35,16 +35,27 @@ MainWindow.prototype.listenForEvents = function() {
 	});
 
 	ipcMain.on("get-stream", () => {
-		desktopCapturer.getSources({ types: ['window', 'screen'] }).then(sources => {
+		//Gets screenshare stream
+		desktopCapturer.getSources({ types: ["window", "screen"] }).then(sources => {
 			this.previewWindow.webContents.send("stream", sources);
+		});
+	});
+
+	ipcMain.on("get-screenshare-options", () => {
+		//Gets screenshare options
+		desktopCapturer.getSources({ types: ["window", "screen"] }).then(sources => {
+			sources.map((source) => {
+				source.thumbnail = source.thumbnail.toDataURL();
+			});
+			this.window.webContents.send("screenshare-options", sources);
 		});
 	});
 
 	ipcMain.on("set-filters", (_, filters) => {
 		this.previewWindow.webContents.send("get-filters", filters);
 	});
-	ipcMain.on("change-source", (_, source) => {
-		this.previewWindow.webContents.send("source-changed", source);
+	ipcMain.on("change-source", (_, sourceData) => {
+		this.previewWindow.webContents.send("source-changed", sourceData);
 	});
 	
 	// ipcMain.on("maximise-window", () => {

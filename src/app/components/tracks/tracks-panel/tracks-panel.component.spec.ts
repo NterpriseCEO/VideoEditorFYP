@@ -1,13 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Panel, PanelModule } from 'primeng/panel';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { Panel, PanelModule } from "primeng/panel";
 
-import { TracksPanelComponent } from './tracks-panel.component';
+import { TracksPanelComponent } from "./tracks-panel.component";
 
 import { MockBuilder, MockRender, ngMocks } from "ng-mocks";
-import { AppModule } from 'src/app/app.module';
-import { Menubar } from 'primeng/menubar';
+import { AppModule } from "src/app/app.module";
+import { Menubar } from "primeng/menubar";
 
-describe('TracksPanelComponent', () => {
+describe("TracksPanelComponent", () => {
 	let component: TracksPanelComponent;
 	let fixture: ComponentFixture<TracksPanelComponent>;
 
@@ -24,7 +24,7 @@ describe('TracksPanelComponent', () => {
 		fixture.detectChanges();
 	});
 
-	it('should create', () => {
+	it("should create", () => {
 		expect(component).toBeTruthy();
 	});
 });

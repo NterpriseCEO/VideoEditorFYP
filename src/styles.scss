@@ -4,7 +4,8 @@ body {
 }
 
 video, canvas {
-	height: 250px;
+	//Was 250px before
+	height: 416px;
 	transform: scaleX(-1);
 }
 

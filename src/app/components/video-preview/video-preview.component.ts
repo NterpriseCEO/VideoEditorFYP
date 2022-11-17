@@ -28,7 +28,9 @@ export class VideoPreviewComponent {
 
 	videoWidth: number = 0;
 	videoHeight: number = 0;
+
 	selectedSource: string = "webcam";
+	sourceId: string = "";
 
 	animationFrame: any;
 
@@ -45,8 +47,9 @@ export class VideoPreviewComponent {
 			this.changeDetectorRef.detectChanges();
 		}));
 
-		window.api.on("source-changed", (_, source) => this.ngZone.run(() => {
-			this.selectedSource = source;
+		window.api.on("source-changed", (_, sourceData) => this.ngZone.run(() => {
+			this.selectedSource = sourceData.source;
+			this.sourceId = sourceData.sourceId;
 			this.changeSource();
 			this.changeDetectorRef.detectChanges();
 		}));
@@ -216,13 +219,12 @@ export class VideoPreviewComponent {
 			window.api.emit("get-stream");
 			window.api.on("stream", (_: any, stream: any[]) => this.ngZone.run(() => {
 				//Initiates the desktop capture and plays it
-				console.log(stream);
 				navigator.mediaDevices.getUserMedia({
 					audio: false,
 					video: {
 						mandatory: {
 							chromeMediaSource: "desktop",
-							chromeMediaSourceId: stream[0].id,
+							chromeMediaSourceId: stream.find(({id}) => id === this.sourceId).id, //The id of the desktop capture
 							minWidth: 1280,
 							maxWidth: 1280,
 							minHeight: 720,
@@ -238,7 +240,6 @@ export class VideoPreviewComponent {
 			}));
 		}else if((this.selectedSource || source) === "video") {
 			//Sets the video src = to the video in assets folder
-			// this.videoNativeElement = this.video.nativeElement;
 			this.videoNativeElement = this.video.nativeElement;
 			this.changeDetectorRef.markForCheck();
 			this.src = "/assets/video.mp4";

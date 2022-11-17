@@ -1,11 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EditorToollbarComponent } from 'src/app/components/editor-toolbar/editor-toolbar.component';
-import { TrackPropertiesPanelComponent } from 'src/app/components/track-properties-panel/track-properties-panel.component';
-import { TracksPanelComponent } from 'src/app/components/tracks-panel/tracks-panel.component';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { EditorToollbarComponent } from "src/app/components/editor-toolbar/editor-toolbar.component";
+import { TrackPropertiesPanelComponent } from "src/app/components/track-properties-panel/track-properties-panel.component";
+import { TracksPanelComponent } from "src/app/components/tracks/tracks-panel/tracks-panel.component";
 
-import { MainViewComponent } from './main-view.component';
+import { MainViewComponent } from "./main-view.component";
 
-describe('MainViewComponent', () => {
+describe("MainViewComponent", () => {
 	let component: MainViewComponent;
 	let fixture: ComponentFixture<MainViewComponent>;
 
@@ -25,7 +25,7 @@ describe('MainViewComponent', () => {
 		fixture.detectChanges();
 	});
 
-	it('should create', () => {
+	it("should create", () => {
 		expect(component).toBeTruthy();
 	});
 });
