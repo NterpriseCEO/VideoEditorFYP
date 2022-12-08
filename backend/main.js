@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, protocol, desktopCapturer } = require("electron");
 const path = require("path");
+const url = require("url");
 const windowStateKeeper = require("electron-window-state");
 
 // const { globals } = require("../globals");
@@ -122,8 +123,22 @@ MainWindow.prototype.createWindow = function() {
 		this.previewWindow.webContents.openDevTools();
 	}else {
 		//Production mode
-		// this.window.loadURL(path.join(__dirname, "../../dist/music-streaming/index.html"));
+		this.window.loadURL(url.format({
+			pathname: path.join(__dirname, "../dist/video-editor/index.html"),
+			protocol: 'file:',
+			slashes: true,
+			hash: '/mainview'
+		}));
+		
 		this.window.webContents.openDevTools();
+		this.previewWindow.loadURL(url.format({
+			pathname: path.join(__dirname, "../dist/video-editor/index.html"),
+			protocol: 'file:',
+			slashes: true,
+			hash: '/preview'
+		}));
+		this.previewWindow.webContents.openDevTools();
+
 	}
 
 	ipcMain.handle('close-window', async (evt) => {
