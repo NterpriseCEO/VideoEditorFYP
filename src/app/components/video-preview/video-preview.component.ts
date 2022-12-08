@@ -38,6 +38,8 @@ export class VideoPreviewComponent {
 
 	enabledFilters: Filter[] = [];
 
+	isFullscreen: boolean = false;
+
 	constructor(
 		private changeDetectorRef: ChangeDetectorRef,
 		private ngZone: NgZone
@@ -79,11 +81,18 @@ export class VideoPreviewComponent {
 		this.setCanvasDimensions();
 	}
 
+	toggleFullScreen() {
+		this.isFullscreen = !this.isFullscreen;
+
+		setTimeout(() => {
+			this.setCanvasDimensions();
+		}, 100);
+	}
 
 	setCanvasDimensions() {
 		//Sets the canvas' dimensions to the same as the video
-		const parentWidth = this.canvas.parentNode.getBoundingClientRect().width;
-		const parentHeight = this.canvas.parentNode.getBoundingClientRect().height;
+		const parentWidth = this.canvas?.parentNode.getBoundingClientRect().width;
+		const parentHeight = this.canvas?.parentNode.getBoundingClientRect().height;
 		const [videoWidth, videoHeight] = this.videoDimensions(this.videoNativeElement);
 
 		this.videoWidth = videoWidth;

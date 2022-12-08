@@ -1,15 +1,36 @@
-<div class = "flex justify-content-between pl-2 pr-2">
-	<div class = "video-container relative">
+<div
+	class = "justify-content-between pl-2 pr-2"
+	[class.flex] = "!isFullscreen"
+	[class.overflow-hidden] = "isFullscreen"
+	[class.h-screen] = "isFullscreen"
+>
+	<div class = "video-container relative" [class.hide-above] = "isFullscreen">
 		<video
 			#video
 			[srcObject] = "selectedSource !== 'video' ? src : null"
 			[src] = "selectedSource === 'video' ? src : null"
 			class = "absolute w-full top-0 left-0"
+			[class.webcam] = "selectedSource === 'webcam'"
 			[controls] = "selectedSource === 'video'"
+			[class.w-screen] = "isFullscreen"
+			[class.h-screen] = "isFullscreen"
 		>
 		</video>
 	</div>
-	<div class = "video-container relative">
+	<div
+		class = "video-container"
+		[class.relative] = "!isFullscreen"
+		[class.fullscreen] = "isFullscreen"
+		[class.webcam] = "selectedSource === 'webcam'"
+	>
 		<div #replaceWithCanvas></div>
+		<div class = "absolute">
+			<button
+				pButton
+				class = "p-button-text"
+				icon = "pi pi-window-maximize"
+				(click) = "toggleFullScreen()"
+			></button>
+		</div>
 	</div>
 </div>

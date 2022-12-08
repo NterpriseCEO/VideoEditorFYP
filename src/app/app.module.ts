@@ -9,12 +9,11 @@ import { PanelModule } from "primeng/panel";
 import { AppComponent } from "./app.component";
 import { EditorToollbarComponent } from "./components/editor-toolbar/editor-toolbar.component";
 import { VideoPreviewComponent } from "./components/video-preview/video-preview.component";
-import { TracksPanelComponent } from "./components/tracks/tracks-panel/tracks-panel.component";
 import { TrackPropertiesPanelComponent } from "./components/track-properties-panel/track-properties-panel.component";
 import { PreviewComponent } from "./views/preview/preview.component";
 import { MainViewComponent } from "./views/main-view/main-view.component";
-import { SourceSelectorComponent } from "./components/tracks/source-selector/source-selector.component";
 import { TracksModule } from "./components/tracks/tracks.module";
+import { ButtonModule } from "primeng/button";
 
 @NgModule({
 	declarations: [
@@ -34,7 +33,8 @@ import { TracksModule } from "./components/tracks/tracks.module";
 		PanelModule,
 		BrowserAnimationsModule,
 		FormsModule,
-		TracksModule
+		TracksModule,
+		ButtonModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]

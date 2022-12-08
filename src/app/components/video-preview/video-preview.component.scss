@@ -2,3 +2,18 @@
 	width: 50%;
 	height: 416px;
 }
+
+.webcam {
+	transform: scaleX(-1);
+}
+
+.hide-above {
+	top: -100vh;
+}
+
+.fullscreen {
+	position: absolute;
+	top: 0;
+	width: 100vw !important;
+	height: 100vh !important;
+}

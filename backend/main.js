@@ -44,6 +44,7 @@ MainWindow.prototype.listenForEvents = function() {
 	ipcMain.on("get-screenshare-options", () => {
 		//Gets screenshare options
 		desktopCapturer.getSources({ types: ["window", "screen"] }).then(sources => {
+			console.log(sources);
 			sources.map((source) => {
 				source.thumbnail = source.thumbnail.toDataURL();
 			});
