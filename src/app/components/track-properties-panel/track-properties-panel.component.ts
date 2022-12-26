@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FilterLibrary } from 'src/app/utils/constants';
 import { Filter } from 'src/app/utils/interfaces';
 
@@ -8,6 +8,9 @@ import { Filter } from 'src/app/utils/interfaces';
 	styleUrls: ['./track-properties-panel.component.scss']
 })
 export class TrackPropertiesPanelComponent {
+
+	//Get dropzone viewchild
+	@ViewChild('dropzone') dropzone!: ElementRef;
 
 	selectedSource: string = "webcam";
 
@@ -24,14 +27,54 @@ export class TrackPropertiesPanelComponent {
 	];
 	enabledFilters: Filter[] = [];
 
+	draggedFilter: Filter | null = null;
+
 	constructor() {
 		this.enabledFilters = this.filters.filter(filter => filter.enabled);
 		window.api.emit('set-filters', this.enabledFilters);
 	}
 
-	setEnabledFilters() {
+	dragStart(_, filter: Filter) {
+		this.draggedFilter = filter;
+	}
+
+	reorderFilters(event) {
+		let dropzoneElement = this.dropzone.nativeElement;
+		let scroll = dropzoneElement?.scrollLeft + event.x;
+		let dropIndex = Math.floor(scroll / 320);
+
+
+		if (this.draggedFilter) {
+			let draggedFilterIndex = this.findIndex(this.draggedFilter);
+			this.filters.splice(draggedFilterIndex, 1);
+
+			this.filters.splice(dropIndex, 0, this.draggedFilter);
+			this.enabledFilters = this.filters.filter(filter => filter.enabled);
+			this.draggedFilter = null;
+
+			window.api.emit('set-filters', this.enabledFilters);
+		}
+	}
+
+	dragEnd() {
+		this.draggedFilter = null;
+	}
+
+	setEnabledFilters(filter) {
+		filter.enabled = !filter.enabled;
 		//Gets a list of all the filters that are enabled
 		this.enabledFilters = this.filters.filter(filter => filter.enabled);
 		window.api.emit('set-filters', this.enabledFilters);
+	}
+
+	findIndex(filter: Filter) {
+		let index = -1;
+		for(let i = 0; i < this.filters.length; i++) {
+			if (filter.name === this.filters[i].name) {
+				index = i;
+				break;
+			}
+		}
+		return index;
 	}
 }

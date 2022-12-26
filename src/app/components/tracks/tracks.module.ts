@@ -2,6 +2,7 @@
 import { NgModule } from "@angular/core";
 import { TracksPanelComponent } from "./tracks-panel/tracks-panel.component";
 import { BrowserModule } from "@angular/platform-browser";
+import { ScrollPanelModule } from 'primeng/scrollpanel';
 
 import { PanelModule } from "primeng/panel";
 import { DialogModule } from "primeng/dialog";
@@ -24,7 +25,8 @@ import { SourceSelectorComponent } from "./source-selector/source-selector.compo
 		ButtonModule,
 		TabViewModule,
 		DataViewModule,
-		CardModule
+		CardModule,
+		ScrollPanelModule
 	],
 	exports: [TracksPanelComponent],
 })

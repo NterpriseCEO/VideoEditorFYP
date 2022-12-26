@@ -1,11 +1,34 @@
-<p-panel header = "Track Filters">
-	<label *ngFor = "let filter of filters; let i = index" class = "block text-white">
-		{{filter.name}}
-		<input
-			type = "checkbox"
-			name = "filter.name"
-			[(ngModel)] = "filter.enabled"
-			(change) = "setEnabledFilters()"
+<p-panel id = "track-filters" styleClass = "h-full w-full overflow-hidden flex flex-column">
+	<ng-template pTemplate = "header">
+		<div class = "flex-grow-0">
+			Track Filters
+		</div>
+	</ng-template>
+	<div
+		#dropzone
+		class = "flex-grow-1 h-full overflow-auto white-space-nowrap"
+		pDroppable = "dd"
+		(drop) = "reorderFilters($event)"
+	>
+		<p-panel
+			[header] = "filter.name"
+			*ngFor = "let filter of filters; let i = index"
+			class = "w-20rem h-full inline-block"
+			pDraggable = "dd"
+			styleClass = "h-full"
+			(onDragStart) = "dragStart($event, filter)"
+			(onDragEnd) = "dragEnd()"
 		>
-	</label>
+			<ng-template pTemplate="icons">
+				<button
+					pButton
+					class = "p-panel-header-icon p-link"
+					[class.text-green-500] = "filter.enabled"
+					(click)="setEnabledFilters(filter)">
+					<span [class] = "'pi pi-circle' + (filter.enabled ? '-fill' : '')"></span>
+				</button>
+			</ng-template>
+			Content
+		</p-panel>
+	</div>
 </p-panel>

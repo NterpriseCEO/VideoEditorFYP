@@ -5,6 +5,8 @@ import { FormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MenubarModule } from "primeng/menubar";
 import { PanelModule } from "primeng/panel";
+import { SplitterModule } from 'primeng/splitter';
+import  {DragDropModule } from 'primeng/dragdrop';
 
 import { AppComponent } from "./app.component";
 import { EditorToollbarComponent } from "./components/editor-toolbar/editor-toolbar.component";
@@ -34,7 +36,9 @@ import { ButtonModule } from "primeng/button";
 		BrowserAnimationsModule,
 		FormsModule,
 		TracksModule,
-		ButtonModule
+		ButtonModule,
+		SplitterModule,
+		DragDropModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]

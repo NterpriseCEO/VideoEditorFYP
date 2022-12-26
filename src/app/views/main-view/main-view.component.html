@@ -1,3 +1,15 @@
-<app-editor-toolbar></app-editor-toolbar>
-<app-tracks-panel></app-tracks-panel>
-<app-track-properties-panel></app-track-properties-panel>
+<div class = "flex flex-column h-full overflow-hidden">
+	<div class = "flex-grow-0">
+		<app-editor-toolbar></app-editor-toolbar>
+	</div>
+	<div class = "overflow-hidden flex-grow-1">
+		<p-splitter layout = "vertical" styleClass = "h-full">
+			<ng-template pTemplate>
+				<app-tracks-panel class = "w-full"></app-tracks-panel>
+			</ng-template>
+			<ng-template pTemplate>
+				<app-track-properties-panel class = "h-full w-full"></app-track-properties-panel>
+			</ng-template>
+		</p-splitter>
+	</div>
+</div>
