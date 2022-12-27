@@ -6,12 +6,10 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MenubarModule } from "primeng/menubar";
 import { PanelModule } from "primeng/panel";
 import { SplitterModule } from 'primeng/splitter';
-import  {DragDropModule } from 'primeng/dragdrop';
 
 import { AppComponent } from "./app.component";
 import { EditorToollbarComponent } from "./components/editor-toolbar/editor-toolbar.component";
 import { VideoPreviewComponent } from "./components/video-preview/video-preview.component";
-import { TrackPropertiesPanelComponent } from "./components/track-properties-panel/track-properties-panel.component";
 import { PreviewComponent } from "./views/preview/preview.component";
 import { MainViewComponent } from "./views/main-view/main-view.component";
 import { TracksModule } from "./components/tracks/tracks.module";
@@ -23,7 +21,6 @@ import { ButtonModule } from "primeng/button";
 		EditorToollbarComponent,
 		VideoPreviewComponent,
 		// TracksPanelComponent,
-		TrackPropertiesPanelComponent,
 		PreviewComponent,
 		MainViewComponent,
 		// SourceSelectorComponent
@@ -37,8 +34,7 @@ import { ButtonModule } from "primeng/button";
 		FormsModule,
 		TracksModule,
 		ButtonModule,
-		SplitterModule,
-		DragDropModule
+		SplitterModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]

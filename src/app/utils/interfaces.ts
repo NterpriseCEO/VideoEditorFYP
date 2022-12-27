@@ -1,7 +1,8 @@
 import { FilterLibrary } from "./constants";
 
 export interface Filter {
-	name: string;
+	function: string;
+	displayName: string;
 	properties: (number | boolean)[];
 	enabled: boolean;
 	type: FilterLibrary;

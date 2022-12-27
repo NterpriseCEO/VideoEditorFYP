@@ -173,7 +173,7 @@ export class VideoPreviewComponent {
 					//Applies the GLFX filters here
 					if(filter.type === FilterLibrary.GLFX) {
 						//Calls the filter function by name and applies the properties
-						draw = draw[filter.name](...filter.properties);
+						draw = draw[filter.function](...filter.properties);
 
 						//Draws the filters to the canvas if the next filter is not an ImageFilters filter
 						if(this.enabledFilters[index + 1]?.type === FilterLibrary.IMAGE_FILTERS) {
@@ -188,7 +188,7 @@ export class VideoPreviewComponent {
 							ifTexture.texture(imageToDraw);
 						}
 
-						imageFilters = imageFilters[filter.name](...filter.properties);
+						imageFilters = imageFilters[filter.function](...filter.properties);
 
 						//Draws the filters to the visible canvas if the next filter is not an ImageFilters filter
 						if(this.enabledFilters[index + 1]?.type === FilterLibrary.GLFX || index == length) {

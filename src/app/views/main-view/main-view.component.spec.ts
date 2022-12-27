@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { EditorToollbarComponent } from "src/app/components/editor-toolbar/editor-toolbar.component";
-import { TrackPropertiesPanelComponent } from "src/app/components/track-properties-panel/track-properties-panel.component";
+import { TrackPropertiesPanelComponent } from "src/app/components/tracks/track-properties-panel/track-properties-panel.component";
 import { TracksPanelComponent } from "src/app/components/tracks/tracks-panel/tracks-panel.component";
 
 import { MainViewComponent } from "./main-view.component";
