@@ -37,13 +37,13 @@ export class TrackPropertiesPanelComponent {
 		window.api.emit('set-filters', this.enabledFilters);
 	}
 
-	dragStart(_, filter: Filter) {
+	dragStart(event: DragEvent, filter: Filter) {
 		this.draggedFilter = filter;
 		// The index of the filter that is being dragged
 		this.draggedFilterIndex = this.findIndex(filter);
 	}
 
-	drag(event) {
+	drag(event: DragEvent) {
 		// Remove the border from the previous element that was hovered
 		this.adjacentElement?.classList.remove("dropzone-right");
 		this.adjacentElement?.classList.remove("dropzone-left");
@@ -122,6 +122,14 @@ export class TrackPropertiesPanelComponent {
 			}
 		}
 		return index;
+	}
+
+	removeFilter(filter: Filter) {
+		// Remove the filter from the list of filters
+		this.filters.splice(this.findIndex(filter), 1);
+		// Gets a list of all the filters that are enabled
+		this.enabledFilters = this.filters.filter(filter => filter.enabled);
+		window.api.emit('set-filters', this.enabledFilters);
 	}
 
 	// Clamps a number between a max and min value

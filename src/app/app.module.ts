@@ -6,6 +6,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MenubarModule } from "primeng/menubar";
 import { PanelModule } from "primeng/panel";
 import { SplitterModule } from 'primeng/splitter';
+import { ButtonModule } from "primeng/button";
 
 import { AppComponent } from "./app.component";
 import { EditorToollbarComponent } from "./components/editor-toolbar/editor-toolbar.component";
@@ -13,17 +14,15 @@ import { VideoPreviewComponent } from "./components/video-preview/video-preview.
 import { PreviewComponent } from "./views/preview/preview.component";
 import { MainViewComponent } from "./views/main-view/main-view.component";
 import { TracksModule } from "./components/tracks/tracks.module";
-import { ButtonModule } from "primeng/button";
+import { FiltersModule } from "./components/filters/filters-module.module";
 
 @NgModule({
 	declarations: [
 		AppComponent,
 		EditorToollbarComponent,
 		VideoPreviewComponent,
-		// TracksPanelComponent,
 		PreviewComponent,
 		MainViewComponent,
-		// SourceSelectorComponent
 	],
 	imports: [
 		BrowserModule,
@@ -34,7 +33,8 @@ import { ButtonModule } from "primeng/button";
 		FormsModule,
 		TracksModule,
 		ButtonModule,
-		SplitterModule
+		SplitterModule,
+		FiltersModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]

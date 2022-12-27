@@ -5,7 +5,18 @@
 	<div class = "overflow-hidden flex-grow-1">
 		<p-splitter layout = "vertical" styleClass = "h-full">
 			<ng-template pTemplate>
-				<app-tracks-panel class = "w-full"></app-tracks-panel>
+				<p-splitter
+					styleClass = "h-full middle-panels"
+					[panelSizes] = "[15, 85]"
+					[minSizes] = "[5, 70]"
+				>
+					<ng-template pTemplate>
+						<app-filter-selector class = "w-full overflow-hidden"></app-filter-selector>
+					</ng-template>
+					<ng-template pTemplate>
+						<app-tracks-panel class = "w-full h-full"></app-tracks-panel>
+					</ng-template>
+				</p-splitter>
 			</ng-template>
 			<ng-template pTemplate>
 				<app-track-properties-panel class = "h-full w-full"></app-track-properties-panel>
