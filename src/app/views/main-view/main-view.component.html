@@ -2,54 +2,75 @@
 	<div class = "flex-grow-0">
 		<app-editor-toolbar></app-editor-toolbar>
 	</div>
-	<div class = "overflow-hidden flex-grow-1 w-full">
-		<app-custom-splitter [panelSizes] = "[60,40]">
-			<div class = "h-full" panel1>
-				<p-splitter
-					styleClass = "h-full middle-panels"
-					class = "h-full"
-					[panelSizes] = "[15, 85]"
-					[minSizes] = "[0, 0]"
-				>
-					<ng-template pTemplate>
-						<app-filter-selector class = "w-full"></app-filter-selector>
-					</ng-template>
-					<ng-template pTemplate>
-						<app-tracks-panel class = "w-full h-full"></app-tracks-panel>
-					</ng-template>
-				</p-splitter>
+	<div class = "overflow-hidden flex-grow-1 w-full flex">
+		<div class = "flex flex-column">
+			<button
+				pButton
+				class = "p-button-lg p-button-text"
+				[class.p-button-secondary] = "!importsPanelIsVisible"
+				[pTooltip] = "(importsPanelIsVisible ? 'Hide' : 'Show') + ' imports panel'"
+				(click) = "importsPanelIsVisible = !importsPanelIsVisible"
+				icon = "pi pi-folder-open"
+			></button>
+			<button
+				pButton
+				class = "p-button-lg p-button-text"
+				[class.p-button-secondary] = "!filterSelectPanelIsVisible"
+				[pTooltip] = "(filterSelectPanelIsVisible ? 'Hide' : 'Show') + ' filter selector panel'"
+				(click) = "filterSelectPanelIsVisible = !filterSelectPanelIsVisible"
+				icon = "pi pi-image"
+			></button>
+			<button
+				pButton
+				class = "p-button-lg p-button-text"
+				[class.p-button-secondary] = "!tracksPanelIsVisible"
+				[pTooltip] = "(tracksPanelIsVisible ? 'Hide' : 'Show') + ' tracks panel'"
+				(click) = "tracksPanelIsVisible = !tracksPanelIsVisible"
+				icon = "pi pi-video"
+			></button>
+			<button
+				pButton
+				class = "p-button-lg p-button-text"
+				[class.p-button-secondary] = "!tracksPropertiesPanelIsVisible"
+				[pTooltip] = "(tracksPropertiesPanelIsVisible ? 'Hide' : 'Show') + ' track properties panel'"
+				(click) = "tracksPropertiesPanelIsVisible = !tracksPropertiesPanelIsVisible"
+				icon = "pi pi-sliders-h"
+			></button>
+			<button
+				pButton
+				class = "p-button-lg p-button-text"
+				[class.p-button-secondary] = "!infoPanelIsVisible"
+				[pTooltip] = "(infoPanelIsVisible ? 'Hide' : 'Show') + ' info panel'"
+				(click) = "infoPanelIsVisible = !infoPanelIsVisible"
+				icon = "pi pi-info-circle"
+			></button>
+		</div>
+		<div class = "flex-grow-1 w-11 surface-card">
+			<div class = "flex w-full h-full align-items-center justify-content-center" *ngIf = "!atLeastOnePanelIsVisible()">
+				<h1 style = "font-family: var(--font-family);">No panels are open!</h1>
 			</div>
-			<div class = "flex overflow-hidden w-full h-full" panel2>
-				<div class = "flex-grow-1 h-full" [class.w-2] = "isVisible">
-					<div class = "flex flex-column h-full">
-						<div class = "flex align-items-center border-1 surface-border header">
-							<span class="inline-block w-11 pl-3" *ngIf = "isVisible">
-								Title
-							</span>
-							<button
-								pButton
-								class = "p-button-sm p-button-text"
-								[pTooltip] = "(isVisible ? 'Hide' : 'Show') + ' info panel'"
-								(click) = "isVisible = !isVisible"
-								[icon] = "isVisible ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"
-							></button>
-						</div>
-						<div class = "border-right-1 surface-border flex-grow-1 overflow-hidden">
-							<p-scrollPanel *ngIf = "isVisible" styleClass = "h-full custombar1" class = "h-full">
-								<div class = "p-2">
-									Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius provident excepturi tempora
-									praesentium et rerum deleniti perspiciatis ea, doloremque nihil id iste neque possimus optio
-									asperiores,adipisci explicabo itaque assumenda!
-									Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius provident excepturi tempora
-									praesentium et rerum deleniti perspiciatis ea, doloremque nihil id iste neque possimus optio
-									asperiores,adipisci explicabo itaque assumenda!
-								</div>
-							</p-scrollPanel>
-						</div>
-					</div>
+			<app-custom-splitter [panelSizes] = "[60,40]" *ngIf = "atLeastOnePanelIsVisible()">
+				<div class = "h-full" panel1>
+					<p-splitter
+						styleClass = "h-full middle-panels"
+						class = "h-full"
+						[panelSizes] = "[15, 85]"
+						[minSizes] = "[0, 0]"
+						*ngIf = "filterSelectPanelIsVisible || tracksPanelIsVisible"
+					>
+						<ng-template pTemplate>
+							<app-filter-selector class = "w-full" *ngIf = "filterSelectPanelIsVisible"></app-filter-selector>
+						</ng-template>
+						<ng-template pTemplate>
+							<app-tracks-panel class = "w-full h-full" *ngIf = "tracksPanelIsVisible"></app-tracks-panel>
+						</ng-template>
+					</p-splitter>
 				</div>
-				<app-track-properties-panel class = "h-4px" [class.w-10] = "isVisible"></app-track-properties-panel>
-			</div>
-		</app-custom-splitter>
+				<div class = "flex overflow-hidden w-full h-full" panel2>
+					<app-info-panel [(isVisible)] = "infoPanelIsVisible" [class.w-2] = "infoPanelIsVisible"></app-info-panel>
+					<app-track-properties-panel class = "w-full h-4px" [class.w-10] = "infoPanelIsVisible" *ngIf = "tracksPropertiesPanelIsVisible"></app-track-properties-panel>
+				</div>
+			</app-custom-splitter>
+		</div>
 	</div>
 </div>

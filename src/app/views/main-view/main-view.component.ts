@@ -7,7 +7,19 @@ import { Component } from '@angular/core';
 })
 export class MainViewComponent {
 
-	isVisible = true;
+	importsPanelIsVisible = true;
+	filterSelectPanelIsVisible = true;
+	tracksPanelIsVisible = true;
+	tracksPropertiesPanelIsVisible = true;
+	infoPanelIsVisible = true;
 
 	constructor() {}
+
+	atLeastOnePanelIsVisible(): boolean {
+		return this.importsPanelIsVisible ||
+			this.filterSelectPanelIsVisible ||
+			this.tracksPanelIsVisible ||
+			this.tracksPropertiesPanelIsVisible ||
+			this.infoPanelIsVisible;
+	}
 }

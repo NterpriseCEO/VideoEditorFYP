@@ -1,0 +1,28 @@
+<div class = "w-full h-full">
+	<div class = "flex flex-column h-full">
+		<div class = "flex align-items-center border-1 surface-border header">
+			<span class="inline-block w-11 pl-3" *ngIf = "isVisible">
+				Title
+			</span>
+			<button
+				pButton
+				class = "p-button-sm p-button-text"
+				[pTooltip] = "(isVisible ? 'Hide' : 'Show') + ' info panel'"
+				(click) = "toggleInfoPanel()"
+				[icon] = "isVisible ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"
+			></button>
+		</div>
+		<div class = "border-right-1 surface-border flex-grow-1 overflow-hidden">
+			<p-scrollPanel *ngIf = "isVisible" styleClass = "h-full custombar1" class = "h-full">
+				<div class = "p-2">
+					Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius provident excepturi tempora
+					praesentium et rerum deleniti perspiciatis ea, doloremque nihil id iste neque possimus optio
+					asperiores,adipisci explicabo itaque assumenda!
+					Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius provident excepturi tempora
+					praesentium et rerum deleniti perspiciatis ea, doloremque nihil id iste neque possimus optio
+					asperiores,adipisci explicabo itaque assumenda!
+				</div>
+			</p-scrollPanel>
+		</div>
+	</div>
+</div>

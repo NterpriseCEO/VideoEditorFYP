@@ -16,6 +16,7 @@ import { PreviewComponent } from "./preview/preview.component";
 import { VideoPreviewComponent } from "../components/video-preview/video-preview.component";
 import { EditorToollbarComponent } from "../components/editor-toolbar/editor-toolbar.component";
 import { CustomSplitterComponent } from "../components/ui-components/custom-splitter/custom-splitter.component";
+import { InfoPanelComponent } from "../components/info-panel/info-panel.component";
 
 @NgModule({
 	declarations: [
@@ -23,7 +24,8 @@ import { CustomSplitterComponent } from "../components/ui-components/custom-spli
 		PreviewComponent,
 		VideoPreviewComponent,
 		EditorToollbarComponent,
-		CustomSplitterComponent
+		CustomSplitterComponent,
+		InfoPanelComponent
 	],
 	imports: [
 		BrowserModule,

@@ -11,6 +11,7 @@
 		class = "filter-panel h-full inline-block surface-card border-round"
 		*ngFor = "let filter of filters; let i = index"
 		pDraggable = "dd"
+		dragHandle=".p-toolbar"
 		(onDragStart) = "dragStart($event, filter)"
 		(onDrag) = "drag($event)"
 		(onDragEnd) = "dragEnd()"
@@ -18,9 +19,9 @@
 		<div class = "flex flex-col h-full border-none border-botton-3 border-right-3 surface-border">
 			<div class = "left-drop relative h-full surface-section"></div>
 			<div class = "h-full w-20rem flex-grow-0">
-				<div class="filter-header">
-					<p-toolbar>
-						<div class="p-toolbar-group-left">
+				<div class = "filter-header">
+					<p-toolbar class = "cursor-move">
+						<div class="p-toolbar-group-left cursor-auto">
 							{{filter.displayName}}
 						</div>
 						
