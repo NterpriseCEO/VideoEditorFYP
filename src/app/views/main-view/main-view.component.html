@@ -3,10 +3,11 @@
 		<app-editor-toolbar></app-editor-toolbar>
 	</div>
 	<div class = "overflow-hidden flex-grow-1 w-full">
-		<p-splitter layout = "vertical" styleClass = "h-full" panelStyleClass = "flex-grow-1 flex-shrink-1">
-			<ng-template pTemplate>
+		<app-custom-splitter [panelSizes] = "[60,40]">
+			<div class = "h-full" panel1>
 				<p-splitter
 					styleClass = "h-full middle-panels"
+					class = "h-full"
 					[panelSizes] = "[15, 85]"
 					[minSizes] = "[0, 0]"
 				>
@@ -17,86 +18,38 @@
 						<app-tracks-panel class = "w-full h-full"></app-tracks-panel>
 					</ng-template>
 				</p-splitter>
-			</ng-template>
-			<ng-template pTemplate>
-				<div class = "flex overflow-hidden w-full">
-					<div class = "flex-grow-1 h-full" [class.w-2] = "isVisible">
-						<div class = "flex flex-column h-full">
-							<div class = "flex align-items-center border-1 surface-border header">
-								<span class="inline-block w-11 pl-3" *ngIf = "isVisible">
-									Title
-								</span>
-								<button
-									pButton
-									class = "p-button-sm p-button-text"
-									[pTooltip] = "(isVisible ? 'Hide' : 'Show') + ' info panel'"
-									(click) = "isVisible = !isVisible"
-									[icon] = "isVisible ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"
-								></button>
-							</div>
-							<div [class.p-3] = "isVisible" class = "border-right-1 surface-border flex-grow-1 overflow-auto">
-								<span *ngIf = "isVisible">
+			</div>
+			<div class = "flex overflow-hidden w-full h-full" panel2>
+				<div class = "flex-grow-1 h-full" [class.w-2] = "isVisible">
+					<div class = "flex flex-column h-full">
+						<div class = "flex align-items-center border-1 surface-border header">
+							<span class="inline-block w-11 pl-3" *ngIf = "isVisible">
+								Title
+							</span>
+							<button
+								pButton
+								class = "p-button-sm p-button-text"
+								[pTooltip] = "(isVisible ? 'Hide' : 'Show') + ' info panel'"
+								(click) = "isVisible = !isVisible"
+								[icon] = "isVisible ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"
+							></button>
+						</div>
+						<div class = "border-right-1 surface-border flex-grow-1 overflow-hidden">
+							<p-scrollPanel *ngIf = "isVisible" styleClass = "h-full custombar1" class = "h-full">
+								<div class = "p-2">
 									Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius provident excepturi tempora
 									praesentium et rerum deleniti perspiciatis ea, doloremque nihil id iste neque possimus optio
 									asperiores,adipisci explicabo itaque assumenda!
 									Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius provident excepturi tempora
 									praesentium et rerum deleniti perspiciatis ea, doloremque nihil id iste neque possimus optio
 									asperiores,adipisci explicabo itaque assumenda!
-								</span>
-							</div>
+								</div>
+							</p-scrollPanel>
 						</div>
 					</div>
-					<app-track-properties-panel class = "w-full h-4px" [class.w-10] = "isVisible"></app-track-properties-panel>
 				</div>
-			</ng-template>
-		</p-splitter>
+				<app-track-properties-panel class = "h-4px" [class.w-10] = "isVisible"></app-track-properties-panel>
+			</div>
+		</app-custom-splitter>
 	</div>
 </div>
-
-<!-- <div class = "flex flex-column h-screen">
-	<div class="flex col w-full pr-0 z-0 p-0 m-0 overflow-y-hidden">
-		<p-splitter
-			[style]="{'width': '100vw', 'height': '100%'}"
-			[panelSizes] = "[75, 25]" [minSizes] = "[10, 10]"
-			stateKey = "viewPropertiesSize"
-			stateStorage = "local"
-		>
-			<ng-template pTemplate>
-				<p-scrollPanel [style]="{'height': '100%'}" styleClass="custombar1">
-					<div #scrolledDiv class="w-full p-1">
-						<div
-							id = "view"
-							class = "w-full edit-mode view-edit"
-							style = "box-sizing: border-box;"
-						>
-							<div class="w-full p-4">
-								<div class = "h-auto">
-									<app-tracks-panel class = "w-full h-full"></app-tracks-panel>
-								</div>
-								<div class = "my-2"><span class = "text-xl font-bold">Datasources</span></div>
-								<div class="flex flex-row flex-wrap">
-									<div class="p-2 pl-0">
-										<p class = "m-0 p-0 font-bold line-height-3">New</p>
-										<p class = "line-height-3">
-											<button
-												type = "button"
-												pButton
-												class = "p-button-sm p-button-warning mt-2"
-												icon = "pi pi-plus"
-												label = "Add"
-											>
-											</button>
-										</p>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</p-scrollPanel>
-			</ng-template>
-			<ng-template pTemplate>
-				
-			</ng-template>
-		</p-splitter>
-	</div>
-</div> -->

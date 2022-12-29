@@ -15,3 +15,9 @@ canvas {
 	left: 0;
 	width: 100%;
 }
+
+.custombar1 {
+	.p-scrollpanel-bar {
+		opacity: 1 !important;
+	}
+}

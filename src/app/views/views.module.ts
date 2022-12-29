@@ -15,13 +15,15 @@ import { MainViewComponent } from "./main-view/main-view.component";
 import { PreviewComponent } from "./preview/preview.component";
 import { VideoPreviewComponent } from "../components/video-preview/video-preview.component";
 import { EditorToollbarComponent } from "../components/editor-toolbar/editor-toolbar.component";
+import { CustomSplitterComponent } from "../components/ui-components/custom-splitter/custom-splitter.component";
 
 @NgModule({
 	declarations: [
 		MainViewComponent,
 		PreviewComponent,
 		VideoPreviewComponent,
-		EditorToollbarComponent
+		EditorToollbarComponent,
+		CustomSplitterComponent
 	],
 	imports: [
 		BrowserModule,
