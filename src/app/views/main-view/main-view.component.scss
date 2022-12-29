@@ -1,7 +1,23 @@
-::ng-deep .p-splitter-panel {
-	height: 50%;
+// ::ng-deep {
 
-	& .middle-panels .p-splitter-panel{
-		height: 100% !important;
-	}
+// 	.p-splitter-panel {
+// 		height: 50%;
+
+// 		& .middle-panels .p-splitter-panel{
+// 			height: 100% !important;
+// 		}
+// 	}
+// }
+
+.test {
+	height: 50vh;
+	min-height: 20vh;
+}
+
+.header {
+	padding: 0.1rem 0;
+}
+
+.h-4px {
+	height: calc(100% - 4px) !important;
 }

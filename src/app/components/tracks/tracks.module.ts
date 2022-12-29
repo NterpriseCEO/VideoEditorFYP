@@ -16,12 +16,14 @@ import { TabViewModule } from 'primeng/tabview';
 import { TracksPanelComponent } from "./tracks-panel/tracks-panel.component";
 import { SourceSelectorComponent } from "./source-selector/source-selector.component";
 import { TrackPropertiesPanelComponent } from "./track-properties-panel/track-properties-panel.component";
+import { TrackComponent } from './track/track.component';
 
 @NgModule({
 	declarations: [
 		TracksPanelComponent,
 		SourceSelectorComponent,
-		TrackPropertiesPanelComponent
+		TrackPropertiesPanelComponent,
+  		TrackComponent
 	],
 	imports: [
 		BrowserModule,

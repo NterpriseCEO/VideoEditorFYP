@@ -9,20 +9,12 @@ import { SplitterModule } from 'primeng/splitter';
 import { ButtonModule } from "primeng/button";
 
 import { AppComponent } from "./app.component";
-import { EditorToollbarComponent } from "./components/editor-toolbar/editor-toolbar.component";
-import { VideoPreviewComponent } from "./components/video-preview/video-preview.component";
-import { PreviewComponent } from "./views/preview/preview.component";
-import { MainViewComponent } from "./views/main-view/main-view.component";
 import { TracksModule } from "./components/tracks/tracks.module";
-import { FiltersModule } from "./components/filters/filters-module.module";
+import { ViewsModule } from "./views/views.module";
 
 @NgModule({
 	declarations: [
-		AppComponent,
-		EditorToollbarComponent,
-		VideoPreviewComponent,
-		PreviewComponent,
-		MainViewComponent,
+		AppComponent
 	],
 	imports: [
 		BrowserModule,
@@ -34,7 +26,7 @@ import { FiltersModule } from "./components/filters/filters-module.module";
 		TracksModule,
 		ButtonModule,
 		SplitterModule,
-		FiltersModule
+		ViewsModule
 	],
 	providers: [],
 	bootstrap: [AppComponent]
