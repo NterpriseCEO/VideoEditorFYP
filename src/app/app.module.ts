@@ -9,7 +9,6 @@ import { SplitterModule } from 'primeng/splitter';
 import { ButtonModule } from "primeng/button";
 
 import { AppComponent } from "./app.component";
-import { TracksModule } from "./components/tracks/tracks.module";
 import { ViewsModule } from "./views/views.module";
 
 @NgModule({
@@ -23,7 +22,6 @@ import { ViewsModule } from "./views/views.module";
 		PanelModule,
 		BrowserAnimationsModule,
 		FormsModule,
-		TracksModule,
 		ButtonModule,
 		SplitterModule,
 		ViewsModule

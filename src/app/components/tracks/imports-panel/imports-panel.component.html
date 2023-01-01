@@ -1,0 +1,46 @@
+<p-dataView
+	#dv
+	[value] = "files"
+	filterBy = "name"
+	[sortField] = "sortField"
+	[sortOrder] = "sortOrder"
+	layout = "grid"
+	styleClass = "w-full h-full flex flex-column"
+>
+	<ng-template pTemplate = "header">
+		<div class = "flex justify-content-between align-items-center">
+			<p-dropdown
+				[options] = "sortOptions"
+				(onChange) = "onSortChange($event)"
+			></p-dropdown>
+			<div class="p-inputgroup flex-grow-1">
+				<input
+					type = "search"
+					pInputText
+					placeholder = "Search by Name"
+					(input)="filter($event)"
+				>
+				<button
+					pButton
+					pTooltip = "Import a new file"
+					icon = "pi pi-file-import"
+				></button>
+			</div>
+		</div>
+	</ng-template>
+	<ng-template let-file pTemplate="gridItem">
+		<div class = "col-3">
+			<div class = "file card p-4 border-round cursor-pointer" [pTooltip] = "file.location">
+				<div class = "flex flex-column align-items-center">
+					<i class = "pi pi-file text-4xl"></i>
+					<span class = "product-price">{{file.name}}</span>
+				</div>
+			</div>
+		</div>
+	</ng-template>
+	<ng-template pTemplate = "empty">
+		<div class = "flex w-full h-full justify-content-center align-items-center">
+			<span class = "text-xl">No clips found :sadge:</span>
+		</div>
+	</ng-template>
+</p-dataView>

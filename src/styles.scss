@@ -16,8 +16,20 @@ canvas {
 	width: 100%;
 }
 
-.custombar1 {
-	.p-scrollpanel-bar {
-		opacity: 1 !important;
-	}
+//scrollbar styles
+::-webkit-scrollbar {
+	width: 9px;
+	height: 9px;
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	height: 9px;
+	background: #0b213f;
+	border-radius: 3px;
+}
+
+//makes the corner netween 2 scrollbars transparent
+::-webkit-scrollbar-corner {
+	background: transparent;
 }

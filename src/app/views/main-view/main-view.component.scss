@@ -7,6 +7,19 @@
 	padding: 0.1rem 0;
 }
 
-.h-4px {
-	height: calc(100% - 4px) !important;
+.h-5px {
+	height: calc(100% - 5px) !important;
+}
+
+::ng-deep {
+	& .p-tabview-panels {
+		overflow: hidden;
+
+		& p-tabpanel {
+
+			& .p-tabview-panel {
+				height: 100%;
+			}
+		}
+	}
 }

@@ -1,0 +1,20 @@
+::ng-deep {
+	& .p-dataview-header {
+		padding-top: 0 !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+
+	& .p-dataview-content {
+		flex-grow: 1;
+		overflow: auto;
+	}
+
+	& .p-grid, .p-dataview-emptymessage {
+		height: 100%;
+	}
+}
+
+.file:hover {
+	background-color: var(--surface-d);
+}

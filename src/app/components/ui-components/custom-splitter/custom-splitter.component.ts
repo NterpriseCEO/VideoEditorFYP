@@ -1,11 +1,11 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
 
 @Component({
 	selector: 'app-custom-splitter',
 	templateUrl: './custom-splitter.component.html',
 	styleUrls: ['./custom-splitter.component.scss']
 })
-export class CustomSplitterComponent implements AfterViewInit {
+export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 
 	@ViewChild('splitter') splitter!: ElementRef;
 
@@ -20,10 +20,25 @@ export class CustomSplitterComponent implements AfterViewInit {
 	height: string = '100%';
 	@Input() panelSizes: number[] = [50, 50];
 
+	@Input() stateKey: string = '';
+
 	constructor() { }
 
 	ngAfterViewInit() {
+		//Populates the panelSizes array from local storage if it exists
+		if(this.stateKey && localStorage.getItem(this.stateKey)) {
+			this.panelSizes = JSON.parse(localStorage.getItem(this.stateKey) ?? "[]");
+		}
+
 		this.setPanelSizes();
+	}
+
+	ngOnChanges() {
+		//If the panelSizes array has been repopulated from the parent
+		//set the panel sizes
+		if(this.panel1 && this.panel2) {
+			this.setPanelSizes();
+		}
 	}
 
 
@@ -45,6 +60,10 @@ export class CustomSplitterComponent implements AfterViewInit {
 	}
 	onDragEnd() {
 		this.isDragging = false;
+
+		if(this.stateKey) {
+			window.localStorage.setItem(this.stateKey, JSON.stringify(this.panelSizes));
+		}
 	}
 
 	setPanelSizes() {
@@ -62,5 +81,8 @@ export class CustomSplitterComponent implements AfterViewInit {
 		this.panel1.nativeElement.style.height = panel1Height + '%';
 		//Sets the height of panel2 to take up the remaining space
 		this.panel2.nativeElement.style.height = 100 - panel1Height + '%';
+
+		//Sets the panelSizes array which is access by onDragEnd
+		this.panelSizes = [panel1Height, 100 - panel1Height];
 	}
 }

@@ -5,27 +5,28 @@
 	<div class = "overflow-hidden flex-grow-1 w-full flex">
 		<div class = "flex flex-column">
 			<button
+				*ngIf = "insertPanelVisible"
 				pButton
 				class = "p-button-lg p-button-text"
-				[class.p-button-secondary] = "!importsPanelIsVisible"
-				[pTooltip] = "(importsPanelIsVisible ? 'Hide' : 'Show') + ' imports panel'"
-				(click) = "importsPanelIsVisible = !importsPanelIsVisible"
+				pTooltip = "Hide insert panel"
+				(click) = "togglePanel('insertPanelVisible')"
 				icon = "pi pi-folder-open"
 			></button>
 			<button
+				*ngIf = "!insertPanelVisible"
 				pButton
 				class = "p-button-lg p-button-text"
-				[class.p-button-secondary] = "!filterSelectPanelIsVisible"
-				[pTooltip] = "(filterSelectPanelIsVisible ? 'Hide' : 'Show') + ' filter selector panel'"
-				(click) = "filterSelectPanelIsVisible = !filterSelectPanelIsVisible"
-				icon = "pi pi-image"
+				[class.p-button-secondary] = "!insertPanelVisible"
+				pTooltip = "Show insert panel"
+				(click) = "togglePanel('insertPanelVisible')"
+				icon = "pi pi-folder"
 			></button>
 			<button
 				pButton
 				class = "p-button-lg p-button-text"
 				[class.p-button-secondary] = "!tracksPanelIsVisible"
 				[pTooltip] = "(tracksPanelIsVisible ? 'Hide' : 'Show') + ' tracks panel'"
-				(click) = "tracksPanelIsVisible = !tracksPanelIsVisible"
+				(click) = "togglePanel('tracksPanelIsVisible')"
 				icon = "pi pi-video"
 			></button>
 			<button
@@ -33,7 +34,7 @@
 				class = "p-button-lg p-button-text"
 				[class.p-button-secondary] = "!tracksPropertiesPanelIsVisible"
 				[pTooltip] = "(tracksPropertiesPanelIsVisible ? 'Hide' : 'Show') + ' track properties panel'"
-				(click) = "tracksPropertiesPanelIsVisible = !tracksPropertiesPanelIsVisible"
+				(click) = "togglePanel('tracksPropertiesPanelIsVisible')"
 				icon = "pi pi-sliders-h"
 			></button>
 			<button
@@ -41,7 +42,7 @@
 				class = "p-button-lg p-button-text"
 				[class.p-button-secondary] = "!infoPanelIsVisible"
 				[pTooltip] = "(infoPanelIsVisible ? 'Hide' : 'Show') + ' info panel'"
-				(click) = "infoPanelIsVisible = !infoPanelIsVisible"
+				(click) = "togglePanel('infoPanelIsVisible')"
 				icon = "pi pi-info-circle"
 			></button>
 		</div>
@@ -49,17 +50,30 @@
 			<div class = "flex w-full h-full align-items-center justify-content-center" *ngIf = "!atLeastOnePanelIsVisible()">
 				<h1 style = "font-family: var(--font-family);">No panels are open!</h1>
 			</div>
-			<app-custom-splitter [panelSizes] = "[60,40]" *ngIf = "atLeastOnePanelIsVisible()">
+			<app-custom-splitter
+				[panelSizes] = "(tracksPropertiesPanelIsVisible || infoPanelIsVisible) ? [60,40] : [100,0]"
+				*ngIf = "atLeastOnePanelIsVisible()"
+				stateKey = "horizontalSplitter"
+			>
 				<div class = "h-full" panel1>
 					<p-splitter
-						styleClass = "h-full middle-panels"
+						styleClass = "h-full middle-panels overflow-hidden"
 						class = "h-full"
-						[panelSizes] = "[15, 85]"
+						[panelSizes] = "insertPanelVisible ? [20, 80] : [0, 20000]"
 						[minSizes] = "[0, 0]"
-						*ngIf = "filterSelectPanelIsVisible || tracksPanelIsVisible"
+						stateKey = "verticalSplitter"
+						stateStorage = "local"
+						*ngIf = "insertPanelVisible || tracksPanelIsVisible"
 					>
 						<ng-template pTemplate>
-							<app-filter-selector class = "w-full" *ngIf = "filterSelectPanelIsVisible"></app-filter-selector>
+							<p-tabView class = "w-full h-full" styleClass = "h-full flex flex-column overflow-hidden">
+								<p-tabPanel header = "Imports" class = "h-full">
+									<app-imports-panel class = "w-full" *ngIf = "insertPanelVisible"></app-imports-panel>
+								</p-tabPanel>
+								<p-tabPanel header = "Filters">
+									<app-filter-selector class = "w-full" *ngIf = "insertPanelVisible"></app-filter-selector>
+								</p-tabPanel>
+							</p-tabView>
 						</ng-template>
 						<ng-template pTemplate>
 							<app-tracks-panel class = "w-full h-full" *ngIf = "tracksPanelIsVisible"></app-tracks-panel>
@@ -67,8 +81,8 @@
 					</p-splitter>
 				</div>
 				<div class = "flex overflow-hidden w-full h-full" panel2>
-					<app-info-panel [(isVisible)] = "infoPanelIsVisible" [class.w-2] = "infoPanelIsVisible"></app-info-panel>
-					<app-track-properties-panel class = "w-full h-4px" [class.w-10] = "infoPanelIsVisible" *ngIf = "tracksPropertiesPanelIsVisible"></app-track-properties-panel>
+					<app-info-panel [(isVisible)] = "infoPanelIsVisible" class = "h-5px" [class.w-2] = "infoPanelIsVisible"></app-info-panel>
+					<app-track-properties-panel class = "w-full h-5px" [class.w-10] = "infoPanelIsVisible" *ngIf = "tracksPropertiesPanelIsVisible"></app-track-properties-panel>
 				</div>
 			</app-custom-splitter>
 		</div>

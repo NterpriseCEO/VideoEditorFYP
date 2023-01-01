@@ -7,19 +7,36 @@ import { Component } from '@angular/core';
 })
 export class MainViewComponent {
 
-	importsPanelIsVisible = true;
-	filterSelectPanelIsVisible = true;
+	insertPanelVisible = true;
 	tracksPanelIsVisible = true;
 	tracksPropertiesPanelIsVisible = true;
 	infoPanelIsVisible = true;
 
-	constructor() {}
+	constructor() {
+		//Reads the each panel's visibility from local storage
+		let insertPanelVisible = localStorage.getItem('insertPanelVisible');
+		let tracksPanelIsVisible = localStorage.getItem('tracksPanelIsVisible');
+		let tracksPropertiesPanelIsVisible = localStorage.getItem('tracksPropertiesPanelIsVisible');
+		let infoPanelIsVisible = localStorage.getItem('infoPanelIsVisible');
+
+		this.insertPanelVisible = insertPanelVisible === null ? true : insertPanelVisible === 'true';
+		this.tracksPanelIsVisible = tracksPanelIsVisible === null ? true : tracksPanelIsVisible === 'true';
+		this.tracksPropertiesPanelIsVisible = tracksPropertiesPanelIsVisible === null ? true : tracksPropertiesPanelIsVisible === 'true';
+		this.infoPanelIsVisible = infoPanelIsVisible === null ? true : infoPanelIsVisible === 'true';
+	}
 
 	atLeastOnePanelIsVisible(): boolean {
-		return this.importsPanelIsVisible ||
-			this.filterSelectPanelIsVisible ||
+		return this.insertPanelVisible ||
 			this.tracksPanelIsVisible ||
 			this.tracksPropertiesPanelIsVisible ||
 			this.infoPanelIsVisible;
+	}
+
+	togglePanel(panel: string) {
+		//Toggles the visibility of a given panel
+		//and saves the new state to local storage
+		this[panel] = !this[panel];
+
+		localStorage.setItem(panel, this[panel].toString());
 	}
 }

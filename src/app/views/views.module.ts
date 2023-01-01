@@ -6,7 +6,7 @@ import { MenubarModule } from "primeng/menubar";
 import { SplitterModule } from "primeng/splitter";
 import { ToolbarModule } from "primeng/toolbar";
 import { ButtonModule } from "primeng/button";
-import { ScrollPanelModule } from "primeng/scrollpanel";
+import { TabViewModule } from 'primeng/tabview';
 
 import { FiltersModule } from "../components/filters/filters-module.module";
 import { TracksModule } from "../components/tracks/tracks.module";
@@ -35,7 +35,7 @@ import { InfoPanelComponent } from "../components/info-panel/info-panel.componen
 		TracksModule,
 		ToolbarModule,
 		ButtonModule,
-		ScrollPanelModule
+		TabViewModule
 	],
 	exports: [MainViewComponent, PreviewComponent],
 })
