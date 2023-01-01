@@ -1,10 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { PanelModule } from 'primeng/panel';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormsModule } from "@angular/forms";
 
-import { TrackPropertiesPanelComponent } from './track-properties-panel.component';
+import { TrackPropertiesPanelComponent } from "./track-properties-panel.component";
 
-describe('TrackPropertiesPanelComponent', () => {
+describe("TrackPropertiesPanelComponent", () => {
 	let component: TrackPropertiesPanelComponent;
 	let fixture: ComponentFixture<TrackPropertiesPanelComponent>;
 
@@ -24,7 +23,7 @@ describe('TrackPropertiesPanelComponent', () => {
 		fixture.detectChanges();
 	});
 
-	it('should create', () => {
+	it("should create", () => {
 		expect(component).toBeTruthy();
 	});
 });

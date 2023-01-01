@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { FilterLibrary } from 'src/app/utils/constants';
-import { Filter } from 'src/app/utils/interfaces';
+import { Component, OnInit } from "@angular/core";
+import { FilterLibrary } from "src/app/utils/constants";
+import { Filter } from "src/app/utils/interfaces";
 
 @Component({
-	selector: 'app-filter-selector',
-	templateUrl: './filter-selector.component.html',
-	styleUrls: ['./filter-selector.component.scss']
+	selector: "app-filter-selector",
+	templateUrl: "./filter-selector.component.html",
+	styleUrls: ["./filter-selector.component.scss"]
 })
 export class FilterSelectorComponent {
 

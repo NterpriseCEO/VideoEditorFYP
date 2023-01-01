@@ -1,22 +1,22 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, ViewChild } from '@angular/core';
-import { FilterLibrary } from '../../utils/constants';
-import { Filter } from '../../utils/interfaces';
-import { ImageFilters } from 'src/app/utils/ImageFilters';
-// import * as GPU from '../../utils/gpu.js';
-// const GPU = require('../../utils/gpu.js');
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, ViewChild } from "@angular/core";
+import { FilterLibrary } from "../../utils/constants";
+import { Filter } from "../../utils/interfaces";
+import { ImageFilters } from "src/app/utils/ImageFilters";
+// import * as GPU from "../../utils/gpu.js";
+// const GPU = require("../../utils/gpu.js");
 
 const fx = require("glfx-es6");
 
 @Component({
-	selector: 'app-video-preview',
-	templateUrl: './video-preview.component.html',
-	styleUrls: ['./video-preview.component.scss'],
+	selector: "app-video-preview",
+	templateUrl: "./video-preview.component.html",
+	styleUrls: ["./video-preview.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VideoPreviewComponent {
 
-	@ViewChild('video') video!: ElementRef;
-	@ViewChild('replaceWithCanvas') replaceWithCanvas!: ElementRef;
+	@ViewChild("video") video!: ElementRef;
+	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
 	
 	//Testing
 	fps: number = 0;
@@ -44,7 +44,7 @@ export class VideoPreviewComponent {
 		private changeDetectorRef: ChangeDetectorRef,
 		private ngZone: NgZone
 	) {
-		window.api.on('get-filters', (_, filters) => this.ngZone.run(() => {
+		window.api.on("get-filters", (_, filters) => this.ngZone.run(() => {
 			this.enabledFilters = filters;
 			this.changeDetectorRef.detectChanges();
 		}));
@@ -57,13 +57,13 @@ export class VideoPreviewComponent {
 		}));
 
 		//KEEP THIS CODE FOR REFERENCE
-		// if(typeof Worker !== 'undefined') {
+		// if(typeof Worker !== "undefined") {
 		// 	// Create a new
-		// 	this.worker = new Worker(new URL('./video-preview.worker', import.meta.url));
+		// 	this.worker = new Worker(new URL("./video-preview.worker", import.meta.url));
 		// 	this.worker.onmessage = ({ data }) => {
 		// 		console.log(`page got message: ${data}`);
 		// 	};
-		// 	this.worker.postMessage('hello');
+		// 	this.worker.postMessage("hello");
 		// } else {
 		// 	// Web Workers are not supported in this environment.
 		// 	// You should add a fallback so that your program still executes correctly.
@@ -74,7 +74,7 @@ export class VideoPreviewComponent {
 	}
 
 	//page resize event
-	@HostListener('window:resize', ['$event'])
+	@HostListener("window:resize", ["$event"])
 	onResize() {
 		//Resizes the canvas when the window is resized
 		//to make sure the canvas is always the same size as the video
@@ -90,7 +90,7 @@ export class VideoPreviewComponent {
 	}
 
 	setCanvasDimensions() {
-		//Sets the canvas' dimensions to the same as the video
+		//Sets the canvas" dimensions to the same as the video
 		const parentWidth = this.canvas?.parentNode.getBoundingClientRect().width;
 		const parentHeight = this.canvas?.parentNode.getBoundingClientRect().height;
 		const [videoWidth, videoHeight] = this.videoDimensions(this.videoNativeElement);

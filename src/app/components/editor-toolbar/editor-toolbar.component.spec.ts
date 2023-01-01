@@ -1,9 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MenubarModule } from 'primeng/menubar';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MenubarModule } from "primeng/menubar";
 
-import { EditorToollbarComponent } from './editor-toolbar.component';
+import { EditorToollbarComponent } from "./editor-toolbar.component";
 
-describe('EditorToollbarComponent', () => {
+describe("EditorToollbarComponent", () => {
 	let component: EditorToollbarComponent;
 	let fixture: ComponentFixture<EditorToollbarComponent>;
 
@@ -24,11 +24,11 @@ describe('EditorToollbarComponent', () => {
 	});
 
 	//should have the correct title
-	it('should have the correct page title', () => {
-		expect(component.title).toEqual('Editor Toolbar');
+	it("should have the correct page title", () => {
+		expect(component.title).toEqual("Editor Toolbar");
 	});
 
-	it('should create', () => {
+	it("should create", () => {
 		expect(component).toBeTruthy();
 	});
 });

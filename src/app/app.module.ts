@@ -5,7 +5,7 @@ import { FormsModule } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MenubarModule } from "primeng/menubar";
 import { PanelModule } from "primeng/panel";
-import { SplitterModule } from 'primeng/splitter';
+import { SplitterModule } from "primeng/splitter";
 import { ButtonModule } from "primeng/button";
 
 import { AppComponent } from "./app.component";

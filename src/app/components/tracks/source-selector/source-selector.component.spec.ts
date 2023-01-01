@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { SourceSelectorComponent } from "./source-selector.component";
 
-describe('SourceSelectorComponent', () => {
+describe("SourceSelectorComponent", () => {
 	let component: SourceSelectorComponent;
 	let fixture: ComponentFixture<SourceSelectorComponent>;
 
@@ -17,7 +17,7 @@ describe('SourceSelectorComponent', () => {
 		fixture.detectChanges();
 	});
 
-	it('should create', () => {
+	it("should create", () => {
 		expect(component).toBeTruthy();
 	});
 });

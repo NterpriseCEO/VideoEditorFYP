@@ -1,36 +1,36 @@
 const { app, BrowserWindow, ipcMain, protocol, desktopCapturer } = require("electron");
 const path = require("path");
-const windowStateKeeper = require('electron-window-state');
+const windowStateKeeper = require("electron-window-state");
 
 function MainWindow() {
 
 	//This is like a constructor for the MainWindow class
-	//Except that I can't use constructors in this flavour of javascript
+	//Except that I can"t use constructors in this flavour of javascript
 	this.isFullScreen = false;
 
 	//This parses the command line arguments to determine
 	//if the app is in development mode or not
 	this.args = process.argv.slice(1);
-	this.serve = this.args.some(val => val === '--localhost');
+	this.serve = this.args.some(val => val === "--localhost");
 	
 	this.listenForEvents();
 }
 
 MainWindow.prototype.listenForEvents = function() {
-	app.on('window-all-closed', function () {
+	app.on("window-all-closed", function () {
 		// On macOS specific close process
-		if (process.platform !== 'darwin') {
+		if (process.platform !== "darwin") {
 			app.quit()
 		}
 	});
 	
 	ipcMain.on("close-window", () => {
-		if (process.platform !== 'darwin') {
+		if (process.platform !== "darwin") {
 			app.quit()
 		}
 	});
 	
-	app.on('activate', function () {
+	app.on("activate", function () {
 		if (this.window === null) {
 			createWindow()
 		}
@@ -63,13 +63,13 @@ MainWindow.prototype.listenForEvents = function() {
 
 	//Keep thjis here for future reference
 	/*app.on("ready", async () => {
-		protocol.registerFileProtocol('test', (request, callback) => {
-			const url = request.url.replace('test://gem', '')
+		protocol.registerFileProtocol("test", (request, callback) => {
+			const url = request.url.replace("test://gem", "")
 			const decodedUrl = decodeURI(url)
 			try {
 				return callback(decodedUrl)
 			} catch (error) {
-				console.error('ERROR: registerLocalResourceProtocol: Could not get file path:', error)
+				console.error("ERROR: registerLocalResourceProtocol: Could not get file path:", error)
 			}
 		})
 	});*/
@@ -88,7 +88,7 @@ MainWindow.prototype.createWindow = function() {
 	});
 
 	this.window = new BrowserWindow({
-		titlebarStyle: 'hidden',
+		titlebarStyle: "hidden",
 		width: mainWindowState.width,
 		height: mainWindowState.height,
 		minWidth: 600,
@@ -102,7 +102,7 @@ MainWindow.prototype.createWindow = function() {
 	});
 
 	this.previewWindow = new BrowserWindow({
-		titlebarStyle: 'hidden',
+		titlebarStyle: "hidden",
 		width: previewWindowState.width,
 		height: previewWindowState.height,
 		minWidth: 600,
@@ -125,30 +125,30 @@ MainWindow.prototype.createWindow = function() {
 
 	if(this.serve) {
 		//Development mode
-		this.window.loadURL('http://localhost:4200/mainview');
-		this.previewWindow.loadURL('http://localhost:4200/preview');
+		this.window.loadURL("http://localhost:4200/mainview");
+		this.previewWindow.loadURL("http://localhost:4200/preview");
 		this.window.webContents.openDevTools();
 		this.previewWindow.webContents.openDevTools();
 	}else {
 		//Production mode
 		this.window.loadURL(url.format({
 			pathname: path.join(__dirname, "../dist/video-editor/index.html"),
-			protocol: 'file:',
+			protocol: "file:",
 			slashes: true,
-			hash: '/mainview'
+			hash: "/mainview"
 		}));
 		
 		this.window.webContents.openDevTools();
 		this.previewWindow.loadURL(url.format({
 			pathname: path.join(__dirname, "../dist/video-editor/index.html"),
-			protocol: 'file:',
+			protocol: "file:",
 			slashes: true,
-			hash: '/preview'
+			hash: "/preview"
 		}));
 		this.previewWindow.webContents.openDevTools();
 	}
 
-	ipcMain.handle('close-window', async (evt) => {
+	ipcMain.handle("close-window", async (evt) => {
 		this.window.close();
 	});
 };

@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { ImportsPanelComponent } from './imports-panel.component';
+import { ImportsPanelComponent } from "./imports-panel.component";
 
-describe('ImportsPanelComponent', () => {
+describe("ImportsPanelComponent", () => {
   let component: ImportsPanelComponent;
   let fixture: ComponentFixture<ImportsPanelComponent>;
 
@@ -17,7 +17,7 @@ describe('ImportsPanelComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it("should create", () => {
     expect(component).toBeTruthy();
   });
 });

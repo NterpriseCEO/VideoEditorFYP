@@ -1,16 +1,16 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { FilterLibrary } from 'src/app/utils/constants';
-import { Filter } from 'src/app/utils/interfaces';
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { FilterLibrary } from "src/app/utils/constants";
+import { Filter } from "src/app/utils/interfaces";
 
 @Component({
-	selector: 'app-track-properties-panel',
-	templateUrl: './track-properties-panel.component.html',
-	styleUrls: ['./track-properties-panel.component.scss']
+	selector: "app-track-properties-panel",
+	templateUrl: "./track-properties-panel.component.html",
+	styleUrls: ["./track-properties-panel.component.scss"]
 })
 export class TrackPropertiesPanelComponent {
 
 	//Get dropzone viewchild
-	@ViewChild('dropzone') dropzone!: ElementRef;
+	@ViewChild("dropzone") dropzone!: ElementRef;
 
 	selectedSource: string = "webcam";
 
@@ -34,7 +34,7 @@ export class TrackPropertiesPanelComponent {
 
 	constructor() {
 		this.enabledFilters = this.filters.filter(filter => filter.enabled);
-		window.api.emit('set-filters', this.enabledFilters);
+		window.api.emit("set-filters", this.enabledFilters);
 	}
 
 	dragStart(event: DragEvent, filter: Filter) {
@@ -97,7 +97,7 @@ export class TrackPropertiesPanelComponent {
 			this.draggedFilter = null;
 
 			// Emit the new list of filters to the main process
-			window.api.emit('set-filters', this.enabledFilters);
+			window.api.emit("set-filters", this.enabledFilters);
 		}
 	}
 
@@ -109,7 +109,7 @@ export class TrackPropertiesPanelComponent {
 		filter.enabled = !filter.enabled;
 		//Gets a list of all the filters that are enabled
 		this.enabledFilters = this.filters.filter(filter => filter.enabled);
-		window.api.emit('set-filters', this.enabledFilters);
+		window.api.emit("set-filters", this.enabledFilters);
 	}
 
 	findIndex(filter: Filter) {
@@ -129,7 +129,7 @@ export class TrackPropertiesPanelComponent {
 		this.filters.splice(this.findIndex(filter), 1);
 		// Gets a list of all the filters that are enabled
 		this.enabledFilters = this.filters.filter(filter => filter.enabled);
-		window.api.emit('set-filters', this.enabledFilters);
+		window.api.emit("set-filters", this.enabledFilters);
 	}
 
 	// Clamps a number between a max and min value

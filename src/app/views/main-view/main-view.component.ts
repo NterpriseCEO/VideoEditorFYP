@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component } from "@angular/core";
 
 @Component({
-	selector: 'app-main-view',
-	templateUrl: './main-view.component.html',
-	styleUrls: ['./main-view.component.scss']
+	selector: "app-main-view",
+	templateUrl: "./main-view.component.html",
+	styleUrls: ["./main-view.component.scss"]
 })
 export class MainViewComponent {
 
@@ -13,16 +13,16 @@ export class MainViewComponent {
 	infoPanelIsVisible = true;
 
 	constructor() {
-		//Reads the each panel's visibility from local storage
-		let insertPanelVisible = localStorage.getItem('insertPanelVisible');
-		let tracksPanelIsVisible = localStorage.getItem('tracksPanelIsVisible');
-		let tracksPropertiesPanelIsVisible = localStorage.getItem('tracksPropertiesPanelIsVisible');
-		let infoPanelIsVisible = localStorage.getItem('infoPanelIsVisible');
+		//Reads the each panel"s visibility from local storage
+		let insertPanelVisible = localStorage.getItem("insertPanelVisible");
+		let tracksPanelIsVisible = localStorage.getItem("tracksPanelIsVisible");
+		let tracksPropertiesPanelIsVisible = localStorage.getItem("tracksPropertiesPanelIsVisible");
+		let infoPanelIsVisible = localStorage.getItem("infoPanelIsVisible");
 
-		this.insertPanelVisible = insertPanelVisible === null ? true : insertPanelVisible === 'true';
-		this.tracksPanelIsVisible = tracksPanelIsVisible === null ? true : tracksPanelIsVisible === 'true';
-		this.tracksPropertiesPanelIsVisible = tracksPropertiesPanelIsVisible === null ? true : tracksPropertiesPanelIsVisible === 'true';
-		this.infoPanelIsVisible = infoPanelIsVisible === null ? true : infoPanelIsVisible === 'true';
+		this.insertPanelVisible = insertPanelVisible === null ? true : insertPanelVisible === "true";
+		this.tracksPanelIsVisible = tracksPanelIsVisible === null ? true : tracksPanelIsVisible === "true";
+		this.tracksPropertiesPanelIsVisible = tracksPropertiesPanelIsVisible === null ? true : tracksPropertiesPanelIsVisible === "true";
+		this.infoPanelIsVisible = infoPanelIsVisible === null ? true : infoPanelIsVisible === "true";
 	}
 
 	atLeastOnePanelIsVisible(): boolean {

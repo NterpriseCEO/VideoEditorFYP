@@ -1393,7 +1393,7 @@ export class ImageFilters {
 	}
 
 	edge() {
-		//pretty close to Fireworks 'Find Edges' effect
+		//pretty close to Fireworks "Find Edges" effect
 		this.imageData = this.convolutionFilter(this.imageData, 3, 3, [
 			-1, -1, -1,
 			-1, 8, -1,

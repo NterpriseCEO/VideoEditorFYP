@@ -1,50 +1,50 @@
-import { Component, OnInit } from '@angular/core';
-import { MenuItem, PrimeIcons } from 'primeng/api';
+import { Component, OnInit } from "@angular/core";
+import { MenuItem, PrimeIcons } from "primeng/api";
 
 @Component({
-	selector: 'app-editor-toolbar',
-	templateUrl: './editor-toolbar.component.html',
-	styleUrls: ['./editor-toolbar.component.scss']
+	selector: "app-editor-toolbar",
+	templateUrl: "./editor-toolbar.component.html",
+	styleUrls: ["./editor-toolbar.component.scss"]
 })
 export class EditorToollbarComponent {
 
-	title = 'Editor Toolbar';
+	title = "Editor Toolbar";
 
 	items:MenuItem[] = [
 		{
-			label: 'File',
+			label: "File",
 			items: [
 				{
-					label: 'New Project',
+					label: "New Project",
 					icon: PrimeIcons.PLUS,
 					command: () => {
 						alert("Creating a new project");
 					}
 				},
 				{
-					label: 'Open Project',
+					label: "Open Project",
 					icon: PrimeIcons.FILE,
 					command: () => {
 						alert("Opening a project");
 					}
 				},
 				{
-					label: 'Save Project',
+					label: "Save Project",
 					icon: PrimeIcons.SAVE,
 					command: () => {
 						alert("Saving the project");
 					}
 				},
 				{
-					label: 'Save Project As',
+					label: "Save Project As",
 					icon: PrimeIcons.SAVE,
 					command: () => {
 						alert("Saving the project as");
 					}
 				},
 				{
-					label: 'Export Project',
-					icon: 'pi pi-fw pi-file-export',
+					label: "Export Project",
+					icon: "pi pi-fw pi-file-export",
 					command: () => {
 						alert("Exporting the project");
 					}
@@ -52,17 +52,17 @@ export class EditorToollbarComponent {
 			]
 		},
 		{
-			label: 'Edit',
+			label: "Edit",
 			items: [
 				{
-					label: 'Undo',
+					label: "Undo",
 					icon: PrimeIcons.UNDO,
 					command: () => {
 						alert("Undoing");
 					}
 				},
 				{
-					label: 'Redo',
+					label: "Redo",
 					icon: PrimeIcons.REFRESH,
 					command: () => {
 						alert("Redoing");
@@ -71,22 +71,22 @@ export class EditorToollbarComponent {
 			]
 		},
 		{
-			label: 'View',
+			label: "View",
 			items: [
 				{
-					label: 'Blah',
+					label: "Blah",
 					command: () => {
 						alert("Blah");
 					}
 				},
 				{
-					label: 'Blah',
+					label: "Blah",
 					command: () => {
 						alert("Blah");
 					}
 				},
 				{
-					label: 'Blah',
+					label: "Blah",
 					command: () => {
 						alert("Blah");
 					}
