@@ -20,7 +20,7 @@ export class TrackPropertiesPanelComponent {
 	filters: Filter[] = [
 		{function: "zoomBlur", displayName: "Zoom blur", properties: [231.99996948242188, 293, 1], enabled: false, type: FilterLibrary.GLFX},
 		{function: "bulgePinch", displayName: "Bulge Pinch", properties: [320, 239.5, 200, 1], enabled: false, type: FilterLibrary.GLFX},
-		{function: "edgeWork", displayName: "Edge work", properties: [10], enabled: false, type: FilterLibrary.GLFX},
+		{function: "edgeWork", displayName: "Edge work", properties: [10], enabled: true, type: FilterLibrary.GLFX},
 		{function: "oil", displayName: "Oil painting", properties: [5, 32], enabled: false, type: FilterLibrary.IMAGE_FILTERS},
 		{function: "invert", displayName: "Invert colours",properties: [], enabled: false, type: FilterLibrary.IMAGE_FILTERS},
 		{function: "sepia", displayName: "Sepia", properties: [1], enabled: false, type: FilterLibrary.GLFX},

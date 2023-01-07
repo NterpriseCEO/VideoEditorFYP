@@ -199,6 +199,11 @@ export class VideoPreviewComponent {
 					}
 				});
 				draw.update();
+				//get the frame from the canvas
+				let frame = this.canvas.toDataURL("image/png");
+
+				//Send the frame to the server
+				window.api.emit("frame", frame);
 			}
 
 

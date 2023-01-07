@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, protocol, desktopCapturer } = require("electron");
+const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const url = require("url");
 

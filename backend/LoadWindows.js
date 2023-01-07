@@ -1,6 +1,9 @@
-const { app, BrowserWindow, ipcMain, protocol, desktopCapturer } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const windowStateKeeper = require("electron-window-state");
+
+const { StreamingAndFilters } = require("./StreamingAndFilters");
+const { ListenForFrames } = require("./video-processing/ListenForFrames");
 
 function MainWindow() {
 
@@ -12,11 +15,12 @@ function MainWindow() {
 	//if the app is in development mode or not
 	this.args = process.argv.slice(1);
 	this.serve = this.args.some(val => val === "--localhost");
-	
-	this.listenForEvents();
 }
 
 MainWindow.prototype.listenForEvents = function() {
+	new StreamingAndFilters(this.window, this.previewWindow).listenForEvents();
+	new ListenForFrames().listenForFrames();
+
 	app.on("window-all-closed", function () {
 		// On macOS specific close process
 		if (process.platform !== "darwin") {
@@ -34,31 +38,6 @@ MainWindow.prototype.listenForEvents = function() {
 		if (this.window === null) {
 			createWindow()
 		}
-	});
-
-	ipcMain.on("get-stream", () => {
-		//Gets screenshare stream
-		desktopCapturer.getSources({ types: ["window", "screen"] }).then(sources => {
-			this.previewWindow.webContents.send("stream", sources);
-		});
-	});
-
-	ipcMain.on("get-screenshare-options", () => {
-		//Gets screenshare options
-		desktopCapturer.getSources({ types: ["window", "screen"] }).then(sources => {
-			console.log(sources);
-			sources.map((source) => {
-				source.thumbnail = source.thumbnail.toDataURL();
-			});
-			this.window.webContents.send("screenshare-options", sources);
-		});
-	});
-
-	ipcMain.on("set-filters", (_, filters) => {
-		this.previewWindow.webContents.send("get-filters", filters);
-	});
-	ipcMain.on("change-source", (_, sourceData) => {
-		this.previewWindow.webContents.send("source-changed", sourceData);
 	});
 
 	//Keep thjis here for future reference
@@ -118,6 +97,8 @@ MainWindow.prototype.createWindow = function() {
 
 	mainWindowState.manage(this.window);
 	previewWindowState.manage(this.previewWindow);
+
+	this.listenForEvents();
 
 	//Hides the top menu bar
 	this.window.setMenu(null);

@@ -7,6 +7,11 @@
 /bazel-out
 /out
 
+# ignore ffmpeg binaries
+ffmpeg.exe
+ffplay.exe
+ffprobe.exe
+
 # Node
 /node_modules
 npm-debug.log
