@@ -39,6 +39,10 @@ export class VideoPreviewComponent {
 	enabledFilters: Filter[] = [];
 
 	isFullscreen: boolean = false;
+	videoPlaying: boolean = true;
+
+	currentTime: number = 0;
+	duration: number = 0;
 
 	constructor(
 		private changeDetectorRef: ChangeDetectorRef,
@@ -95,14 +99,14 @@ export class VideoPreviewComponent {
 		const parentHeight = this.canvas?.parentNode.getBoundingClientRect().height;
 		const [videoWidth, videoHeight] = this.videoDimensions(this.videoNativeElement);
 
-		this.videoWidth = videoWidth;
-		this.videoHeight = videoHeight;
+		this.videoWidth = this.isFullscreen ? parentWidth : videoWidth;
+		this.videoHeight = this.isFullscreen ? parentHeight : videoHeight;
 
 		this.canvas.style.width = `${this.videoWidth}px`;
 		this.canvas.style.height = `${this.videoHeight}px`;
 
-		this.canvas.style.top = (parentHeight / 2 - this.videoHeight / 2) + "px";
-		this.canvas.style.left = (parentWidth / 2 - this.videoWidth / 2) + "px";
+		// this.canvas.style.top = (parentHeight / 2 - this.videoHeight / 2) + "px";
+		// this.canvas.style.left = (parentWidth / 2 - this.videoWidth / 2) + "px";
 	}
 
 	//THIS CODE NEEDS TO BE REWRITTEN (probably)
@@ -271,7 +275,27 @@ export class VideoPreviewComponent {
 			//Once the video is loaded, the video is played and the filters canvas is created
 			this.videoNativeElement.play();
 
+			//Gets the max video time
+			this.duration = this.videoNativeElement.duration;
+
 			this.drawCanvas();
 		};
+
+		this.videoNativeElement.ontimeupdate = () => {
+			//Updates the time of the video
+			this.currentTime = this.videoNativeElement.currentTime;
+			this.changeDetectorRef.detectChanges();
+		}
+	}
+
+	playPauseVideo() {
+		//Plays or pauses the video
+		this.videoNativeElement.paused ? this.videoNativeElement.play() : this.videoNativeElement.pause();
+		this.videoPlaying = !this.videoNativeElement.paused;
+	}
+
+	seekVideo(time: number) {
+		//Seeks the video to the time
+		this.videoNativeElement.currentTime = time;
 	}
 }

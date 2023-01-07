@@ -1,30 +1,48 @@
 <div
-	class = "justify-content-between pl-2 pr-2"
-	[class.flex] = "!isFullscreen"
-	[class.overflow-hidden] = "isFullscreen"
-	[class.h-screen] = "isFullscreen"
+	class = "flex h-full"
+	[class.flex-column-reverse] = "isFullscreen"
+	[class.h-2screen] = "isFullscreen"
 >
-	<div class = "video-container relative" [class.hide-above] = "isFullscreen">
+	<div
+		class = "video-container h-full flex flex-column p-2 justify-content-center"
+	>
 		<video
 			#video
 			[srcObject] = "selectedSource !== 'video' ? src : null"
 			[src] = "selectedSource === 'video' ? src : null"
-			class = "absolute w-full top-0 left-0"
+			class = "w-full"
 			[class.webcam] = "selectedSource === 'webcam'"
-			[controls] = "selectedSource === 'video'"
-			[class.w-screen] = "isFullscreen"
-			[class.h-screen] = "isFullscreen"
 		>
 		</video>
+		<p-slider
+			[(ngModel)] = "currentTime"
+			[max] = "duration"
+			[step] = "1"
+			(onChange) = "seekVideo($event.value)"
+		></p-slider>
+		<div class = "w-full surface-50">
+			<button
+				pButton
+				class = "p-button-text"
+				[icon] = "'pi pi-' + (videoPlaying ? 'pause' : 'play')"
+				(click) = "playPauseVideo()"
+			></button>
+		</div>
 	</div>
+
 	<div
-		class = "video-container"
-		[class.relative] = "!isFullscreen"
-		[class.fullscreen] = "isFullscreen"
-		[class.webcam] = "selectedSource === 'webcam'"
+		class = "video-container h-full flex flex-column p-2 justify-content-center"
+		[class.w-full] = "isFullscreen"
 	>
-		<div #replaceWithCanvas></div>
-		<div class = "absolute">
+		<div
+			[class.webcam] = "selectedSource === 'webcam'"
+			class = "align-self-center"
+			[class.w-full] = "isFullscreen"
+			[class.h-full] = "isFullscreen"
+		>
+			<div #replaceWithCanvas></div>
+		</div>
+		<div class = "w-full surface-50 flex flex-row-reverse">
 			<button
 				pButton
 				class = "p-button-text"
