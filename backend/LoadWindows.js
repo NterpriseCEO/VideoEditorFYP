@@ -3,7 +3,7 @@ const path = require("path");
 const windowStateKeeper = require("electron-window-state");
 
 const { StreamingAndFilters } = require("./StreamingAndFilters");
-const { ListenForFrames } = require("./video-processing/ListenForFrames");
+const { Worker } = require('worker_threads');
 
 function MainWindow() {
 
@@ -19,7 +19,16 @@ function MainWindow() {
 
 MainWindow.prototype.listenForEvents = function() {
 	new StreamingAndFilters(this.window, this.previewWindow).listenForEvents();
-	new ListenForFrames().listenForFrames();
+
+	//Saves the video files to the user"s computer in a sparate thread
+	//WIll replace this with MediaRecorder in the future
+	const worker = new Worker('./backend/video-processing/ListenForFrames.js');
+
+	//Pipes individual frames to the worker thread
+	//Will stream chunks over websocket in the future
+	ipcMain.on("frame", (_, source) => {
+		worker.postMessage(source);
+	});
 
 	app.on("window-all-closed", function () {
 		// On macOS specific close process
@@ -98,8 +107,6 @@ MainWindow.prototype.createWindow = function() {
 	mainWindowState.manage(this.window);
 	previewWindowState.manage(this.previewWindow);
 
-	this.listenForEvents();
-
 	//Hides the top menu bar
 	this.window.setMenu(null);
 	this.previewWindow.setMenu(null);
@@ -128,6 +135,8 @@ MainWindow.prototype.createWindow = function() {
 		}));
 		this.previewWindow.webContents.openDevTools();
 	}
+
+	this.listenForEvents();
 
 	ipcMain.handle("close-window", async (evt) => {
 		this.window.close();

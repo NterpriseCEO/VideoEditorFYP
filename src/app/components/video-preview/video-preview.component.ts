@@ -157,6 +157,8 @@ export class VideoPreviewComponent {
 		let fpsInterval = 1000 / 30;
 		let elapsedTime = 0;
 
+		this.canvas.classList.add("w-full");
+
 		let step = async () => {
 			// console.time("draw");
 			//Measure the time it takes to draw the canvas
