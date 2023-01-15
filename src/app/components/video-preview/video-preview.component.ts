@@ -40,6 +40,7 @@ export class VideoPreviewComponent {
 
 	isFullscreen: boolean = false;
 	videoPlaying: boolean = true;
+	isRecording: boolean = false;
 
 	currentTime: number = 0;
 	duration: number = 0;
@@ -57,6 +58,11 @@ export class VideoPreviewComponent {
 			this.selectedSource = sourceData.source;
 			this.sourceId = sourceData.sourceId;
 			this.changeSource();
+			this.changeDetectorRef.detectChanges();
+		}));
+
+		window.api.on("toggle-recording", (_, isRecording) => this.ngZone.run(() => {
+			this.isRecording = isRecording;
 			this.changeDetectorRef.detectChanges();
 		}));
 
@@ -206,12 +212,13 @@ export class VideoPreviewComponent {
 				});
 				draw.update();
 				//get the frame from the canvas
-				let frame = this.canvas.toDataURL("image/png");
-
-				//Send the frame to the server
-				window.api.emit("frame", frame);
+				if(this.isRecording) {
+					let frame = this.canvas.toDataURL("image/png");
+	
+					//Send the frame to the server
+					window.api.emit("frame", frame);
+				}
 			}
-
 
 			// this.fps = window.performance.now() - start;
 

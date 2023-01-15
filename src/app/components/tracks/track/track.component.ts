@@ -12,6 +12,13 @@ export class TrackComponent {
 	//Output ontrackDelete event
 	@Output() onTrackDelete = new EventEmitter();
 
+	isRecording: boolean = false;
+
 	constructor() { }
 
+	toggleRecording() {
+		this.isRecording = !this.isRecording;
+
+		window.api.emit("toggle-recording", this.isRecording);
+	}
 }

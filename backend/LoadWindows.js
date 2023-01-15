@@ -27,7 +27,13 @@ MainWindow.prototype.listenForEvents = function() {
 	//Pipes individual frames to the worker thread
 	//Will stream chunks over websocket in the future
 	ipcMain.on("frame", (_, source) => {
-		worker.postMessage(source);
+		worker.postMessage({type: "frame", contents: source});
+	});
+
+	ipcMain.on("toggle-recording", (_, isRecording) => {
+		//Sends the recording status to the worker thread to start/stop the merging of frames
+		worker.postMessage({type: "toggle-recording", contents: isRecording});
+		this.previewWindow.webContents.send("toggle-recording", isRecording);
 	});
 
 	app.on("window-all-closed", function () {

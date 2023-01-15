@@ -1,18 +1,19 @@
 <div class = "flex mb-2 border-round surface-border border-1 surface-ground">
 	<div class = "w-11"></div>
-	<div class="flex w-7rem border-round" style = "background-color: var(--surface-d);">
+	<div class="flex flex-column w-7rem border-round" style = "background-color: var(--surface-d);">
 		<div class = "flex-grow-1 flex flex-column justify-content-center align-items-center border-round">
 			<span>{{trackName}}</span>
 		</div>
-		<div class = "flex flex-column w-5 h-full">
+		<div class = "flex flex-wrap w-full h-full">
 			<div>
 				<button
 					pButton
 					class = "p-button-sm p-button-text p-button-danger"
-					icon = "pi pi-trash"
-					pTooltip = "Delete track"
-					(click) = "onTrackDelete.emit()"
-				></button>
+					[icon] = "'pi pi-' + (isRecording ? 'stop-circle' : 'circle-on')"
+					[pTooltip] = "isRecording ? 'Stop recording' : 'Record track'"
+					(click) = "toggleRecording()"
+				>
+				</button>
 			</div>
 			<div>
 				<button
@@ -24,6 +25,15 @@
 			</div>
 			<div>
 				<app-source-selector></app-source-selector>
+			</div>
+			<div>
+				<button
+					pButton
+					class = "p-button-sm p-button-text p-button-danger"
+					icon = "pi pi-trash"
+					pTooltip = "Delete track"
+					(click) = "onTrackDelete.emit()"
+				></button>
 			</div>
 		</div>
 	</div>

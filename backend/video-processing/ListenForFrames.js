@@ -5,7 +5,8 @@ const { workerData, parentPort } = require('worker_threads');
 
 let currentFrame = null,
 	frameNumber = 0,
-	outputNumber = 0;
+	outputNumber = 0,
+	isRecording = false;
 
 let ffbinaries = require('ffbinaries');
 
@@ -23,7 +24,13 @@ if(fs.existsSync(`./output${outputNumber}.mp4`)) {
 saveFrames();
 
 //Reads the current frame from the main thread
-parentPort.on('message', message => currentFrame = message);
+parentPort.on('message', message => {
+	if(message.type == "frame") {
+		currentFrame = message.contents;
+	}else if(message.type == "toggle-recording") {
+		isRecording = message.contents;
+	}
+});
 
 //This function takes the current frame and saves it to a file
 // 30 times a second
@@ -34,7 +41,7 @@ function saveFrames() {
 	//Runs at approximately 30fps
 	setInterval(() => {
 		//Skip if no frame is available
-		if(currentFrame == null) {
+		if(currentFrame == null || !isRecording) {
 			return;
 		}
 		frameNumber++;
@@ -84,7 +91,7 @@ function saveFrames() {
 
 function mergeFrames(name, callback) {
 	console.log("\n\n\n\n\n");
-	// Create {{name}}.mp4 from the frames
+	// Creates {{name}}.mp4 from the frames
 	//ffmpeg yes to overwrite, framerate 30, input files = frame%d.png, encoding stuff??, output  = {{name}}.mp4
 	exec(`ffmpeg -y -framerate 30 -i frame%d.png -c:v libx264 -pix_fmt yuv420p ${name}.mp4`, (error, stdout, stderr) => {
 		if (error) {
