@@ -49,7 +49,7 @@
 			], "category": "Miscellaneous"
 		},
 		{
-			"function": "inc", "displayName": "Ink", "properties": [0.25], "category": "Artistic"
+			"function": "ink", "displayName": "Ink", "properties": [0.25], "category": "Artistic"
 		},
 		{
 			"function": "edgeWork", "displayName": "Edge work", "properties": [10], "category": "Artistic"

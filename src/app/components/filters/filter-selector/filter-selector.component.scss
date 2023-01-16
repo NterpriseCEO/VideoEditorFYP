@@ -1,3 +1,11 @@
 ::ng-deep .p-listbox-list-wrapper {
 	flex-grow: 1;
 }
+
+.add-filter-button {
+	visibility: hidden;
+}
+
+.filter-option:hover .add-filter-button {
+	visibility: visible;
+}

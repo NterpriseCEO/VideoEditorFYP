@@ -46,7 +46,7 @@
 			"function": "gamma", "displayName": "Gamma", "properties": [1], "category": "Colour grading"
 		},
 		{
-			"function": "graycale", "displayName": "Greyscale", "properties": [], "category": "Colour grading"
+			"function": "grayscale", "displayName": "Greyscale", "properties": [], "category": "Colour grading"
 		},
 		{
 			"function": "HSLAdjustment", "displayName": "HSL adjustment", "properties": [0, 0, 0], "category": "Colour grading"

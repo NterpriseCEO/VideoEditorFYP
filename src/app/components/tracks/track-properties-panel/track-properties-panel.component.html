@@ -28,12 +28,13 @@
 						<div class="p-toolbar-group-right">
 							<button
 								pButton
-								pTooltip = "Remove filter"
-								class = "p-button-text p-button-sm"
-								(click) = "removeFilter(filter)"
 								icon = "pi pi-ellipsis-v"
+								class = "p-button-text p-button-sm"
+								(click) = "toggleDropdown(filter, menu, $event)"
+								pTooltip = "Filter options"
 							>
 							</button>
+							<p-menu #menu [popup]="true" [model] = "dropdownItems"></p-menu>
 							<button
 								pButton
 								[pTooltip] = "(filter.enabled ? 'Disable' : 'Enable')+ ' filter'"

@@ -18,6 +18,7 @@ import { SourceSelectorComponent } from "./source-selector/source-selector.compo
 import { TrackPropertiesPanelComponent } from "./track-properties-panel/track-properties-panel.component";
 import { TrackComponent } from "./track/track.component";
 import { ImportsPanelComponent } from "./imports-panel/imports-panel.component";
+import { MenuModule } from "primeng/menu";
 
 @NgModule({
 	declarations: [
@@ -39,7 +40,8 @@ import { ImportsPanelComponent } from "./imports-panel/imports-panel.component";
 		TabViewModule,
 		DataViewModule,
 		InputTextModule,
-		DropdownModule
+		DropdownModule,
+		MenuModule
 	],
 	exports: [TracksPanelComponent, TrackPropertiesPanelComponent, ImportsPanelComponent],
 })

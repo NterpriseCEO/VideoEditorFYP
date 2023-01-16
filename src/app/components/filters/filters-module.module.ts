@@ -4,6 +4,8 @@ import { FormsModule } from "@angular/forms";
 
 import { FilterSelectorComponent } from "./filter-selector/filter-selector.component";
 import { ListboxModule } from "primeng/listbox";
+import { ButtonModule } from "primeng/button";
+import { TooltipModule } from "primeng/tooltip";
 
 @NgModule({
 	declarations: [
@@ -12,7 +14,9 @@ import { ListboxModule } from "primeng/listbox";
 	imports: [
 		BrowserModule,
 		ListboxModule,
-		FormsModule
+		FormsModule,
+		ButtonModule,
+		TooltipModule
 	],
 	exports: [FilterSelectorComponent],
 })

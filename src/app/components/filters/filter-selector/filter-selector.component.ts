@@ -4,6 +4,7 @@ import { FilterLibrary } from "src/app/utils/constants";
 import { Filter } from "src/app/utils/interfaces";
 import GLFX_Filters from "./filter-definitions/GLFX_Filters.json";
 import ImageFilters from "./filter-definitions/ImageFilters.json";
+import { TracksService } from "src/app/utils/tracks-service";
 
 @Component({
 	selector: "app-filter-selector",
@@ -17,7 +18,7 @@ export class FilterSelectorComponent {
 
 	selectedFilter: Filter | null = null;
 
-	constructor() {
+	constructor(private trackService: TracksService) {
 		//Applies the type GLFX_Filters to the GLFX_Filters
 		//This may or may not be necessary
 		GLFX_Filters.filters = GLFX_Filters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX}));
@@ -49,9 +50,11 @@ export class FilterSelectorComponent {
 				})
 			}
 		});
-		
-
 		this.filters = mappedFilters as SelectItemGroup[];
 	}
 
+	addFilter(option: Filter) {
+		//Sends the filter to the track service which sends it to the tracks panel
+		this.trackService.addFilter(option);
+	}
 }

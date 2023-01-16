@@ -1,6 +1,8 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { MenuItem } from "primeng/api";
 import { FilterLibrary } from "src/app/utils/constants";
 import { FilterInstance } from "src/app/utils/interfaces";
+import { TracksService } from "src/app/utils/tracks-service";
 
 @Component({
 	selector: "app-track-properties-panel",
@@ -17,24 +19,36 @@ export class TrackPropertiesPanelComponent {
 	adjacentElement: any;
 	draggedFilterIndex: number = -1;
 
-	filters: FilterInstance[] = [
-		{function: "zoomBlur", displayName: "Zoom blur", properties: [231.99996948242188, 293, 1], enabled: false, type: FilterLibrary.GLFX, category: "test"},
-		{function: "bulgePinch", displayName: "Bulge Pinch", properties: [320, 239.5, 200, 1], enabled: false, type: FilterLibrary.GLFX, category: "test"},
-		{function: "edgeWork", displayName: "Edge work", properties: [10], enabled: true, type: FilterLibrary.GLFX, category: "test"},
-		{function: "oil", displayName: "Oil painting", properties: [5, 32], enabled: false, type: FilterLibrary.IMAGE_FILTERS, category: "test"},
-		{function: "invert", displayName: "Invert colours",properties: [], enabled: false, type: FilterLibrary.IMAGE_FILTERS, category: "test"},
-		{function: "sepia", displayName: "Sepia", properties: [1], enabled: false, type: FilterLibrary.GLFX, category: "test"},
-		{function: "vignette", displayName: "Vignette", properties: [0.5, 0.5], enabled: false, type: FilterLibrary.GLFX, category: "test"},
-		{function: "colorHalftone", displayName: "Colour halftone", properties: [320, 239.5, 0.25, 4], enabled: false, type: FilterLibrary.GLFX, category: "test"},
-		{function: "twirl", displayName: "Twirl", properties: [0.5, 0.5, 200, 360], enabled: false, type: FilterLibrary.IMAGE_FILTERS, category: "test"},
-	];
+	filters: FilterInstance[] = [];
 	enabledFilters: FilterInstance[] = [];
 
 	draggedFilter: FilterInstance | null = null;
 
-	constructor() {
-		this.enabledFilters = this.filters.filter(filter => filter.enabled);
-		window.api.emit("set-filters", this.enabledFilters);
+	selectedFilter: FilterInstance | null = null;
+
+	dropdownItems: MenuItem[] = [
+		{
+			label: "Reset",
+			icon: "pi pi-refresh",
+			command: (event) => { }
+		},
+		{
+			label: "Delete",
+			icon: "pi pi-trash",
+			command: () => this.removeFilter(this.selectedFilter as FilterInstance)
+		}
+	];
+
+
+	constructor(private trackService: TracksService) {
+		// this.enabledFilters = this.filters.filter(filter => filter.enabled);
+		// window.api.emit("set-filters", this.enabledFilters);
+
+		trackService.addFilterSubject.subscribe((filter: FilterInstance) => {
+			this.filters = [...this.filters, filter];
+			this.enabledFilters = this.filters.filter(f => f.enabled);
+			window.api.emit("set-filters", this.enabledFilters);
+		});
 	}
 
 	dragStart(event: DragEvent, filter: FilterInstance) {
@@ -135,5 +149,12 @@ export class TrackPropertiesPanelComponent {
 	// Clamps a number between a max and min value
 	clamp(num: number, max: number, min: number = 0) {
 		return Math.min(Math.max(num, min), max)
+	}
+
+	toggleDropdown(filter: FilterInstance, menu: any, $event: any) {
+		// Set the selected filter to the filter that was clicked
+		// This is used to determine which filter to work with when a dropdown item is clicked
+		this.selectedFilter = filter;
+		menu.toggle($event)
 	}
 }
