@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { FilterLibrary } from "src/app/utils/constants";
-import { Filter } from "src/app/utils/interfaces";
+import { FilterInstance } from "src/app/utils/interfaces";
 
 @Component({
 	selector: "app-track-properties-panel",
@@ -17,27 +17,27 @@ export class TrackPropertiesPanelComponent {
 	adjacentElement: any;
 	draggedFilterIndex: number = -1;
 
-	filters: Filter[] = [
-		{function: "zoomBlur", displayName: "Zoom blur", properties: [231.99996948242188, 293, 1], enabled: false, type: FilterLibrary.GLFX},
-		{function: "bulgePinch", displayName: "Bulge Pinch", properties: [320, 239.5, 200, 1], enabled: false, type: FilterLibrary.GLFX},
-		{function: "edgeWork", displayName: "Edge work", properties: [10], enabled: true, type: FilterLibrary.GLFX},
-		{function: "oil", displayName: "Oil painting", properties: [5, 32], enabled: false, type: FilterLibrary.IMAGE_FILTERS},
-		{function: "invert", displayName: "Invert colours",properties: [], enabled: false, type: FilterLibrary.IMAGE_FILTERS},
-		{function: "sepia", displayName: "Sepia", properties: [1], enabled: false, type: FilterLibrary.GLFX},
-		{function: "vignette", displayName: "Vignette", properties: [0.5, 0.5], enabled: false, type: FilterLibrary.GLFX},
-		{function: "colorHalftone", displayName: "Colour halftone", properties: [320, 239.5, 0.25, 4], enabled: false, type: FilterLibrary.GLFX},
-		{function: "twirl", displayName: "Twirl", properties: [0.5, 0.5, 200, 360], enabled: false, type: FilterLibrary.IMAGE_FILTERS},
+	filters: FilterInstance[] = [
+		{function: "zoomBlur", displayName: "Zoom blur", properties: [231.99996948242188, 293, 1], enabled: false, type: FilterLibrary.GLFX, category: "test"},
+		{function: "bulgePinch", displayName: "Bulge Pinch", properties: [320, 239.5, 200, 1], enabled: false, type: FilterLibrary.GLFX, category: "test"},
+		{function: "edgeWork", displayName: "Edge work", properties: [10], enabled: true, type: FilterLibrary.GLFX, category: "test"},
+		{function: "oil", displayName: "Oil painting", properties: [5, 32], enabled: false, type: FilterLibrary.IMAGE_FILTERS, category: "test"},
+		{function: "invert", displayName: "Invert colours",properties: [], enabled: false, type: FilterLibrary.IMAGE_FILTERS, category: "test"},
+		{function: "sepia", displayName: "Sepia", properties: [1], enabled: false, type: FilterLibrary.GLFX, category: "test"},
+		{function: "vignette", displayName: "Vignette", properties: [0.5, 0.5], enabled: false, type: FilterLibrary.GLFX, category: "test"},
+		{function: "colorHalftone", displayName: "Colour halftone", properties: [320, 239.5, 0.25, 4], enabled: false, type: FilterLibrary.GLFX, category: "test"},
+		{function: "twirl", displayName: "Twirl", properties: [0.5, 0.5, 200, 360], enabled: false, type: FilterLibrary.IMAGE_FILTERS, category: "test"},
 	];
-	enabledFilters: Filter[] = [];
+	enabledFilters: FilterInstance[] = [];
 
-	draggedFilter: Filter | null = null;
+	draggedFilter: FilterInstance | null = null;
 
 	constructor() {
 		this.enabledFilters = this.filters.filter(filter => filter.enabled);
 		window.api.emit("set-filters", this.enabledFilters);
 	}
 
-	dragStart(event: DragEvent, filter: Filter) {
+	dragStart(event: DragEvent, filter: FilterInstance) {
 		this.draggedFilter = filter;
 		// The index of the filter that is being dragged
 		this.draggedFilterIndex = this.findIndex(filter);
@@ -112,7 +112,7 @@ export class TrackPropertiesPanelComponent {
 		window.api.emit("set-filters", this.enabledFilters);
 	}
 
-	findIndex(filter: Filter) {
+	findIndex(filter: FilterInstance) {
 		let index = -1;
 		// Find the index of a specific filter by name
 		for(let i = 0; i < this.filters.length; i++) {
@@ -124,7 +124,7 @@ export class TrackPropertiesPanelComponent {
 		return index;
 	}
 
-	removeFilter(filter: Filter) {
+	removeFilter(filter: FilterInstance) {
 		// Remove the filter from the list of filters
 		this.filters.splice(this.findIndex(filter), 1);
 		// Gets a list of all the filters that are enabled

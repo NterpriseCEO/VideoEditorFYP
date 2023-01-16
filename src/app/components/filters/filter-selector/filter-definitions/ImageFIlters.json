@@ -1,0 +1,94 @@
+{
+	"filters": [
+		{
+			"function": "binarize", "displayName": "Binarize", "properties": [0.5], "category": "Colour grading"
+		},
+		{
+			"function": "boxBlur", "displayName": "Box blur", "properties": [3, 3, 2], "category": "Blurs"
+		},
+		{
+			"function": "gaussianBlur", "displayName": "Gaussian blur", "properties": [2], "category": "Blurs"
+		},
+		{
+			"function": "stackBlur", "displayName": "Stack blur", "properties": [2], "category": "Blurs"
+		},
+		{
+			"function": "brightnessContrastGimp", "displayName": "Brightness / contrast (GIMP)", "properties": [0, 0], "category": "Colour grading"
+		},
+		{
+			"function": "brightnessContrastPhotoshop", "displayName": "Brightness / contrast (Photoshop)", "properties": [0, 0], "category": "Colour grading"
+		},
+		{
+			"function": "channels", "displayName": "Channels", "properties": [1], "category": "Colour grading"
+		},
+		{
+			"function": "colorTransformFilter", "displayName": "Colour transform", "properties": [1, 1, 1, 0, 0, 0], "category": "Colour grading"
+		},
+		{
+			"function": "desaturate", "displayName": "Desaturate", "properties": [], "category": "Colour grading"
+		},
+		{
+			"function": "dither", "displayName": "Dither", "properties": [8], "category": "Miscellaneous"
+		},
+		{
+			"function": "edge", "displayName": "Edge detection", "properties": [], "category": "Artistic"
+		},
+		{
+			"function": "emboss", "displayName": "Emboss", "properties": [], "category": "Artistic"
+		},
+		{
+			"function": "enrich", "displayName": "Enrich", "properties": [], "category": "Colour grading"
+		},
+		{
+			"function": "flip", "displayName": "Flip", "properties": [false], "category": "Miscellaneous"
+		},
+		{
+			"function": "gamma", "displayName": "Gamma", "properties": [1], "category": "Colour grading"
+		},
+		{
+			"function": "graycale", "displayName": "Greyscale", "properties": [], "category": "Colour grading"
+		},
+		{
+			"function": "HSLAdjustment", "displayName": "HSL adjustment", "properties": [0, 0, 0], "category": "Colour grading"
+		},
+		{
+			"function": "invert", "displayName": "Invert", "properties": [], "category": "Colour grading"
+		},
+		{
+			"function": "mosaic", "displayName": "Mosaic", "properties": [10], "category": "Artistic"
+		},
+		{
+			"function": "oil", "displayName": "Oil painting", "properties": [2, 32], "category": "Artistic"
+		},
+		{
+			"function": "posterize", "displayName": "Posterize", "properties": [8], "category": "Artistic"
+		},
+		{
+			"function": "rescale", "displayName": "Rescale", "properties": [2], "category": "Miscellaneous"
+		},
+		{
+			"function": "resizeNearestNeighbor", "displayName": "Resize (nearest neighbor)", "properties": [400, 300], "category": "Miscellaneous"
+		},
+		{
+			"function": "resizeBilinear", "displayName": "Resize (bilinear)", "properties": [400, 300], "category": "Miscellaneous"
+		},
+		{
+			"function": "resizeBuiltin", "displayName": "Resize (builtin)", "properties": [400, 300], "category": "Miscellaneous"
+		},
+		{
+			"function": "Sepia", "displayName": "Sepia", "properties": [], "category": "Colour grading"
+		},
+		{
+			"function": "sharpen", "displayName": "Sharpen", "properties": [3], "category": "Blurs"
+		},
+		{
+			"function": "solarize", "displayName": "Solarize", "properties": [], "category": "Artistic"
+		},
+		{
+			"function": "transpose", "displayName": "Transpose", "properties": [], "category": "Miscellaneous"
+		},
+		{
+			"function": "twirl", "displayName": "Twirl", "properties": [0.5, 0.5, 100, 360, "test"], "category": "Fun effects"
+		}
+	]
+}

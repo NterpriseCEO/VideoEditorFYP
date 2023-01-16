@@ -1,0 +1,67 @@
+{
+	"filters": [
+		{
+			"function": "brightnessContrast", "displayName": "Brightness / contrast", "properties": [0, 0], "category": "Colour grading"
+		},
+		{
+			"function": "hueSaturation", "displayName": "Hue / saturation", "properties": [0, 0], "category": "Colour grading"
+		},
+		{
+			"function": "vibrance", "displayName": "Vibrance", "properties": [0.5], "category": "Colour grading"
+		},
+		{
+			"function": "denoise", "displayName": "Denoise", "properties": [20], "category": "Colour grading"
+		},
+		{
+			"function": "unsharpMask", "displayName": "Unsharp mask", "properties": [20, 2], "category": "Colour grading"
+		},
+		{
+			"function": "noise", "displayName": "Noise", "properties": [0.5], "category": "Colour grading"
+		},
+		{
+			"function": "sepia", "displayName": "Sepia", "properties": [1], "category": "Colour grading"
+		},
+		{
+			"function": "vignette", "displayName": "Vignette", "properties": [0.5, 0.5], "category": "Colour grading"
+		},
+		{
+			"function": "zoomBlur", "displayName": "Zoom blur", "properties": [320, 239.5, 0.3], "category": "Blurs"
+		},
+		{
+			"function": "triangleBlur", "displayName": "Triangle blur", "properties": [50], "category": "Blurs"
+		},
+		{
+			"function": "tiltShift", "displayName": "Tilt shift", "properties": [96, 359.25, 480, 287.4, 15, 200], "category": "Blurs"
+		},
+		{
+			"function": "lensBlur", "displayName": "Lens blur", "properties": [10, 0.75, 0], "category": "Blurs"
+		},
+		{
+			"function": "swirl", "displayName": "Swirl", "properties": [320, 239.5, 200, 3], "category": "Fun effects"
+		},
+		{
+			"function": "bulgePinch", "displayName": "Bulge / pinch", "properties": [320, 239.5, 200, 0.5], "category": "Fun effects"
+		},
+		{
+			"function": "perspective", "displayName": "Perspective", "properties": [
+				[175,156,496,55,161,279,504,330],
+				[175,156,496,55,161,279,504,330]
+			], "category": "Miscellaneous"
+		},
+		{
+			"function": "inc", "displayName": "Ink", "properties": [0.25], "category": "Artistic"
+		},
+		{
+			"function": "edgeWork", "displayName": "Edge work", "properties": [10], "category": "Artistic"
+		},
+		{
+			"function": "hexagonalPixelate", "displayName": "Hexagonal pixelation", "properties": [320, 239.5, 20], "category": "Artistic"
+		},
+		{
+			"function": "dotScreen", "displayName": "Dot screen", "properties": [320, 239.5, 1.1, 3], "category": "Artistic"
+		},
+		{
+			"function": "colorHalftone", "displayName": "Colour halftone", "properties": [320, 239.5, 0.25, 4], "category": "Artistic"
+		}
+	]
+}

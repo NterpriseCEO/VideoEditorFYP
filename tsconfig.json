@@ -20,6 +20,8 @@
     "module": "es2020",
     "allowJs": true,
     "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "esModuleInterop":true,
     "lib": [
       "es2020",
       "dom"

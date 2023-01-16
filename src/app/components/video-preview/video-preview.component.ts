@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, ViewChild } from "@angular/core";
 import { FilterLibrary } from "../../utils/constants";
-import { Filter } from "../../utils/interfaces";
+import { FilterInstance } from "../../utils/interfaces";
 import { ImageFilters } from "src/app/utils/ImageFilters";
 // import * as GPU from "../../utils/gpu.js";
 // const GPU = require("../../utils/gpu.js");
@@ -36,7 +36,7 @@ export class VideoPreviewComponent {
 
 	worker: any;
 
-	enabledFilters: Filter[] = [];
+	enabledFilters: FilterInstance[] = [];
 
 	isFullscreen: boolean = false;
 	videoPlaying: boolean = true;
@@ -181,7 +181,7 @@ export class VideoPreviewComponent {
 				const length = this.enabledFilters.length - 1;
 
 				//Applies the filters to the canvas
-				this.enabledFilters.forEach((filter: Filter, index: number) => {
+				this.enabledFilters.forEach((filter: FilterInstance, index: number) => {
 					//Applies the GLFX filters here
 					if(filter.type === FilterLibrary.GLFX) {
 						//Calls the filter function by name and applies the properties
