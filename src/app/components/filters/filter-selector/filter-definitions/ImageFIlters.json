@@ -1,94 +1,588 @@
 {
 	"filters": [
 		{
-			"function": "binarize", "displayName": "Binarize", "properties": [0.5], "category": "Colour grading"
+			"function": "binarize",
+			"displayName": "Binarize",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Threshold",
+					"propertyType": "number",
+					"defaultValue": 0.5,
+					"min": 0,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "boxBlur", "displayName": "Box blur", "properties": [3, 3, 2], "category": "Blurs"
+			"function": "boxBlur",
+			"displayName": "Box blur",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "Horizontal radius",
+					"propertyType": "number",
+					"defaultValue": 3,
+					"min": 1,
+					"max": 20,
+					"slot": 0,
+					"step": 1
+				},
+				{
+					"name": "Vertical radius",
+					"propertyType": "number",
+					"defaultValue": 3,
+					"min": 1,
+					"max": 20,
+					"slot": 0,
+					"step": 1
+				},
+				{
+					"name": "Quality",
+					"propertyType": "number",
+					"defaultValue": 3,
+					"min": 1,
+					"max": 10,
+					"slot": 0,
+					"step": 1
+				}
+			]
 		},
 		{
-			"function": "gaussianBlur", "displayName": "Gaussian blur", "properties": [2], "category": "Blurs"
+			"function": "gaussianBlur",
+			"displayName": "Gaussian blur",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "Strength",
+					"propertyType": "number",
+					"defaultValue": 2,
+					"min": 1,
+					"max": 4,
+					"slot": 0,
+					"step": 1
+				}
+			]
 		},
 		{
-			"function": "stackBlur", "displayName": "Stack blur", "properties": [2], "category": "Blurs"
+			"function": "stackBlur",
+			"displayName": "Stack blur",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "Radius",
+					"propertyType": "number",
+					"defaultValue": 6,
+					"min": 1,
+					"max": 40,
+					"slot": 0,
+					"step": 1
+				}
+			]
 		},
 		{
-			"function": "brightnessContrastGimp", "displayName": "Brightness / contrast (GIMP)", "properties": [0, 0], "category": "Colour grading"
+			"function": "brightnessContrastGimp",
+			"displayName": "Brightness / contrast (GIMP)",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Brightness",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -100,
+					"max": 100,
+					"slot": 0,
+					"step": 1
+				},
+				{
+					"name": "Contrast",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -100,
+					"max": 100,
+					"slot": 0,
+					"step": 1
+				}
+			]
 		},
 		{
-			"function": "brightnessContrastPhotoshop", "displayName": "Brightness / contrast (Photoshop)", "properties": [0, 0], "category": "Colour grading"
+			"function": "brightnessContrastPhotoshop",
+			"displayName": "Brightness / contrast (Photoshop)",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Brightness",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -100,
+					"max": 100,
+					"slot": 0,
+					"step": 1
+				},
+				{
+					"name": "Contrast",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -100,
+					"max": 100,
+					"slot": 0,
+					"step": 1
+				}
+			]
 		},
 		{
-			"function": "channels", "displayName": "Channels", "properties": [1], "category": "Colour grading"
+			"function": "channels",
+			"displayName": "Channels",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Channel",
+					"propertyType": "enum",
+					"defaultValue": 1,
+					"options": [
+						{
+							"name": "Red",
+							"value": 1
+						},
+						{
+							"name": "Green",
+							"value": 2
+						},
+						{
+							"name": "Blue",
+							"value": 3
+						}
+					],
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "colorTransformFilter", "displayName": "Colour transform", "properties": [1, 1, 1, 0, 0, 0], "category": "Colour grading"
+			"function": "colorTransformFilter",
+			"displayName": "Colour transform",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Red multiplier",
+					"propertyType": "number",
+					"defaultValue": 1,
+					"min": 0,
+					"max": 5,
+					"step": 0.01,
+					"slot": 0
+				},
+				{
+					"name": "Green multiplier",
+					"propertyType": "number",
+					"defaultValue": 1,
+					"min": 0,
+					"max": 5,
+					"step": 0.01,
+					"slot": 0
+				},
+				{
+					"name": "Blue multiplier",
+					"propertyType": "number",
+					"defaultValue": 1,
+					"min": 0,
+					"max": 5,
+					"step": 0.01,
+					"slot": 0
+				},
+				{
+					"name": "Red offset",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -255,
+					"max": 255,
+					"slot": 0
+				},
+				{
+					"name": "Green offset",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -255,
+					"max": 255,
+					"slot": 0
+				},
+				{
+					"name": "Blue offset",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -255,
+					"max": 255,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "desaturate", "displayName": "Desaturate", "properties": [], "category": "Colour grading"
+			"function": "desaturate",
+			"displayName": "Desaturate",
+			"category": "Colour grading",
+			"properties": []
 		},
 		{
-			"function": "dither", "displayName": "Dither", "properties": [8], "category": "Miscellaneous"
+			"function": "dither",
+			"displayName": "Dither",
+			"category": "Miscellaneous",
+			"properties": [
+				{
+					"name": "Levels",
+					"propertyType": "number",
+					"defaultValue": 8,
+					"min": 2,
+					"max": 32,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "edge", "displayName": "Edge detection", "properties": [], "category": "Artistic"
+			"function": "edge",
+			"displayName": "Edge detection",
+			"category": "Artistic",
+			"properties": []
 		},
 		{
-			"function": "emboss", "displayName": "Emboss", "properties": [], "category": "Artistic"
+			"function": "emboss",
+			"displayName": "Emboss",
+			"category": "Artistic",
+			"properties": []
 		},
 		{
-			"function": "enrich", "displayName": "Enrich", "properties": [], "category": "Colour grading"
+			"function": "enrich",
+			"displayName": "Enrich",
+			"category": "Colour grading",
+			"properties": []
 		},
 		{
-			"function": "flip", "displayName": "Flip", "properties": [false], "category": "Miscellaneous"
+			"function": "flip",
+			"displayName": "Flip",
+			"category": "Miscellaneous",
+			"properties": [
+				{
+					"name": "Direction",
+					"propertyType": "enum",
+					"defaultValue": false,
+					"options": [
+						{
+							"name": "Horizontal",
+							"value": false
+						},
+						{
+							"name": "Vertical",
+							"value": true
+						}
+					],
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "gamma", "displayName": "Gamma", "properties": [1], "category": "Colour grading"
+			"function": "gamma",
+			"displayName": "Gamma",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Gamma",
+					"propertyType": "number",
+					"defaultValue": 1,
+					"min": 0,
+					"max": 3,
+					"step": 0.1,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "grayscale", "displayName": "Greyscale", "properties": [], "category": "Colour grading"
+			"function": "grayscale",
+			"displayName": "Greyscale",
+			"category": "Colour grading",
+			"properties": []
 		},
 		{
-			"function": "HSLAdjustment", "displayName": "HSL adjustment", "properties": [0, 0, 0], "category": "Colour grading"
+			"function": "HSLAdjustment",
+			"displayName": "HSL adjustment",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Hue",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -180,
+					"max": 180,
+					"slot": 0
+				},
+				{
+					"name": "Saturation",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -100,
+					"max": 100,
+					"slot": 0
+				},
+				{
+					"name": "Lightness",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -100,
+					"max": 100,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "invert", "displayName": "Invert", "properties": [], "category": "Colour grading"
+			"function": "invert",
+			"displayName": "Invert",
+			"category": "Colour grading",
+			"properties": []
 		},
 		{
-			"function": "mosaic", "displayName": "Mosaic", "properties": [10], "category": "Artistic"
+			"function": "mosaic",
+			"displayName": "Mosaic",
+			"category": "Artistic",
+			"properties": [
+				{
+					"name": "Size",
+					"propertyType": "number",
+					"defaultValue": 10,
+					"min": 1,
+					"max": 100,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "oil", "displayName": "Oil painting", "properties": [2, 32], "category": "Artistic"
+			"function": "oil",
+			"displayName": "Oil painting",
+			"category": "Artistic",
+			"properties": [
+				{
+					"name": "Range",
+					"propertyType": "number",
+					"defaultValue": 2,
+					"min": 1,
+					"max": 256,
+					"slot": 0
+				},
+				{
+					"name": "Levels",
+					"propertyType": "number",
+					"defaultValue": 32,
+					"min": 0,
+					"max": 256,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "posterize", "displayName": "Posterize", "properties": [8], "category": "Artistic"
+			"function": "posterize",
+			"displayName": "Posterize",
+			"category": "Artistic",
+			"properties": [
+				{
+					"name": "Levels",
+					"propertyType": "number",
+					"defaultValue": 8,
+					"min": 2,
+					"max": 32,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "rescale", "displayName": "Rescale", "properties": [2], "category": "Miscellaneous"
+			"function": "rescale",
+			"displayName": "Rescale",
+			"category": "Miscellaneous",
+			"properties": [
+				{
+					"name": "Scale",
+					"propertyType": "number",
+					"defaultValue": 2,
+					"min": 0,
+					"max": 5,
+					"step": 0.1,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "resizeNearestNeighbor", "displayName": "Resize (nearest neighbor)", "properties": [400, 300], "category": "Miscellaneous"
+			"function": "resizeNearestNeighbor",
+			"displayName": "Resize (nearest neighbor)",
+			"category": "Miscellaneous",
+			"properties": [
+				{
+					"name": "Width",
+					"propertyType": "number",
+					"defaultValue": 400,
+					"min": 40,
+					"max": 800,
+					"slot": 0
+				},
+				{
+					"name": "Height",
+					"propertyType": "number",
+					"defaultValue": 300,
+					"min": 30,
+					"max": 600,
+					"slot": 0
+				},
+				{
+					"name": "Keep aspect ratio",
+					"propertyType": "boolean",
+					"defaultValue": true,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "resizeBilinear", "displayName": "Resize (bilinear)", "properties": [400, 300], "category": "Miscellaneous"
+			"function": "resizeBilinear",
+			"displayName": "Resize (bilinear)",
+			"category": "Miscellaneous",
+			"properties": [
+				{
+					"name": "Width",
+					"propertyType": "number",
+					"defaultValue": 400,
+					"min": 40,
+					"max": 800,
+					"slot": 0
+				},
+				{
+					"name": "Height",
+					"propertyType": "number",
+					"defaultValue": 300,
+					"min": 30,
+					"max": 600,
+					"slot": 0
+				},
+				{
+					"name": "Keep aspect ratio",
+					"propertyType": "boolean",
+					"defaultValue": true,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "resizeBuiltin", "displayName": "Resize (builtin)", "properties": [400, 300], "category": "Miscellaneous"
+			"function": "resizeBuiltin",
+			"displayName": "Resize (builtin)",
+			"category": "Miscellaneous",
+			"properties": [
+				{
+					"name": "Width",
+					"propertyType": "number",
+					"defaultValue": 400,
+					"min": 40,
+					"max": 800,
+					"slot": 0
+				},
+				{
+					"name": "Height",
+					"propertyType": "number",
+					"defaultValue": 300,
+					"min": 30,
+					"max": 600,
+					"slot": 0
+				},
+				{
+					"name": "Keep aspect ratio",
+					"propertyType": "boolean",
+					"defaultValue": true,
+					"slot": 0
+				}
+			] 
 		},
 		{
-			"function": "Sepia", "displayName": "Sepia", "properties": [], "category": "Colour grading"
+			"function": "sepia",
+			"displayName": "Sepia",
+			"category": "Colour grading",
+			"properties": []
 		},
 		{
-			"function": "sharpen", "displayName": "Sharpen", "properties": [3], "category": "Blurs"
+			"function": "sharpen",
+			"displayName": "Sharpen",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "Factor",
+					"propertyType": "number",
+					"defaultValue": 3,
+					"min": 1,
+					"max": 10,
+					"step": 0.1,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "solarize", "displayName": "Solarize", "properties": [], "category": "Artistic"
+			"function": "solarize",
+			"displayName": "Solarize",
+			"category": "Artistic",
+			"properties": []
 		},
 		{
-			"function": "transpose", "displayName": "Transpose", "properties": [], "category": "Miscellaneous"
+			"function": "transpose",
+			"displayName": "Transpose",
+			"category": "Miscellaneous",
+			"properties": []
 		},
 		{
-			"function": "twirl", "displayName": "Twirl", "properties": [0.5, 0.5, 100, 360, "test"], "category": "Fun effects"
+			"function": "twirl",
+			"displayName": "Twirl",
+			"properties": [
+				{
+					"name": "Center X",
+					"propertyType": "number",
+					"defaultValue": 0.5,
+					"min": 0,
+					"max": 1,
+					"step": 0.01
+				},
+				{
+					"name": "Center Y",
+					"propertyType": "number",
+					"defaultValue": 0.5,
+					"min": 0,
+					"max": 1,
+					"step": 0.01
+				},
+				{
+					"name": "Radius",
+					"propertyType": "number",
+					"defaultValue": 100,
+					"min": 10,
+					"max": 200
+				},
+				{
+					"name": "Angle",
+					"propertyType": "number",
+					"defaultValue": 360,
+					"min": -720,
+					"max": 720
+				},
+				{
+					"name": "Edge",
+					"propertyType": "enum",
+					"defaultValue": "transparent",
+					"options": [
+						{
+							"name": "Transparent",
+							"value": "transparent"
+						},
+						{
+							"name": "Clamp",
+							"value": "Clamp"
+						},
+						{
+							"name": "Wrap",
+							"value": "Wrap"
+						}
+					]
+				}
+			],
+			"category": "Fun effects"
 		}
 	]
 }

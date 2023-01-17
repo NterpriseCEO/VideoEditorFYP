@@ -1,67 +1,553 @@
 {
 	"filters": [
 		{
-			"function": "brightnessContrast", "displayName": "Brightness / contrast", "properties": [0, 0], "category": "Colour grading"
+			"function": "brightnessContrast",
+			"displayName": "Brightness / contrast",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Brightness",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -1,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Contrast",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -1,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "hueSaturation", "displayName": "Hue / saturation", "properties": [0, 0], "category": "Colour grading"
+			"function": "hueSaturation",
+			"displayName": "Hue / saturation",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Hue",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -1,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Saturation",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -1,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "vibrance", "displayName": "Vibrance", "properties": [0.5], "category": "Colour grading"
+			"function": "vibrance",
+			"displayName": "Vibrance",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Amount",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -1,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "denoise", "displayName": "Denoise", "properties": [20], "category": "Colour grading"
+			"function": "denoise",
+			"displayName": "Denoise",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "Exponent",
+					"propertyType": "number",
+					"defaultValue": 20,
+					"min": 0,
+					"max": 50,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "unsharpMask", "displayName": "Unsharp mask", "properties": [20, 2], "category": "Colour grading"
+			"function": "unsharpMask",
+			"displayName": "Unsharp mask",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Radius",
+					"propertyType": "number",
+					"defaultValue": 20,
+					"min": 0,
+					"max": 200,
+					"slot": 0
+				},
+				{
+					"name": "Strength",
+					"propertyType": "number",
+					"defaultValue": 2,
+					"min": 0,
+					"max": 5,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "noise", "displayName": "Noise", "properties": [0.5], "category": "Colour grading"
+			"function": "noise",
+			"displayName": "Noise",
+			"category": "Miscellaneous",
+			"properties": [
+				{
+					"name": "Amount",
+					"propertyType": "number",
+					"defaultValue": 0.5,
+					"min": 0,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "sepia", "displayName": "Sepia", "properties": [1], "category": "Colour grading"
+			"function": "sepia",
+			"displayName": "Variable sepia",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Amount",
+					"propertyType": "number",
+					"defaultValue": 1,
+					"min": 0,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "vignette", "displayName": "Vignette", "properties": [0.5, 0.5], "category": "Colour grading"
+			"function": "vignette",
+			"displayName": "Vignette",
+			"category": "Colour grading",
+			"properties": [
+				{
+					"name": "Size",
+					"propertyType": "number",
+					"defaultValue": 0.5,
+					"min": 0,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Amount",
+					"propertyType": "number",
+					"defaultValue": 0.5,
+					"min": 0,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "zoomBlur", "displayName": "Zoom blur", "properties": [320, 239.5, 0.3], "category": "Blurs"
+			"function": "zoomBlur",
+			"displayName": "Zoom blur",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "X",
+					"propertyType": "number",
+					"defaultValue": 320,
+					"min": 0,
+					"max": 640,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Y",
+					"propertyType": "vector2",
+					"defaultValue": 240,
+					"min": 0,
+					"max": 480,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Strength",
+					"propertyType": "number",
+					"defaultValue": 0.3,
+					"min": 0,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "triangleBlur", "displayName": "Triangle blur", "properties": [50], "category": "Blurs"
+			"function": "triangleBlur",
+			"displayName": "Triangle blur",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "Radius",
+					"propertyType": "number",
+					"defaultValue": 50,
+					"min": 0,
+					"max": 200,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "tiltShift", "displayName": "Tilt shift", "properties": [96, 359.25, 480, 287.4, 15, 200], "category": "Blurs"
+			"function": "tiltShift",
+			"displayName": "Tilt shift",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "Start X",
+					"propertyType": "number",
+					"defaultValue": 96,
+					"min": 0,
+					"max": 640,
+					"slot": 0
+				},
+				{
+					"name": "Start Y",
+					"propertyType": "number",
+					"defaultValue": 360,
+					"min": 0,
+					"max": 480,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "End X",
+					"propertyType": "number",
+					"defaultValue": 480,
+					"min": 0,
+					"max": 640,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "End Y",
+					"propertyType": "number",
+					"defaultValue": 287,
+					"min": 0,
+					"max": 480,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Blur radius",
+					"propertyType": "number",
+					"defaultValue": 15,
+					"min": 0,
+					"max": 50,
+					"slot": 0
+				},
+				{
+					"name": "Gradient radius",
+					"propertyType": "number",
+					"defaultValue": 200,
+					"min": 0,
+					"max": 400,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "lensBlur", "displayName": "Lens blur", "properties": [10, 0.75, 0], "category": "Blurs"
+			"function": "lensBlur",
+			"displayName": "Lens blur",
+			"category": "Blurs",
+			"properties": [
+				{
+					"name": "Radius",
+					"propertyType": "number",
+					"defaultValue": 10,
+					"min": 0,
+					"max": 50,
+					"slot": 0
+				},
+				{
+					"name": "Brightness",
+					"propertyType": "number",
+					"defaultValue": 0.75,
+					"min": -1,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Angle",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": -3.14,
+					"max": 3.14,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "swirl", "displayName": "Swirl", "properties": [320, 239.5, 200, 3], "category": "Fun effects"
+			"function": "swirl",
+			"displayName": "Swirl",
+			"category": "Fun effects",
+			"properties": [
+				{
+					"name": "X",
+					"propertyType": "number",
+					"defaultValue": 320,
+					"min": 0,
+					"max": 640,
+					"slot": 0
+				},
+				{
+					"name": "Y",
+					"propertyType": "number",
+					"defaultValue": 240,
+					"min": 0,
+					"max": 480,
+					"slot": 0
+				},
+				{
+					"name": "Angle",
+					"propertyType": "number",
+					"defaultValue": 3,
+					"min": -25,
+					"max": 25,
+					"slot": 0,
+					"step": 0.1
+				},
+				{
+					"name": "Radius",
+					"propertyType": "number",
+					"defaultValue": 200,
+					"min": 0,
+					"max": 600,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "bulgePinch", "displayName": "Bulge / pinch", "properties": [320, 239.5, 200, 0.5], "category": "Fun effects"
+			"function": "bulgePinch",
+			"displayName": "Bulge / pinch",
+			"category": "Fun effects",
+			"properties": [
+				{
+					"name": "Center X",
+					"propertyType": "number",
+					"defaultValue": 320,
+					"min": 0,
+					"max": 640,
+					"slot": 0
+				},
+				{
+					"name": "Center Y",
+					"propertyType": "number",
+					"defaultValue": 240,
+					"min": 0,
+					"max": 480,
+					"slot": 0
+				},
+				{
+					"name": "Strength",
+					"propertyType": "number",
+					"defaultValue": 0.5,
+					"min": -1,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Radius",
+					"propertyType": "number",
+					"defaultValue": 200,
+					"min": 0,
+					"max": 600,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "perspective", "displayName": "Perspective", "properties": [
-				[175,156,496,55,161,279,504,330],
-				[175,156,496,55,161,279,504,330]
-			], "category": "Miscellaneous"
+			"function": "perspective",
+			"displayName": "Perspective",
+			"category": "Miscellaneous",
+			"properties": [
+				{
+					"name": "Before",
+					"propertyType": "array",
+					"defaultValue": [175,156,496,55,161,279,504,330],
+					"slot": 0
+				},
+				{
+					"name": "After",
+					"propertyType": "array",
+					"defaultValue": [175,156,496,55,161,279,504,330],
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "ink", "displayName": "Ink", "properties": [0.25], "category": "Artistic"
+			"function": "ink",
+			"displayName": "Ink",
+			"category": "Artistic",
+			"properties": [
+				{
+					"name": "Strength",
+					"propertyType": "number",
+					"defaultValue": 0.25,
+					"min": 0,
+					"max": 1,
+					"slot": 0,
+					"step": 0.01
+				}
+			]
 		},
 		{
-			"function": "edgeWork", "displayName": "Edge work", "properties": [10], "category": "Artistic"
+			"function": "edgeWork",
+			"displayName": "Edge work",
+			"category": "Artistic",
+			"properties": [
+				{
+					"name": "Radius",
+					"propertyType": "number",
+					"defaultValue": 10,
+					"min": 0,
+					"max": 200,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "hexagonalPixelate", "displayName": "Hexagonal pixelation", "properties": [320, 239.5, 20], "category": "Artistic"
+			"function": "hexagonalPixelate",
+			"displayName": "Hexagonal pixelation",
+			"category": "Artistic",
+			"properties": [
+				{
+					"name": "Center X",
+					"propertyType": "number",
+					"defaultValue": 320,
+					"min": 0,
+					"max": 640,
+					"slot": 0
+				},
+				{
+					"name": "Center Y",
+					"propertyType": "number",
+					"defaultValue": 240,
+					"min": 0,
+					"max": 480,
+					"slot": 0
+				},
+				{
+					"name": "Scale",
+					"propertyType": "number",
+					"defaultValue": 20,
+					"min": 10,
+					"max": 100,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "dotScreen", "displayName": "Dot screen", "properties": [320, 239.5, 1.1, 3], "category": "Artistic"
+			"function": "dotScreen",
+			"displayName": "Dot screen",
+			"category": "Artistic",
+			"properties": [
+				{
+					"name": "Center X",
+					"propertyType": "number",
+					"defaultValue": 320,
+					"min": 0,
+					"max": 640,
+					"step": 0.01,
+					"slot": 0
+				},
+				{
+					"name": "Center Y",
+					"propertyType": "number",
+					"defaultValue": 240,
+					"min": 0,
+					"max": 480,
+					"step": 0.01,
+					"slot": 0
+				},
+				{
+					"name": "Angle",
+					"propertyType": "number",
+					"defaultValue": 0,
+					"min": 0,
+					"max": 1.57,
+					"slot": 0,
+					"step": 0.01
+				},
+				{
+					"name": "Size",
+					"propertyType": "number",
+					"defaultValue": 3,
+					"min": 3,
+					"max": 20,
+					"step": 0.01,
+					"slot": 0
+				}
+			]
 		},
 		{
-			"function": "colorHalftone", "displayName": "Colour halftone", "properties": [320, 239.5, 0.25, 4], "category": "Artistic"
+			"function": "colorHalftone",
+			"displayName": "Colour halftone",
+			"category": "Artistic",
+			"properties": [
+				{
+					"name": "Center X",
+					"propertyType": "number",
+					"defaultValue": 320,
+					"min": 0,
+					"max": 640,
+					"step": 0.01,
+					"slot": 0
+				},
+				{
+					"name": "Center Y",
+					"propertyType": "number",
+					"defaultValue": 240,
+					"min": 0,
+					"max": 480,
+					"step": 0.01,
+					"slot": 0
+				},
+				{
+					"name": "Angle",
+					"propertyType": "number",
+					"defaultValue": 0.25,
+					"min": 0,
+					"max": 1.57,
+					"step": 0.01,
+					"slot": 0
+				},
+				{
+					"name": "Size",
+					"propertyType": "number",
+					"defaultValue": 4,
+					"min": 3,
+					"max": 20,
+					"step": 0.01,
+					"slot": 0
+				}
+			]
 		}
 	]
 }

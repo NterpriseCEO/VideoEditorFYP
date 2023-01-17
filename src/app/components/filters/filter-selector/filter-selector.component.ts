@@ -22,16 +22,12 @@ export class FilterSelectorComponent {
 		//Applies the type GLFX_Filters to the GLFX_Filters
 		//This may or may not be necessary
 		GLFX_Filters.filters = GLFX_Filters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX}));
-		//assign ImageFilters to GLFX_Filters
-		console.log(ImageFilters.filters as Filter[]);
 
 		let allFilters;
 
 		//Concatenates the two filter lists and sorts them by category
 		allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.IMAGE_FILTERS})) as Filter[])
 			.sort((a, b) => a.category.localeCompare(b.category));
-
-		console.log(allFilters);
 
 		let filterCategories = allFilters.map((filter) => filter.category);
 		//Filters out duplicate categories and maps them to the SelectItemGroup interface

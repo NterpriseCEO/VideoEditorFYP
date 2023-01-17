@@ -13,20 +13,21 @@ import { TabViewModule } from "primeng/tabview";
 import { InputTextModule } from "primeng/inputtext";
 import { DropdownModule } from "primeng/dropdown";
 
+import { FiltersModule } from "../filters/filters-module.module";
+
 import { TracksPanelComponent } from "./tracks-panel/tracks-panel.component";
 import { SourceSelectorComponent } from "./source-selector/source-selector.component";
 import { TrackPropertiesPanelComponent } from "./track-properties-panel/track-properties-panel.component";
 import { TrackComponent } from "./track/track.component";
 import { ImportsPanelComponent } from "./imports-panel/imports-panel.component";
-import { MenuModule } from "primeng/menu";
 
 @NgModule({
 	declarations: [
 		TracksPanelComponent,
 		SourceSelectorComponent,
 		TrackPropertiesPanelComponent,
-  		TrackComponent,
-    	ImportsPanelComponent
+		TrackComponent,
+		ImportsPanelComponent
 	],
 	imports: [
 		BrowserModule,
@@ -41,7 +42,7 @@ import { MenuModule } from "primeng/menu";
 		DataViewModule,
 		InputTextModule,
 		DropdownModule,
-		MenuModule
+		FiltersModule
 	],
 	exports: [TracksPanelComponent, TrackPropertiesPanelComponent, ImportsPanelComponent],
 })

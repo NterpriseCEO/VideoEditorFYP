@@ -8,6 +8,28 @@ export interface Filter {
 	type: FilterLibrary;
 }
 
+//Keep this for reference
+// export interface FilterInstance extends Omit<Filter, "properties"> {
+// 	enabled: boolean;
+// 	properties: any[];
+// }
+
 export interface FilterInstance extends Filter {
 	enabled: boolean;
+	properties: FilterPropertyInstance[];
+}
+
+export interface FilterProperty {
+	name: string;
+	propertyType: string;
+	defaultValue: any;
+	slot: number;
+	min?: number;
+	max?: number;
+	step?: number;
+	options?: any[];
+}
+
+export interface FilterPropertyInstance extends FilterProperty {
+	value: any;
 }

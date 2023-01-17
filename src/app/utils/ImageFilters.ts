@@ -1,11 +1,12 @@
 //BROKEN FILTERS
 //Box blur - broken but cool
-//Enrich not working right
+//Enrich not working right? - probably is
 //Resize nearest neighbor not working
 //Resize bilinear kinda does something?
 //Resize builtin broken
 //Blend add not working
 //Opacity not working
+//Color transform appears to be broken
 
 //CUSTOM FILTERS I WANT TO ADD
 //Wave filter

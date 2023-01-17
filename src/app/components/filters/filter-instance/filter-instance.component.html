@@ -1,0 +1,85 @@
+<div
+	class = "filter-panel h-full inline-block surface-card border-round"
+>
+	<div class = "flex flex-col h-full border-none border-botton-3 border-right-3 surface-border">
+		<div class = "left-drop relative h-full surface-section"></div>
+		<div class = "h-full w-20rem flex-grow-0 flex flex-column">
+			<div class = "filter-header">
+				<p-toolbar class = "cursor-move">
+					<div class="p-toolbar-group-left cursor-auto">
+						{{filter.displayName}}
+					</div>
+					
+					<div class="p-toolbar-group-right">
+						<button
+							pButton
+							icon = "pi pi-ellipsis-v"
+							class = "p-button-text p-button-sm"
+							(click) = "menu.toggle($event)"
+							pTooltip = "Filter options"
+						>
+						</button>
+						<p-menu #menu [popup]="true" [model] = "dropdownItems"></p-menu>
+						<button
+							pButton
+							[pTooltip] = "(filter.enabled ? 'Disable' : 'Enable')+ ' filter'"
+							class = "p-button-text p-button-sm"
+							(click) = "toggleFilter.emit()"
+							[icon] = "'pi pi-circle' + (filter.enabled ? '-fill' : '')"
+						>
+						</button>
+					</div>
+				</p-toolbar>
+			</div>
+			<div class = "flex-grow-1 p-2">
+				<div
+					class = "flex flex-wrap h-full justify-content-center align-items-center"
+					[class.flex-column] = "filter.properties.length < 3"
+				>
+					<ng-container *ngIf = "filter.properties.length > 0">
+						<div
+							*ngFor = "let property of filter.properties"
+							class = "flex flex-column align-items-center"
+							[class.w-4] = "filter.properties.length > 3"
+							[class.w-6] = "filter.properties.length < 4"
+						>
+							<p-knob
+								*ngIf = "property.propertyType == 'number'"
+								[(ngModel)] = "property.value"
+								[size] = "filter.properties.length < 3 ? 225 / filter.properties.length : 75"
+								[strokeWidth] = "5"
+								[step] = "property.step ?? 1"
+								[min] = "property.min ?? 0"
+								[max] = "property.max ?? 100"
+								(onChange) = "filterChange.emit(filter)"
+							></p-knob>
+							<p-checkbox
+								*ngIf = "property.propertyType == 'boolean'"
+								[(ngModel)] = "property.value"
+								[label] = "property.name"
+								[binary] = "true"
+								(onChange) = "filterChange.emit(filter)"
+							>
+							</p-checkbox>
+							<p-dropdown
+								*ngIf = "property.propertyType == 'enum'"
+								[options] = "property.options ?? []"
+								[(ngModel)] = "property.value"
+								(onChange) = "filterChange.emit(filter)"
+								optionLabel = "name"
+								optionValue = "value"
+							>
+							</p-dropdown>
+							<input type = "text" [(ngModel)] = "property.value" *ngIf = "property.propertyType == 'array'">
+							<span *ngIf = "property.propertyType != 'boolean'">{{property.name}}</span>
+						</div>
+					</ng-container>
+					<h1 *ngIf = "filter.properties.length == 0" class = "w-full align-self-center text-xl text-center">
+						This filter has no properties
+					</h1>
+				</div>
+			</div>
+		</div>
+		<div class="right-drop relative h-full surface-section"></div>
+	</div>
+</div>

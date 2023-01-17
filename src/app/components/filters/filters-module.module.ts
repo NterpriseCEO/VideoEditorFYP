@@ -1,23 +1,35 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { FormsModule } from "@angular/forms";
-
-import { FilterSelectorComponent } from "./filter-selector/filter-selector.component";
+import { MenuModule } from "primeng/menu";
 import { ListboxModule } from "primeng/listbox";
 import { ButtonModule } from "primeng/button";
 import { TooltipModule } from "primeng/tooltip";
+import { ToolbarModule } from "primeng/toolbar";
+import { KnobModule } from "primeng/knob";
+import { CheckboxModule } from "primeng/checkbox";
+import { DropdownModule } from 'primeng/dropdown';
+
+import { FilterSelectorComponent } from "./filter-selector/filter-selector.component";
+import { FilterComponent } from "./filter-instance/filter-instance.component";
 
 @NgModule({
 	declarations: [
-    	FilterSelectorComponent
+		FilterSelectorComponent,
+		FilterComponent
 	],
 	imports: [
 		BrowserModule,
 		ListboxModule,
 		FormsModule,
 		ButtonModule,
-		TooltipModule
+		TooltipModule,
+		MenuModule,
+		ToolbarModule,
+		KnobModule,
+		CheckboxModule,
+		DropdownModule
 	],
-	exports: [FilterSelectorComponent],
+	exports: [FilterSelectorComponent, FilterComponent],
 })
 export class FiltersModule { }
