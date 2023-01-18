@@ -1,11 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { Filter, FilterInstance } from "src/app/utils/interfaces";
-import { TracksService } from "src/app/utils/tracks-service";
+import { TracksService } from "src/app/services/tracks.service";
 
 @Component({
 	selector: "app-track-properties-panel",
 	templateUrl: "./track-properties-panel.component.html",
-	styleUrls: ["./track-properties-panel.component.scss"]
+	styleUrls: ["./track-properties-panel.component.scss"],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TrackPropertiesPanelComponent {
 
@@ -22,9 +23,9 @@ export class TrackPropertiesPanelComponent {
 
 	draggedFilter: FilterInstance | null = null;
 
-	constructor(private trackService: TracksService) {
+	constructor(private trackService: TracksService, private changeDetector: ChangeDetectorRef) {
 		trackService.addFilterSubject.subscribe((filter: FilterInstance) => {
-			this.filters = [...this.filters, filter];
+			this.filters = [...this.filters, JSON.parse(JSON.stringify(filter))];
 			this.changeFilters();
 		});
 	}
@@ -100,20 +101,22 @@ export class TrackPropertiesPanelComponent {
 
 	changeFilters() {
 		// Gets a list of all the filters that are enabled
-		this.enabledFilters = this.filters.filter((filter: FilterInstance) => filter.enabled)
+		this.enabledFilters = this.filters.filter((filter: FilterInstance) => filter.enabled);
 
 		if(!this.enabledFilters) {
 			return;
 		}
 
 		// Map the filters from property definitions to property values only
-		this.enabledFilters = this.enabledFilters.map((filter: Filter) => {
+		this.enabledFilters = this.enabledFilters.map((filter: Filter, index: number) => {
 			return {
 				function: filter.function,
 				properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
 				type: filter.type
 			}
-		}) as Filter[];
+		}) as FilterInstance[];
+
+		this.changeDetector.detectChanges();
 
 		window.api.emit("set-filters", this.enabledFilters);
 	}

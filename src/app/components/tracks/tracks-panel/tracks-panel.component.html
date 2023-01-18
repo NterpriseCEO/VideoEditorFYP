@@ -8,18 +8,21 @@
 					pButton
 					class = "p-button-sm"
 					pTooltip = "Add a track"
-					(click) = "addTrack()"
+					(click) = "tracksService.addTrack()"
 					icon = "pi pi-plus"
 				></button>
 			</div>
 		</p-toolbar>
 	</div>
 	<div class = "flex-grow-1 overflow-auto">
-		<div class = "p-2">
-			<div *ngIf = "!tracks.length" class = "flex w-full h-full align-items-center justify-content-center">
-				<h1>No Tracks :( Click the + button to add one</h1>
-			</div>
-			<app-track *ngFor = "let track of tracks" [trackName] = "track.name" (onTrackDelete) = "deleteTrack(track)"></app-track>
+		<div *ngIf = "!tracks.length" class = "flex w-full h-full align-items-center justify-content-center">
+			<h1 class = "text-center">No Tracks :( Click the + button to add one</h1>
 		</div>
+		<app-track
+			*ngFor = "let track of tracks"
+			[track] = "track"
+			(onTrackDelete) = "tracksService.deleteTrack(track.id)"
+		>
+		</app-track>
 	</div>
 </div>

@@ -10,7 +10,7 @@ import { ButtonModule } from "primeng/button";
 import { TabViewModule } from "primeng/tabview";
 import { SliderModule } from 'primeng/slider';
 
-import { FiltersModule } from "../components/filters/filters-module.module";
+import { FiltersModule } from "../components/filters/filters.module";
 import { TracksModule } from "../components/tracks/tracks.module";
 
 import { MainViewComponent } from "./main-view/main-view.component";

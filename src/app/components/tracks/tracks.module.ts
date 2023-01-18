@@ -1,6 +1,7 @@
 //tracks module file
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
+import { FormsModule } from "@angular/forms";
 
 import { PanelModule } from "primeng/panel";
 import { DialogModule } from "primeng/dialog";
@@ -12,8 +13,11 @@ import { TooltipModule } from "primeng/tooltip";
 import { TabViewModule } from "primeng/tabview";
 import { InputTextModule } from "primeng/inputtext";
 import { DropdownModule } from "primeng/dropdown";
+import { InplaceModule } from 'primeng/inplace';
+import { OverlayPanelModule } from "primeng/overlaypanel";
+import { ColorPickerModule } from "primeng/colorpicker";
 
-import { FiltersModule } from "../filters/filters-module.module";
+import { FiltersModule } from "../filters/filters.module";
 
 import { TracksPanelComponent } from "./tracks-panel/tracks-panel.component";
 import { SourceSelectorComponent } from "./source-selector/source-selector.component";
@@ -42,7 +46,11 @@ import { ImportsPanelComponent } from "./imports-panel/imports-panel.component";
 		DataViewModule,
 		InputTextModule,
 		DropdownModule,
-		FiltersModule
+		FiltersModule,
+		InplaceModule,
+		FormsModule,
+		OverlayPanelModule,
+		ColorPickerModule
 	],
 	exports: [TracksPanelComponent, TrackPropertiesPanelComponent, ImportsPanelComponent],
 })

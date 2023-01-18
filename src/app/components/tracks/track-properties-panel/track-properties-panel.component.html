@@ -9,7 +9,7 @@
 	</div>
 	<app-filter
 		*ngFor = "let filter of filters; let i = index"
-		[(filter)] = "filters[i]"
+		[filter] = "filter"
 		(filterChange) = "changeFilters()"
 		(onRemove) = "removeFilter(filter)"
 		(toggleFilter) = "setEnabledFilters(filter)"

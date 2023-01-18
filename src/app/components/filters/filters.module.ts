@@ -8,15 +8,15 @@ import { TooltipModule } from "primeng/tooltip";
 import { ToolbarModule } from "primeng/toolbar";
 import { KnobModule } from "primeng/knob";
 import { CheckboxModule } from "primeng/checkbox";
-import { DropdownModule } from 'primeng/dropdown';
+import { DropdownModule } from "primeng/dropdown";
 
 import { FilterSelectorComponent } from "./filter-selector/filter-selector.component";
-import { FilterComponent } from "./filter-instance/filter-instance.component";
+import { FilterInstanceComponent } from "./filter-instance/filter-instance.component";
 
 @NgModule({
 	declarations: [
 		FilterSelectorComponent,
-		FilterComponent
+		FilterInstanceComponent
 	],
 	imports: [
 		BrowserModule,
@@ -30,6 +30,6 @@ import { FilterComponent } from "./filter-instance/filter-instance.component";
 		CheckboxModule,
 		DropdownModule
 	],
-	exports: [FilterSelectorComponent, FilterComponent],
+	exports: [FilterSelectorComponent, FilterInstanceComponent],
 })
 export class FiltersModule { }

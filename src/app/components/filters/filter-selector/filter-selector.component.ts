@@ -4,7 +4,7 @@ import { FilterLibrary } from "src/app/utils/constants";
 import { Filter } from "src/app/utils/interfaces";
 import GLFX_Filters from "./filter-definitions/GLFX_Filters.json";
 import ImageFilters from "./filter-definitions/ImageFilters.json";
-import { TracksService } from "src/app/utils/tracks-service";
+import { TracksService } from "src/app/services/tracks.service";
 
 @Component({
 	selector: "app-filter-selector",

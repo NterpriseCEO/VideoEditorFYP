@@ -1,13 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
-import { MenuItem } from 'primeng/api';
-import { FilterInstance } from 'src/app/utils/interfaces';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from "@angular/core";
+import { MenuItem } from "primeng/api";
+import { FilterInstance } from "src/app/utils/interfaces";
 
 @Component({
 	selector: 'app-filter',
 	templateUrl: './filter-instance.component.html',
 	styleUrls: ['./filter-instance.component.scss']
 })
-export class FilterComponent implements OnInit {
+export class FilterInstanceComponent implements OnInit {
 
 	@Input() filter!: FilterInstance;
 	@Output() filterChange = new EventEmitter<FilterInstance>();

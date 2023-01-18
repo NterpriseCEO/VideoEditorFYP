@@ -1,4 +1,4 @@
-import { FilterLibrary } from "./constants";
+import { FilterLibrary, TrackType } from "./constants";
 
 export interface Filter {
 	function: string;
@@ -16,6 +16,7 @@ export interface Filter {
 
 export interface FilterInstance extends Filter {
 	enabled: boolean;
+	index?: number;
 	properties: FilterPropertyInstance[];
 }
 
@@ -32,4 +33,23 @@ export interface FilterProperty {
 
 export interface FilterPropertyInstance extends FilterProperty {
 	value: any;
+}
+
+export interface Track {
+	id: number;
+	name: string;
+	type: TrackType;
+	clips?: Clip[];
+	filters?: FilterInstance[];
+	colour: string;
+}
+
+export interface Clip {
+	name: string;
+	location: string;
+}
+
+export interface ClipInstance extends Clip {
+	start: number;
+	end: number;
 }

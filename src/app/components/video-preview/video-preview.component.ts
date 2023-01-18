@@ -168,13 +168,13 @@ export class VideoPreviewComponent {
 		let step = async () => {
 			// console.time("draw");
 			//Measure the time it takes to draw the canvas
-			let start = window.performance.now();
-			//Loads the contents of the video element into the texture
+			// let start = window.performance.now();
 
 			now = window.performance.now();
 			elapsedTime = now - then;
 
 			if(elapsedTime > fpsInterval) {
+				//Loads the contents of the video element into the texture
 				texture.loadContentsOf(this.videoNativeElement);
 				let draw = this.canvas.draw(texture);
 
@@ -185,7 +185,7 @@ export class VideoPreviewComponent {
 					//Applies the GLFX filters here
 					if(filter.type === FilterLibrary.GLFX) {
 						//Calls the filter function by name and applies the properties
-						draw = draw[filter.function](...(filter.properties || []));
+						draw = draw[filter.function](...(filter.properties ?? []));
 
 						//Draws the filters to the canvas if the next filter is not an ImageFilters filter
 						if(this.enabledFilters[index + 1]?.type === FilterLibrary.IMAGE_FILTERS) {
@@ -200,7 +200,7 @@ export class VideoPreviewComponent {
 							ifTexture.texture(imageToDraw);
 						}
 
-						imageFilters = imageFilters[filter.function](...(filter.properties || []));
+						imageFilters = imageFilters[filter.function](...(filter.properties ?? []));
 
 						//Draws the filters to the visible canvas if the next filter is not an ImageFilters filter
 						if(this.enabledFilters[index + 1]?.type === FilterLibrary.GLFX || index == length) {

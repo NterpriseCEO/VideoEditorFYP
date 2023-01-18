@@ -1,15 +1,37 @@
-<div class = "flex mb-2 border-round surface-border border-1 surface-ground">
-	<div class = "w-11"></div>
-	<div class="flex flex-column w-7rem border-round" style = "background-color: var(--surface-d);">
-		<div class = "flex-grow-1 flex flex-column justify-content-center align-items-center border-round">
-			<span>{{trackName}}</span>
+<div class = "flex surface-border border-1 surface-ground">
+	<div class = "w-11" (click) = "isEditingName = false"></div>
+	<div class = "track-controls flex-shrink-0" [ngStyle] = "{backgroundColor: track.colour }">
+		<div class = "h-full flex flex-column flex-grow-1 flex flex-column justify-content-center align-items-center">
+			<div style = "height: 45%">
+				<p-inplace [active] = "isEditingName" (onActivate) = "isEditingName = true" class = "h-full">
+					<ng-template pTemplate = "display">
+						<div class = "mask">{{track.name}}</div>
+					</ng-template>
+					<ng-template pTemplate = "content">
+						<input
+							pInputText
+							class = "w-full"
+							type = "text"
+							[(ngModel)] = "track.name"
+							(keyup.enter) = "this.isEditingName = false;"
+						>
+					</ng-template>
+				</p-inplace>
+			</div>
+			<div style = "height: 10%">
+				<hr width = "20px" class = "m-1">
+			</div>
+			<div class = "mask" style = "height: 45%">{{track.type}}</div>
 		</div>
-		<div class = "flex flex-wrap w-full h-full">
+	</div>
+	<div class="flex flex-column w-7rem track-controls flex-grow-0 flex-shrink-0" (click) = "isEditingName = false">
+		<div class = "flex flex-wrap w-full h-full justify-content-center align-items-center">
 			<div>
 				<button
 					pButton
 					class = "p-button-sm p-button-text p-button-danger"
 					[icon] = "'pi pi-' + (isRecording ? 'stop-circle' : 'circle-on')"
+					tooltipPosition = "left"
 					[pTooltip] = "isRecording ? 'Stop recording' : 'Record track'"
 					(click) = "toggleRecording()"
 				>
@@ -20,17 +42,33 @@
 					pButton
 					class = "p-button-sm p-button-text"
 					icon = "pi pi-eye"
+					tooltipPosition = "left"
 					pTooltip = "Show/hide track"
 				></button>
 			</div>
 			<div>
-				<app-source-selector></app-source-selector>
+				<!-- <app-source-selector></app-source-selector> -->
+				<button
+					pButton
+					class = "p-button-sm p-button-text p-button-warning"
+					icon = "pi pi-palette"
+					tooltipPosition = "left"
+					pTooltip = "Change track colour"
+					(click) = "op.toggle($event)"
+				></button>
+				<p-overlayPanel #op>
+					<ng-template pTemplate>
+						<p-colorPicker [(ngModel)] = "track.colour" [inline] = "true"></p-colorPicker><br>
+						<button pButton label = "Ok" (click) = "op.toggle($event)"></button>
+					</ng-template>
+				</p-overlayPanel>
 			</div>
 			<div>
 				<button
 					pButton
 					class = "p-button-sm p-button-text p-button-danger"
 					icon = "pi pi-trash"
+					tooltipPosition = "left"
 					pTooltip = "Delete track"
 					(click) = "onTrackDelete.emit()"
 				></button>
