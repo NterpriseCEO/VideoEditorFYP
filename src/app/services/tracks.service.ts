@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { TrackType } from '../utils/constants';
-import { Filter, FilterInstance, Track } from '../utils/interfaces';
+import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
+import { TrackType } from "../utils/constants";
+import { Filter, FilterInstance, Track } from "../utils/interfaces";
 
 @Injectable({
-	providedIn: 'root'
+	providedIn: "root"
 })
 export class TracksService {
 	
@@ -36,7 +36,13 @@ export class TracksService {
 			}
 		});
 
-		let track = {id: number, name: `Track ${number}`, colour: this.setTrackColour(), type: TrackType.WEBCAM};
+		let track = {
+			id: number,
+			name: `Track ${number}`,
+			colour: this.setTrackColour(),
+			type: TrackType.WEBCAM,
+			isVisible: true
+		};
 
 		// Adds the track to the array
 		this.tracks.push(track);

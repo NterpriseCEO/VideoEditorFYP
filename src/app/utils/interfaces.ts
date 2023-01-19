@@ -37,6 +37,7 @@ export interface FilterPropertyInstance extends FilterProperty {
 
 export interface Track {
 	id: number;
+	isVisible: boolean;
 	name: string;
 	type: TrackType;
 	clips?: Clip[];

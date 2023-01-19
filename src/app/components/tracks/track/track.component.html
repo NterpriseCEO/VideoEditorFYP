@@ -1,5 +1,4 @@
-<div class = "flex surface-border border-1 surface-ground">
-	<div class = "w-11" (click) = "isEditingName = false"></div>
+<div class = "flex surface-border border-1">
 	<div class = "track-controls flex-shrink-0" [ngStyle] = "{backgroundColor: track.colour }">
 		<div class = "h-full flex flex-column flex-grow-1 flex flex-column justify-content-center align-items-center">
 			<div style = "height: 45%">
@@ -24,7 +23,7 @@
 			<div class = "mask" style = "height: 45%">{{track.type}}</div>
 		</div>
 	</div>
-	<div class="flex flex-column w-7rem track-controls flex-grow-0 flex-shrink-0" (click) = "isEditingName = false">
+	<div class="flex flex-column w-7rem track-controls flex-grow-0 flex-shrink-0 surface-ground" (click) = "isEditingName = false">
 		<div class = "flex flex-wrap w-full h-full justify-content-center align-items-center">
 			<div>
 				<button
@@ -41,9 +40,10 @@
 				<button
 					pButton
 					class = "p-button-sm p-button-text"
-					icon = "pi pi-eye"
+					[icon] = "'pi pi-' + (track.isVisible ? 'eye' : 'eye-slash')"
 					tooltipPosition = "left"
-					pTooltip = "Show/hide track"
+					(click) = "track.isVisible = !track.isVisible"
+					[pTooltip] = "(track.isVisible ? 'Hide' : 'Show') + ' track'"
 				></button>
 			</div>
 			<div>
@@ -75,4 +75,5 @@
 			</div>
 		</div>
 	</div>
+	<div class = "w-11" (click) = "isEditingName = false"></div>
 </div>

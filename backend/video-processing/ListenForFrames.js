@@ -1,19 +1,19 @@
 const { ipcMain } = require("electron");
 const fs = require("fs");
 const { exec } = require("child_process");
-const { workerData, parentPort } = require('worker_threads');
+const { workerData, parentPort } = require("worker_threads");
 
 let currentFrame = null,
 	frameNumber = 0,
 	outputNumber = 0,
 	isRecording = false;
 
-let ffbinaries = require('ffbinaries');
+let ffbinaries = require("ffbinaries");
 
 //Downloads ffmpeg and ffprobe binaries for the current platform
 // if they are not already downloaded
 ffbinaries.downloadBinaries(() => {
-	console.log('Downloaded all binaries for current platform.');
+	console.log("Downloaded all binaries for current platform.");
 });
 
 //Deletes outputX.mp4 if it exists
@@ -24,7 +24,7 @@ if(fs.existsSync(`./output${outputNumber}.mp4`)) {
 saveFrames();
 
 //Reads the current frame from the main thread
-parentPort.on('message', message => {
+parentPort.on("message", message => {
 	if(message.type == "frame") {
 		currentFrame = message.contents;
 	}else if(message.type == "toggle-recording") {

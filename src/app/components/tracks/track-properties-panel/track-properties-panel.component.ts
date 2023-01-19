@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { Filter, FilterInstance } from "src/app/utils/interfaces";
 import { TracksService } from "src/app/services/tracks.service";
 
@@ -8,7 +8,7 @@ import { TracksService } from "src/app/services/tracks.service";
 	styleUrls: ["./track-properties-panel.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TrackPropertiesPanelComponent {
+export class TrackPropertiesPanelComponent implements AfterViewChecked {
 
 	//Get dropzone viewchild
 	@ViewChild("dropzone") dropzone!: ElementRef;
@@ -23,11 +23,26 @@ export class TrackPropertiesPanelComponent {
 
 	draggedFilter: FilterInstance | null = null;
 
+	addingFilter: boolean = false;
+	filtersCount: number = 0;
+
 	constructor(private trackService: TracksService, private changeDetector: ChangeDetectorRef) {
 		trackService.addFilterSubject.subscribe((filter: FilterInstance) => {
+			//Checks if a filter is being added not removed
+			this.addingFilter = this.filtersCount < this.filters.length;
+			this.filtersCount = this.filters.length;
+
 			this.filters = [...this.filters, JSON.parse(JSON.stringify(filter))];
 			this.changeFilters();
 		});
+	}
+
+	ngAfterViewChecked() {
+		//Scrolls to the right when a filter is added
+		if(this.addingFilter) {
+			this.addingFilter = false;
+			this.dropzone.nativeElement.scrollLeft = this.dropzone.nativeElement.scrollWidth;
+		}
 	}
 
 	dragStart(event: DragEvent, filter: FilterInstance) {

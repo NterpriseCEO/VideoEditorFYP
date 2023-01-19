@@ -3,7 +3,7 @@ const path = require("path");
 const windowStateKeeper = require("electron-window-state");
 
 const { StreamingAndFilters } = require("./StreamingAndFilters");
-const { Worker } = require('worker_threads');
+const { Worker } = require("worker_threads");
 
 function MainWindow() {
 
@@ -22,7 +22,7 @@ MainWindow.prototype.listenForEvents = function() {
 
 	//Saves the video files to the user"s computer in a sparate thread
 	//WIll replace this with MediaRecorder in the future
-	const worker = new Worker('./backend/video-processing/ListenForFrames.js');
+	const worker = new Worker("./backend/video-processing/ListenForFrames.js");
 
 	//Pipes individual frames to the worker thread
 	//Will stream chunks over websocket in the future

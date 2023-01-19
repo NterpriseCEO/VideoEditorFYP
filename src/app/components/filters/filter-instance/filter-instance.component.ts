@@ -3,9 +3,9 @@ import { MenuItem } from "primeng/api";
 import { FilterInstance } from "src/app/utils/interfaces";
 
 @Component({
-	selector: 'app-filter',
-	templateUrl: './filter-instance.component.html',
-	styleUrls: ['./filter-instance.component.scss']
+	selector: "app-filter",
+	templateUrl: "./filter-instance.component.html",
+	styleUrls: ["./filter-instance.component.scss"]
 })
 export class FilterInstanceComponent implements OnInit {
 
