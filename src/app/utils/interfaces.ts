@@ -40,7 +40,7 @@ export interface Track {
 	isVisible: boolean;
 	name: string;
 	type: TrackType;
-	clips?: Clip[];
+	clips?: ClipInstance[];
 	filters?: FilterInstance[];
 	colour: string;
 }

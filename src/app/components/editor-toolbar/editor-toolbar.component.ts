@@ -1,5 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { MenuItem, PrimeIcons } from "primeng/api";
+import { TracksService } from "src/app/services/tracks.service";
 
 @Component({
 	selector: "app-editor-toolbar",
@@ -20,6 +21,36 @@ export class EditorToollbarComponent {
 					command: () => {
 						alert("Creating a new project");
 					}
+				},
+				{
+					label: "Add track",
+					icon: PrimeIcons.PLUS,
+					command: () => {
+						this.tracksService.addTrack();
+					},
+					items: [
+						{
+							label: "Video",
+							icon: PrimeIcons.PLUS,
+							command: () => {
+								alert("Adding a video track");
+							}
+						},
+						{
+							label: "Webcam",
+							icon: PrimeIcons.PLUS,
+							command: () => {
+								alert("Adding a webcam track");
+							}
+						},
+						{
+							label: "Screen capture",
+							icon: PrimeIcons.PLUS,
+							command: () => {
+								alert("Adding a screen capture track");
+							}
+						}
+					]
 				},
 				{
 					label: "Open Project",
@@ -95,5 +126,5 @@ export class EditorToollbarComponent {
 		}
 	]
 
-	constructor() { }
+	constructor(private tracksService: TracksService) { }
 }

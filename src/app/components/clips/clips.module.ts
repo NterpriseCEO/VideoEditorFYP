@@ -10,10 +10,12 @@ import { InputTextModule } from "primeng/inputtext";
 import { ButtonModule } from "primeng/button";
 
 import { ImportsPanelComponent } from "./imports-panel/imports-panel.component";
+import { ClipComponent } from "./clip/clip.component";
 
 @NgModule({
 	declarations: [
-		ImportsPanelComponent
+		ImportsPanelComponent,
+		ClipComponent
 	],
 	imports: [
 		BrowserModule,
@@ -24,6 +26,6 @@ import { ImportsPanelComponent } from "./imports-panel/imports-panel.component";
 		InputTextModule,
 		ButtonModule
 	],
-	exports: [ImportsPanelComponent]
+	exports: [ImportsPanelComponent, ClipComponent]
 })
 export class ClipsModule { }

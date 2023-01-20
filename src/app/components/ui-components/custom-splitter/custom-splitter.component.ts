@@ -21,6 +21,7 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 	@Input() panelSizes: number[] = [50, 50];
 
 	@Input() stateKey: string = "";
+	@Input() horizontal: boolean = false;
 
 	constructor() { }
 
@@ -50,13 +51,22 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 		if(!this.isDragging) {
 			return;
 		}
-		//Check if teh mouse is within 20px of the gutter y position
-		if(event.clientY < this.gutter.nativeElement.getBoundingClientRect().top - 20 ||
-			event.clientY > this.gutter.nativeElement.getBoundingClientRect().bottom + 20) {
-			return;
+		if(this.horizontal) {
+			//Checks if the mouse is within 20px of the gutter x position
+			if(event.clientX < this.gutter.nativeElement.getBoundingClientRect().left - 20 ||
+				event.clientX > this.gutter.nativeElement.getBoundingClientRect().right + 20) {
+				return;
+			}
+			this.resizePanels(event.clientX);
+		}else {
+			//Checks if the mouse is within 20px of the gutter y position
+			if(event.clientY < this.gutter.nativeElement.getBoundingClientRect().top - 20 ||
+				event.clientY > this.gutter.nativeElement.getBoundingClientRect().bottom + 20) {
+				return;
+			}
+			//Resizes the panels
+			this.resizePanels(event.clientY);
 		}
-		//resize the panels
-		this.resizePanels(event.clientY);
 	}
 	onDragEnd() {
 		this.isDragging = false;
@@ -68,21 +78,42 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 
 	setPanelSizes() {
 		//Sets the size of both panels based on the panelSizes array
-		this.panel1.nativeElement.style.height = this.panelSizes[0] + "%";
-		this.panel2.nativeElement.style.height = this.panelSizes[1] + "%";
+		if(this.horizontal) {
+			this.panel1.nativeElement.style.width = this.panelSizes[0] + "%";
+			console.log(this.panel1.nativeElement.style.width, this.panelSizes[0]);
+			this.panel2.nativeElement.style.width = this.panelSizes[1] + "%";
+			console.log(this.panel2.nativeElement.style.width, this.panelSizes[1]);
+		}else {
+			this.panel1.nativeElement.style.height = this.panelSizes[0] + "%";
+			this.panel2.nativeElement.style.height = this.panelSizes[1] + "%";
+		}
 	}
 
-	resizePanels(y: number) {
-		//Gets the boudning rect of the first panel
-		const panel1Rect = this.panel1.nativeElement.getBoundingClientRect();
-		//Sets the height of panel1 to be a percentage of the total height of the splitter
-		let panel1Height = Math.max(0, Math.min(100, (y - panel1Rect.top) /
-		this.splitter.nativeElement.clientHeight * 100));
-		this.panel1.nativeElement.style.height = panel1Height + "%";
-		//Sets the height of panel2 to take up the remaining space
-		this.panel2.nativeElement.style.height = 100 - panel1Height + "%";
+	resizePanels(xy: number) {
+		if(this.horizontal) {
+			//Gets the boudning rect of the first panel
+			const panel1Rect = this.panel1.nativeElement.getBoundingClientRect();
+			//Sets the width of panel1 to be a percentage of the total width of the splitter
+			let panel1Width = Math.max(0, Math.min(100, (xy - panel1Rect.left) /
+			this.splitter.nativeElement.clientWidth * 100));
+			this.panel1.nativeElement.style.width = panel1Width + "%";
+			//Sets the width of panel2 to take up the remaining space
+			this.panel2.nativeElement.style.width = 100 - panel1Width + "%";
 
-		//Sets the panelSizes array which is access by onDragEnd
-		this.panelSizes = [panel1Height, 100 - panel1Height];
+			//Sets the panelSizes array which is access by onDragEnd
+			this.panelSizes = [panel1Width, 100 - panel1Width];
+		}else {
+			//Gets the boudning rect of the first panel
+			const panel1Rect = this.panel1.nativeElement.getBoundingClientRect();
+			//Sets the height of panel1 to be a percentage of the total height of the splitter
+			let panel1Height = Math.max(0, Math.min(100, (xy - panel1Rect.top) /
+			this.splitter.nativeElement.clientHeight * 100));
+			this.panel1.nativeElement.style.height = panel1Height + "%";
+			//Sets the height of panel2 to take up the remaining space
+			this.panel2.nativeElement.style.height = 100 - panel1Height + "%";
+
+			//Sets the panelSizes array which is access by onDragEnd
+			this.panelSizes = [panel1Height, 100 - panel1Height];
+		}
 	}
 }

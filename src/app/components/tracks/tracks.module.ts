@@ -15,20 +15,24 @@ import { InplaceModule } from "primeng/inplace";
 import { OverlayPanelModule } from "primeng/overlaypanel";
 import { ColorPickerModule } from "primeng/colorpicker";
 import { DataViewModule } from "primeng/dataview";
+import { ContextMenuModule } from "primeng/contextmenu";
 
 import { FiltersModule } from "../filters/filters.module";
+import { ClipsModule } from "../clips/clips.module";
 
 import { TracksPanelComponent } from "./tracks-panel/tracks-panel.component";
 import { SourceSelectorComponent } from "./source-selector/source-selector.component";
 import { TrackPropertiesPanelComponent } from "./track-properties-panel/track-properties-panel.component";
-import { TrackComponent } from "./track/track.component";
+import { TrackContentsComponent } from "./track-contents/track-contents.component";
+import { TrackDetailsComponent } from "./track-details/track-details.component";
 
 @NgModule({
 	declarations: [
 		TracksPanelComponent,
 		SourceSelectorComponent,
 		TrackPropertiesPanelComponent,
-		TrackComponent
+		TrackContentsComponent,
+		TrackDetailsComponent
 	],
 	imports: [
 		BrowserModule,
@@ -45,7 +49,9 @@ import { TrackComponent } from "./track/track.component";
 		FormsModule,
 		OverlayPanelModule,
 		ColorPickerModule,
-		DataViewModule
+		DataViewModule,
+		ContextMenuModule,
+		ClipsModule
 	],
 	exports: [TracksPanelComponent, TrackPropertiesPanelComponent],
 })

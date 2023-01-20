@@ -1,21 +1,35 @@
 <div
 	#splitter
-	class = "p-splitter p-component p-splitter-vertical block overflow-hidden w-full"
+	class = "p-splitter p-component block overflow-hidden w-full h-full flex"
+	[class.flex-column] = "!horizontal"
 	[ngStyle] = "{'height': height}"
 	(mousedown) = "onDragStart()"
 	(mousemove) = "onDrag($event)"
 	(mouseup) = "onDragEnd()"
 >
-	<div #panel1 class = "p-splitter-panel p-splitter-panel-nested">
-		<div class = "w-full h-full overflow-auto">
+	<div
+		#panel1
+		class = "p-splitter-panel p-splitter-panel-nested"
+		[class.h-full] = "horizontal"
+	>
+		<div class = "w-full h-full">
 			<ng-content select = "[panel1]"></ng-content>
 		</div>
 	</div>
-	<div #gutter class = "p-splitter-gutter" style = "height: 4px;" >
+	<div
+		#gutter
+		class = "p-splitter-gutter flex-grow-0"
+		[class.vertical] = "!horizontal"
+		[class.horizontal] = "horizontal"
+	>
 		<div class = "p-splitter-gutter-handle"></div>
 	</div>
-	<div #panel2 class = "p-splitter-panel p-splitter-panel-nested">
-		<div class = "w-full h-full overflow-auto">
+	<div
+		#panel2
+		class = "p-splitter-panel p-splitter-panel-nested"
+		[class.h-full] = "horizontal"
+	>
+		<div class = "w-full h-full">
 			<ng-content select = "[panel2]"></ng-content>
 		</div>
 	</div>

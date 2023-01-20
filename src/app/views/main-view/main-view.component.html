@@ -56,29 +56,28 @@
 				stateKey = "horizontalSplitter"
 			>
 				<div class = "h-full" panel1>
-					<p-splitter
+					<app-custom-splitter
 						styleClass = "h-full middle-panels overflow-hidden"
 						class = "h-full"
-						[panelSizes] = "insertPanelVisible ? [20, 80] : [0, 20000]"
-						[minSizes] = "[0, 0]"
+						[horizontal] = "true"
+						[panelSizes] = "insertPanelVisible ? [20, 80] : [0, 100]"
 						stateKey = "verticalSplitter"
-						stateStorage = "local"
 						*ngIf = "insertPanelVisible || tracksPanelIsVisible"
 					>
-						<ng-template pTemplate>
-							<p-tabView class = "w-full h-full" styleClass = "h-full flex flex-column overflow-hidden">
+						<div class = "h-full" panel1>
+							<p-tabView class = "w-full h-full" styleClass = "h-full flex flex-column overflow-hidden" *ngIf = "insertPanelVisible">
 								<p-tabPanel header = "Imports" class = "h-full">
-									<app-imports-panel class = "w-full" *ngIf = "insertPanelVisible"></app-imports-panel>
+									<app-imports-panel class = "w-full"></app-imports-panel>
 								</p-tabPanel>
 								<p-tabPanel header = "Filters">
-									<app-filter-selector class = "w-full" *ngIf = "insertPanelVisible"></app-filter-selector>
+									<app-filter-selector class = "w-full"></app-filter-selector>
 								</p-tabPanel>
 							</p-tabView>
-						</ng-template>
-						<ng-template pTemplate>
-							<app-tracks-panel class = "w-full h-full" *ngIf = "tracksPanelIsVisible"></app-tracks-panel>
-						</ng-template>
-					</p-splitter>
+						</div>
+						<div class = "h-full" panel2>
+							<app-tracks-panel class = "w-full h-full" [class.hidden] = "!tracksPanelIsVisible"></app-tracks-panel>
+						</div>
+					</app-custom-splitter>
 				</div>
 				<div class = "flex overflow-hidden w-full h-full" panel2>
 					<app-info-panel [(isVisible)] = "infoPanelIsVisible" class = "h-5px" [class.w-2] = "infoPanelIsVisible"></app-info-panel>

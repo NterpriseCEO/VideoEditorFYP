@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { TrackComponent } from "./track.component";
+import { ClipComponent } from "./clip.component";
 
-describe("TrackComponent", () => {
-  let component: TrackComponent;
-  let fixture: ComponentFixture<TrackComponent>;
+describe("ClipComponent", () => {
+  let component: ClipComponent;
+  let fixture: ComponentFixture<ClipComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TrackComponent ]
+      declarations: [ ClipComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TrackComponent);
+    fixture = TestBed.createComponent(ClipComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

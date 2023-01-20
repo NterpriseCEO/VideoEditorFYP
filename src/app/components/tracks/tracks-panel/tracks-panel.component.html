@@ -1,28 +1,35 @@
-<div class = "flex flex-column h-full">
+<div class = "flex flex-column h-full w-full">
 	<div>
-		<p-toolbar>
-			<div class = "p-toolbar-group-left">
-			</div>
-			<div class = "p-toolbar-group-right">
-				<button
-					pButton
-					class = "p-button-sm"
-					pTooltip = "Add a track"
-					(click) = "tracksService.addTrack()"
-					icon = "pi pi-plus"
-				></button>
-			</div>
-		</p-toolbar>
+		<!-- <p-toolbar>
+		</p-toolbar> -->
 	</div>
-	<div class = "flex-grow-1 overflow-auto" #tracksList>
-		<div *ngIf = "!tracks.length" class = "flex w-full h-full align-items-center justify-content-center">
-			<h1 class = "text-center">No Tracks :( Click the + button to add one</h1>
-		</div>
-		<app-track
-			*ngFor = "let track of tracks"
-			[track] = "track"
-			(onTrackDelete) = "tracksService.deleteTrack(track.id)"
+	<p-contextMenu [target] = "tracksList" [model] = "contextMenu"></p-contextMenu>
+	<div class = "flex-grow-1 h-full">
+		<div
+			class = "w-full h-full overflow-hidden"
+			[class.hidden] = "!tracks.length"
+			[class.flex] = "tracks.length"
 		>
-		</app-track>
+			<div style = "width: 200px" class = "h-full flex-shrink-0 overflow-hidden pb-9px border-right-1" #tracksDetails>
+				<app-track-details
+					*ngFor = "let track of tracks"
+					[track] = "track"
+					(onTrackDelete) = "tracksService.deleteTrack(track.id)"
+				>
+				</app-track-details>
+			</div>
+			<div class = "overflow-auto flex-grow-1 h-full" #tracksList>
+				<app-track-contents
+					*ngFor = "let track of tracks"
+					[clips] = "track.clips ?? []"
+					[colour] = "track.colour"
+					(onTrackDelete) = "tracksService.deleteTrack(track.id)"
+				>
+				</app-track-contents>
+			</div>
+		</div>
+		<div *ngIf = "!tracks.length" class = "flex w-full h-full align-items-center justify-content-center">
+			<h1 class = "text-center">No Tracks :( <br> Right click to add one</h1>
+		</div>
 	</div>
 </div>
