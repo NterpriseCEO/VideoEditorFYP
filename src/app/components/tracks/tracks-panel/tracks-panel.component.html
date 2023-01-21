@@ -1,9 +1,14 @@
 <div class = "flex flex-column h-full w-full overflow-hidden">
-	<p-toolbar class = "flex-grow-0">
-		<div class = "p-toolbar-group-left">
-			
+	<div class = "flex w-full h-3rem border-bottom-1 border-50">
+		<div style = "width: 175px" class = "flex-shrink-0 flex align-items-center">
+			<span class = "ml-4">Tracks</span>
 		</div>
-	</p-toolbar>
+		<div class = "flex flex-grow-1 align-items-center overflow-hidden" #timelineNumbers>
+			<span *ngFor = "let number of numbers" style = "width: 50px" class = "flex-grow-0 flex-shrink-0 text-center">
+				{{convertToTime(number)}}
+			</span>
+		</div>
+	</div>
 	<p-contextMenu [target] = "tracksList" [model] = "contextMenu"></p-contextMenu>
 	<div
 		class = "w-full h-full overflow-hidden flex flex-grow-1"
@@ -29,6 +34,8 @@
 			<div
 				#timeLines
 				class = "absolute time-lines h-full"
+				[style.width.px] = "tracksList.scrollWidth"
+				[style.height.px] = "tracksList.scrollHeight"
 			>
 			</div>
 			<div class = "absolute w-full h-full" #tracksListContent>

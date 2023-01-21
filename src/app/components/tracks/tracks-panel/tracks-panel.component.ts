@@ -27,14 +27,14 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		}
 	];
 
+	numbers: number[] = [];
+
 	@ViewChild("tracksList") tracksList!: ElementRef;
 	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
 	@ViewChild("timeLines") timeLines!: ElementRef;
-	@ViewChild("tracksListContent") tracksListContent!: ElementRef;
+	@ViewChild("timelineNumbers") timelineNumbers!: ElementRef;
 
-	tracksListExists: boolean = false;
-
-	constructor(public tracksService: TracksService, changeDetectorRef: ChangeDetectorRef) {
+	constructor(public tracksService: TracksService, public changeDetectorRef: ChangeDetectorRef) {
 		//Subscribes to the addTrackSubject in the tracks service
 		tracksService.tracksSubject.subscribe((tracks: Track[]) => {
 			//Checks if a track is being added not removed
@@ -49,12 +49,21 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 			changeDetectorRef.detectChanges();
 		});
+
+		//Generate list of 30 0s
+		for(let i = 0; i < 30; i++) {
+			this.numbers.push(i);
+		}
 	}
 
 	ngAfterViewInit() {
 		//Scrolls the tracks details to the same position as the tracks list
 		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
 			this.tracksDetails.nativeElement.scrollTop = event.target.scrollTop;
+
+			if(event.target.scrollLeft !== 0) {
+				this.timelineNumbers.nativeElement.scrollLeft = event.target.scrollLeft;
+			}
 			
 			if(!this.addingTrack) {
 				this.moveTimeLines();
@@ -63,19 +72,6 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	}
 
 	ngAfterViewChecked() {
-
-		if(!this.tracksListExists && this.tracksList) {
-			this.tracksListExists = true;
-			
-			setTimeout(() => {
-				let tracksList = this.tracksList.nativeElement.getBoundingClientRect();
-
-				//Sets the width and height of the timeLines element in relation to the tracksList element
-				this.timeLines.nativeElement.style.width = tracksList.width + "px";
-				this.timeLines.nativeElement.style.height = tracksList.height + "px";
-			});
-		}
-
 		//Scrolls to the bottom when a track is added
 		if(this.addingTrack) {
 			this.addingTrack = false;
@@ -84,6 +80,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			this.tracksDetails.nativeElement.scrollTop = this.tracksList.nativeElement.scrollHeight;
 
 			this.moveTimeLines();
+
+			this.changeDetectorRef.detectChanges();
 		}
 	}
 
@@ -98,7 +96,13 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		setTimeout(() => {
 			this.timeLines.nativeElement.style.top = this.tracksList.nativeElement.scrollTop + "px";
 		}, 0);
+	}
 
-		this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
+	convertToTime(time: number) {
+		//Converts the input to minutes and seconds where each number represents 5 seconds
+		let minutes = Math.floor(time / 12);
+		let seconds = (time % 12) * 5;
+
+		return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
 	}
 }
