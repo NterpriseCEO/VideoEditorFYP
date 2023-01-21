@@ -1,8 +1,10 @@
 .vertical {
 	height: 4px;
+	cursor: row-resize;
 }
 
 .horizontal {
 	width: 4px;
 	height: 100%;
+	cursor: col-resize;
 }

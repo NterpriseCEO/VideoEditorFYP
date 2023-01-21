@@ -1,6 +1,7 @@
-<div class = "h-full w-full border-1 flex flex-column">
-	<div class = "w-full border-bottom-1 pl-2">Title</div>
-	<div [ngStyle] = "{backgroundColor: colour }" class = "flex-grow-1">
-		<div style = "width: 100px" class = "h-full surface-ground border-right-1"></div>
+<div class = "h-full w-full border-right-2 border-50 flex flex-column">
+	<div [ngStyle] = "{backgroundColor: colour, color: titleColour}" class = "w-full pl-2">Title</div>
+	<div class = "flex-grow-1 flex">
+		<div style = "width: 100px" class = "h-full surface-ground border-right-2 border-50"></div>
+		<div [ngStyle] = "{backgroundColor: colour }" class = "flex-grow-1 semi-transparent"></div>
 	</div>
 </div>

@@ -29,6 +29,10 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 	@ViewChild("tracksList") tracksList!: ElementRef;
 	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
+	@ViewChild("timeLines") timeLines!: ElementRef;
+	@ViewChild("tracksListContent") tracksListContent!: ElementRef;
+
+	tracksListExists: boolean = false;
 
 	constructor(public tracksService: TracksService, changeDetectorRef: ChangeDetectorRef) {
 		//Subscribes to the addTrackSubject in the tracks service
@@ -38,6 +42,11 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			this.tracksCount = tracks.length;
 
 			this.tracks = tracks;
+
+			if(!this.addingTrack) {
+				this.moveTimeLines(true);
+			}
+
 			changeDetectorRef.detectChanges();
 		});
 	}
@@ -46,16 +55,50 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		//Scrolls the tracks details to the same position as the tracks list
 		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
 			this.tracksDetails.nativeElement.scrollTop = event.target.scrollTop;
+			
+			if(!this.addingTrack) {
+				this.moveTimeLines();
+			}
 		});
 	}
 
 	ngAfterViewChecked() {
+
+		if(!this.tracksListExists && this.tracksList) {
+			this.tracksListExists = true;
+			
+			setTimeout(() => {
+				let tracksList = this.tracksList.nativeElement.getBoundingClientRect();
+
+				//Sets the width and height of the timeLines element in relation to the tracksList element
+				this.timeLines.nativeElement.style.width = tracksList.width + "px";
+				this.timeLines.nativeElement.style.height = tracksList.height + "px";
+			});
+		}
+
 		//Scrolls to the bottom when a track is added
 		if(this.addingTrack) {
 			this.addingTrack = false;
 			this.tracksList.nativeElement.scrollTop = this.tracksList.nativeElement.scrollHeight;
 			//Scroll the tracksDetails to the bottom
 			this.tracksDetails.nativeElement.scrollTop = this.tracksList.nativeElement.scrollHeight;
+
+			this.moveTimeLines();
 		}
+	}
+
+	//Moves the timeLines element to the same position as the tracksList element
+	//so thatthe time lines are always visible
+	moveTimeLines(removingTrack: boolean = false) {
+		//Moves thes times lines to the top temporarily so
+		//that the scrollHeight is not affected
+		if(removingTrack) {
+			this.timeLines.nativeElement.style.top = "0px";
+		}
+		setTimeout(() => {
+			this.timeLines.nativeElement.style.top = this.tracksList.nativeElement.scrollTop + "px";
+		}, 0);
+
+		this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
 	}
 }

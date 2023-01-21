@@ -1,5 +1,5 @@
 <div class = "flex track-controls">
-	<div class = "flex-shrink-0 w-6" [ngStyle] = "{backgroundColor: track.colour }">
+	<div class = "flex-shrink-0 w-6" [ngStyle] = "{backgroundColor: track.colour, color: titleColour }">
 		<div class = "h-full flex flex-column flex-grow-1 flex flex-column justify-content-center align-items-center">
 			<div style = "height: 45%">
 				<p-inplace [active] = "isEditingName" (onActivate) = "isEditingName = true" class = "h-full">

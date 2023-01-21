@@ -1,35 +1,67 @@
-<div class = "flex flex-column h-full w-full">
-	<div>
-		<!-- <p-toolbar>
-		</p-toolbar> -->
-	</div>
+<div class = "flex flex-column h-full w-full overflow-hidden">
+	<p-toolbar class = "flex-grow-0">
+		<div class = "p-toolbar-group-left">
+			
+		</div>
+	</p-toolbar>
 	<p-contextMenu [target] = "tracksList" [model] = "contextMenu"></p-contextMenu>
-	<div class = "flex-grow-1 h-full">
-		<div
-			class = "w-full h-full overflow-hidden"
-			[class.hidden] = "!tracks.length"
-			[class.flex] = "tracks.length"
-		>
-			<div style = "width: 200px" class = "h-full flex-shrink-0 overflow-hidden pb-9px border-right-1" #tracksDetails>
-				<app-track-details
-					*ngFor = "let track of tracks"
-					[track] = "track"
-					(onTrackDelete) = "tracksService.deleteTrack(track.id)"
+	<div
+		class = "w-full h-full overflow-hidden flex flex-grow-1"
+	>
+		<div style = "width: 200px" class = "h-full flex-shrink-0 overflow-hidden pb-9px border-right-1 border-50" #tracksDetails>
+			<app-track-details
+				*ngFor = "let track of tracks"
+				[track] = "track"
+				(onTrackDelete) = "tracksService.deleteTrack(track.id)"
+			>
+			</app-track-details>
+			<div class = "flex justify-content-center w-full py-4">
+				<button
+					pButton
+					class = "p-button-rounded"
+					[icon] = "'pi pi-plus'"
+					(click) = "tracksService.addTrack()"
 				>
-				</app-track-details>
-			</div>
-			<div class = "overflow-auto flex-grow-1 h-full" #tracksList>
-				<app-track-contents
-					*ngFor = "let track of tracks"
-					[clips] = "track.clips ?? []"
-					[colour] = "track.colour"
-					(onTrackDelete) = "tracksService.deleteTrack(track.id)"
-				>
-				</app-track-contents>
+				</button>
 			</div>
 		</div>
-		<div *ngIf = "!tracks.length" class = "flex w-full h-full align-items-center justify-content-center">
-			<h1 class = "text-center">No Tracks :( <br> Right click to add one</h1>
+		<div class = "overflow-auto flex-grow-1 h-full relative" #tracksList>
+			<div
+				#timeLines
+				class = "absolute time-lines h-full"
+			>
+			</div>
+			<div class = "absolute w-full h-full" #tracksListContent>
+				<ng-container *ngFor = "let track of tracks">
+					<div class = "white-space-nowrap">
+						<app-track-contents
+							[clips] = "track.clips ?? []"
+							[colour] = "track.colour"
+							(onTrackDelete) = "tracksService.deleteTrack(track.id)"
+							class = "inline-block"
+						>
+						</app-track-contents>
+						<div style = "width: 100px" class = "inline-block"></div>
+						<div
+							class = "divider"
+							[style.width.px] = "tracksList.scrollWidth"
+						>
+						</div>
+					</div>
+				</ng-container>
+				<div class = "flex justify-content-center w-full py-4" *ngIf = "tracks.length">
+					<button
+						pButton
+						class = "p-button-rounded"
+						[icon] = "'pi pi-plus'"
+						(click) = "tracksService.addTrack()"
+					>
+					</button>
+				</div>
+				<div *ngIf = "!tracks.length" class = "flex w-full h-full align-items-center justify-content-center">
+					<h1 class = "text-center select-none surface-ground p-4 pt-3 border-round">No Tracks :( <br> Right click to add one</h1>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

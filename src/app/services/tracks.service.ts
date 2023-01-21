@@ -50,8 +50,8 @@ export class TracksService {
 	}
 
 	setTrackColour() {
-		//Generates a random colour for the track in the form of a hex string
-		return "#" + Math.floor(Math.random() * 16777215).toString(16);
+		//Generates a random hex colour
+		return '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
 	}
 
 	deleteTrack(trackID: number) {

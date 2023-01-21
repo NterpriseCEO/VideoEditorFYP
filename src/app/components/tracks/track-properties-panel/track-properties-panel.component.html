@@ -4,7 +4,7 @@
 	pDroppable = "dd"
 	(drop) = "reorderFilters($event)"
 >
-	<div *ngIf = "!filters.length" class = "flex w-full h-full align-items-center justify-content-center">
+	<div *ngIf = "!filters.length" class = "flex w-full h-full align-items-center justify-content-center select-none">
 		<h1>No Filters</h1>
 	</div>
 	<app-filter
