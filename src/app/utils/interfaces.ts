@@ -48,6 +48,7 @@ export interface Track {
 export interface Clip {
 	name: string;
 	location: string;
+	duration: number;
 }
 
 export interface ClipInstance extends Clip {

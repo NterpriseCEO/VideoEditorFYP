@@ -43,7 +43,14 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 	}
 
 
-	onDragStart() {
+	onDragStart(event: MouseEvent) {
+		//Checks if the mouse is within 20px of the gutter
+		//Prevents the gutter from being dragged when
+		//the mouse click started outside the gutter
+		//but the mouse then later hovers over the gutter
+		if(!this.isDraggingGutter(event)) {
+			return;
+		}
 		this.isDragging = true;
 	}
 
@@ -52,19 +59,8 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 			return;
 		}
 		if(this.horizontal) {
-			//Checks if the mouse is within 20px of the gutter x position
-			if(event.clientX < this.gutter.nativeElement.getBoundingClientRect().left - 20 ||
-				event.clientX > this.gutter.nativeElement.getBoundingClientRect().right + 20) {
-				return;
-			}
 			this.resizePanels(event.clientX);
 		}else {
-			//Checks if the mouse is within 20px of the gutter y position
-			if(event.clientY < this.gutter.nativeElement.getBoundingClientRect().top - 20 ||
-				event.clientY > this.gutter.nativeElement.getBoundingClientRect().bottom + 20) {
-				return;
-			}
-			//Resizes the panels
 			this.resizePanels(event.clientY);
 		}
 	}
@@ -114,6 +110,18 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 
 			//Sets the panelSizes array which is access by onDragEnd
 			this.panelSizes = [panel1Height, 100 - panel1Height];
+		}
+	}
+
+	isDraggingGutter(event: MouseEvent) {
+		if(this.horizontal) {
+			//Checks if the mouse is within 20px of the gutter x position
+			return event.clientX > this.gutter.nativeElement.getBoundingClientRect().left - 20 &&
+			event.clientX < this.gutter.nativeElement.getBoundingClientRect().right + 20;
+		}else {
+			//Checks if the mouse is within 20px of the gutter y position
+			return event.clientY > this.gutter.nativeElement.getBoundingClientRect().top - 20 &&
+			event.clientY < this.gutter.nativeElement.getBoundingClientRect().bottom + 20;
 		}
 	}
 }

@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ViewChild } from "@angular/core";
 import { SelectItem } from "primeng/api";
+import { Clip } from "src/app/utils/interfaces";
+import { ClipInsertionService } from "src/app/services/clip-insertion.service";
 
 @Component({
 	selector: "app-imports-panel",
@@ -9,7 +11,6 @@ import { SelectItem } from "primeng/api";
 })
 export class ImportsPanelComponent {
 
-
 	//reference dv ViewChild
 	@ViewChild("dv") dv!: any;
 
@@ -18,35 +19,14 @@ export class ImportsPanelComponent {
 
 	sortField: string = "!name";
 
-
-	files: any[] = [
-		{ name: "file1.mp4", size: 1000, location: "C:/Users/Alex/Video" },
-		{ name: "file2.mp4", size: 2000, location: "C:/Users/Alex/Video" },
-		{ name: "file3.mp4", size: 3000, location: "C:/Users/Alex/Video" },
-		{ name: "file4.mp4", size: 4000, location: "C:/Users/Alex/Video" },
-		{ name: "file5.mp4", size: 5000, location: "C:/Users/Alex/Video" },
-		{ name: "file6.mp4", size: 6000, location: "C:/Users/Alex/Video" },
-		{ name: "file1.mp4", size: 1000, location: "C:/Users/Alex/Video" },
-		{ name: "file2.mp4", size: 2000, location: "C:/Users/Alex/Video" },
-		{ name: "file3.mp4", size: 3000, location: "C:/Users/Alex/Video" },
-		{ name: "file4.mp4", size: 4000, location: "C:/Users/Alex/Video" },
-		{ name: "file5.mp4", size: 5000, location: "C:/Users/Alex/Video" },
-		{ name: "file6.mp4", size: 6000, location: "C:/Users/Alex/Video" },
-		{ name: "file1.mp4", size: 1000, location: "C:/Users/Alex/Video" },
-		{ name: "file2.mp4", size: 2000, location: "C:/Users/Alex/Video" },
-		{ name: "file3.mp4", size: 3000, location: "C:/Users/Alex/Video" },
-		{ name: "file4.mp4", size: 4000, location: "C:/Users/Alex/Video" },
-		{ name: "file5.mp4", size: 5000, location: "C:/Users/Alex/Video" },
-		{ name: "file6.mp4", size: 6000, location: "C:/Users/Alex/Video" },
-		{ name: "file1.mp4", size: 1000, location: "C:/Users/Alex/Video" },
-		{ name: "file2.mp4", size: 2000, location: "C:/Users/Alex/Video" },
-		{ name: "file3.mp4", size: 3000, location: "C:/Users/Alex/Video" },
-		{ name: "file4.mp4", size: 4000, location: "C:/Users/Alex/Video" },
-		{ name: "file5.mp4", size: 5000, location: "C:/Users/Alex/Video" },
-		{ name: "file6.mp4", size: 6000, location: "C:/Users/Alex/Video" }
+	clips: Clip[] = [
+		{ name: "file1.mp4", location: "C:/Users/Alex/Video", duration: 120 },
+		{ name: "file2.mp4", location: "C:/Users/Alex/Video", duration: 120 },
+		{ name: "file3.mp4", location: "C:/Users/Alex/Video", duration: 120 },
+		{ name: "file4.mp4", location: "C:/Users/Alex/Video", duration: 120 }
 	]
 
-	constructor(private changeDetector: ChangeDetectorRef) {
+	constructor(public cis: ClipInsertionService) {
 		this.sortOptions = [
 			{label: "A-Z", value: "name"},
             {label: "Z-A", value: "!name"}
@@ -54,7 +34,7 @@ export class ImportsPanelComponent {
 	}
 
 	removeFile(file: any) {
-		this.files = this.files.filter(f => f !== file);
+		this.clips = this.clips.filter(f => f !== file);
 	}
 
 	filter(event: any) {

@@ -3,7 +3,7 @@
 	class = "p-splitter p-component block overflow-hidden w-full h-full flex"
 	[class.flex-column] = "!horizontal"
 	[ngStyle] = "{'height': height}"
-	(mousedown) = "onDragStart()"
+	(mousedown) = "onDragStart($event)"
 	(mousemove) = "onDrag($event)"
 	(mouseup) = "onDragEnd()"
 >

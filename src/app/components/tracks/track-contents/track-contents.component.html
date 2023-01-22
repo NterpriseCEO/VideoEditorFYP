@@ -1,5 +1,5 @@
 <div class = "flex track-controls">
 	<div class = "flex">
-		<app-clip *ngFor = "let item of randomList" class = "flex-grow-0 flex-shrink-0" style = "width: 300px" [colour] = "colour"></app-clip>
+		<app-clip *ngFor = "let clip of clips" [clip] = "clip" class = "flex-grow-0 flex-shrink-0" style = "width: 300px" [colour] = "colour"></app-clip>
 	</div>
 </div>

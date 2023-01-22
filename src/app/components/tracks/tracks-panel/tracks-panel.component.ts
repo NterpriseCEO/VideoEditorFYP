@@ -1,8 +1,9 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
 import { Track } from "src/app/utils/interfaces";
 import { MenuItem, PrimeIcons } from "primeng/api";
 import { fromEvent } from "rxjs";
+import { ClipInsertionService } from "src/app/services/clip-insertion.service";
 
 @Component({
 	selector: "app-tracks-panel",
@@ -34,7 +35,11 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	@ViewChild("timeLines") timeLines!: ElementRef;
 	@ViewChild("timelineNumbers") timelineNumbers!: ElementRef;
 
-	constructor(public tracksService: TracksService, public changeDetectorRef: ChangeDetectorRef) {
+	constructor(
+		public tracksService: TracksService,
+		public changeDetectorRef: ChangeDetectorRef,
+		private cis: ClipInsertionService
+	) {
 		//Subscribes to the addTrackSubject in the tracks service
 		tracksService.tracksSubject.subscribe((tracks: Track[]) => {
 			//Checks if a track is being added not removed
@@ -50,7 +55,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			changeDetectorRef.detectChanges();
 		});
 
-		//Generate list of 30 0s
+		//Generates a list of 30 numbers
 		for(let i = 0; i < 30; i++) {
 			this.numbers.push(i);
 		}
@@ -104,5 +109,33 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		let seconds = (time % 12) * 5;
 
 		return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+	}
+
+	addClip(track: Track) {
+		//Creates an empty array if the track doesn't have any clips
+		if(!track.clips) {
+			track.clips = [];
+		}
+		//Returns if there is no current clip to add
+		if(!this.cis.getCurrentClip()) {
+			return;
+		}
+		//Adds the current clip to the array of clips and resizes the track to fit the width
+		//of the track view
+		track.clips = [...track.clips, Object.assign(this.cis.getCurrentClip(), { start: 0, end: 100 })];
+		this.changeDetectorRef.detectChanges();
+
+		//Resets the current clip so that it can't be added
+		//multiple times
+		this.cis.setCurrentClip(null);
+
+		this.tracksList.nativeElement.querySelectorAll(".track-contents").forEach((trackContents: any) => {
+			console.log(this.tracksList.nativeElement.scrollWidth);
+			trackContents.style.width = this.tracksList.nativeElement.scrollWidth + "px";
+		});
+	}
+
+	deleteTrack(id: number) {
+		this.tracksService.deleteTrack(id);
 	}
 }

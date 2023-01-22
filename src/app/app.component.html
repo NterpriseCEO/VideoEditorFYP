@@ -1,3 +1,15 @@
-<div class="h-full">
+<div
+	class = "h-full"
+	(mousedown) = "startAdd()"
+	(mousemove) = "moveFileRepresentation($event)"
+	(mouseup) = "cancelAdd()"
+>
+	<div
+		*ngIf = "showFileRepresentation"
+		class = "absolute w-4rem h-4rem bg-red-500 z-5 pointer-events-none"
+		[style.top.px] = "fileY"
+		[style.left.px] = "fileX"
+	>
+	</div>
 	<router-outlet></router-outlet>
 </div>

@@ -1,4 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ClipInstance } from "src/app/utils/interfaces";
 import { getHexBrightness } from "src/app/utils/utils";
 
 @Component({
@@ -9,6 +10,7 @@ import { getHexBrightness } from "src/app/utils/utils";
 export class ClipComponent implements OnChanges {
 
 	@Input() colour!: string;
+	@Input() clip!: ClipInstance;
 
 	titleColour: string = "white";
 

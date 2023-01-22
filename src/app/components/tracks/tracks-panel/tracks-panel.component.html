@@ -1,4 +1,4 @@
-<div class = "flex flex-column h-full w-full overflow-hidden">
+<div class = "flex flex-column h-full w-full overflow-hidden select-none">
 	<div class = "flex w-full h-3rem border-bottom-1 border-50">
 		<div style = "width: 175px" class = "flex-shrink-0 flex align-items-center">
 			<span class = "ml-4">Tracks</span>
@@ -40,12 +40,12 @@
 			</div>
 			<div class = "absolute w-full h-full" #tracksListContent>
 				<ng-container *ngFor = "let track of tracks">
-					<div class = "white-space-nowrap">
+					<div class = "white-space-nowrap" (mouseup) = "addClip(track)">
 						<app-track-contents
 							[clips] = "track.clips ?? []"
 							[colour] = "track.colour"
-							(onTrackDelete) = "tracksService.deleteTrack(track.id)"
-							class = "inline-block"
+							(onTrackDelete) = "deleteTrack(track.id)"
+							class = "inline-block track-contents"
 						>
 						</app-track-contents>
 						<div style = "width: 100px" class = "inline-block"></div>
