@@ -32,28 +32,28 @@
 		</div>
 		<div class = "overflow-auto flex-grow-1 h-full relative" #tracksList>
 			<div
+				id = "time-lines"
 				#timeLines
 				class = "absolute time-lines h-full"
-				[style.width.px] = "tracksList.scrollWidth"
 				[style.height.px] = "tracksList.scrollHeight"
 			>
 			</div>
-			<div class = "absolute w-full h-full" #tracksListContent>
+			<div class = "absolute min-w-full h-full w-max">
 				<ng-container *ngFor = "let track of tracks">
-					<div class = "white-space-nowrap" (mouseup) = "addClip(track)">
+					<div class = "flex" (mouseup) = "addClip(track)">
 						<app-track-contents
 							[clips] = "track.clips ?? []"
 							[colour] = "track.colour"
 							(onTrackDelete) = "deleteTrack(track.id)"
-							class = "inline-block track-contents"
+							class = "track-contents flex-grow-0 flex-shrink-0"
 						>
 						</app-track-contents>
-						<div style = "width: 100px" class = "inline-block"></div>
-						<div
-							class = "divider"
-							[style.width.px] = "tracksList.scrollWidth"
-						>
-						</div>
+						<div style = "width: 100px" class = "inline-block flex-grow-0 flex-shrink-0"></div>
+					</div>
+					<div
+						class = "divider"
+						[style.width.px] = "tracksList.scrollWidth"
+					>
 					</div>
 				</ng-container>
 				<div class = "flex justify-content-center w-full py-4" *ngIf = "tracks.length">

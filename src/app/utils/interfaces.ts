@@ -52,6 +52,7 @@ export interface Clip {
 }
 
 export interface ClipInstance extends Clip {
-	start: number;
-	end: number;
+	in: number;
+	out: number;
+	startTime: number;
 }

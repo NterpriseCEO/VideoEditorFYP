@@ -21,9 +21,9 @@ export class ImportsPanelComponent {
 
 	clips: Clip[] = [
 		{ name: "file1.mp4", location: "C:/Users/Alex/Video", duration: 120 },
-		{ name: "file2.mp4", location: "C:/Users/Alex/Video", duration: 120 },
-		{ name: "file3.mp4", location: "C:/Users/Alex/Video", duration: 120 },
-		{ name: "file4.mp4", location: "C:/Users/Alex/Video", duration: 120 }
+		{ name: "file2.mp4", location: "C:/Users/Alex/Video", duration: 140 },
+		{ name: "file3.mp4", location: "C:/Users/Alex/Video", duration: 30 },
+		{ name: "file4.mp4", location: "C:/Users/Alex/Video", duration: 45 }
 	]
 
 	constructor(public cis: ClipInsertionService) {

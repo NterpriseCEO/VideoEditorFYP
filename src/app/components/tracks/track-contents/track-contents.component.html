@@ -1,5 +1,11 @@
-<div class = "flex track-controls">
-	<div class = "flex">
-		<app-clip *ngFor = "let clip of clips" [clip] = "clip" class = "flex-grow-0 flex-shrink-0" style = "width: 300px" [colour] = "colour"></app-clip>
-	</div>
+<div class = "flex track-controls" [style.width.px] = "trackWidth">
+	<app-clip
+		*ngFor = "let clip of clips"
+		[clip] = "clip"
+		class = "absolute"
+		[style.width.px] = "clip.duration*10"
+		[style.left.px] = "clip.startTime*10"
+		[colour] = "colour"
+	>
+	</app-clip>
 </div>

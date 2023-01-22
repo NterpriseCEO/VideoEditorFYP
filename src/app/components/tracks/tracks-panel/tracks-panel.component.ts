@@ -54,15 +54,22 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 			changeDetectorRef.detectChanges();
 		});
-
-		//Generates a list of 30 numbers
-		for(let i = 0; i < 30; i++) {
-			this.numbers.push(i);
-		}
 	}
 
 	ngAfterViewInit() {
 		//Scrolls the tracks details to the same position as the tracks list
+		setTimeout(() => {
+			this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.clientWidth + "px";
+
+			//Divide the width of the tracksList by 50 to get the number of seconds
+			let roundedWidth = Math.floor(this.tracksList.nativeElement.clientWidth / 50);
+			//Populates the numbers array with the number of seconds
+			this.numbers = [];
+			for(let i = 0; i < roundedWidth; i++) {
+				this.numbers.push(i);
+			}
+			this.changeDetectorRef.detectChanges();
+		}, 0);
 		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
 			this.tracksDetails.nativeElement.scrollTop = event.target.scrollTop;
 
@@ -120,19 +127,52 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		if(!this.cis.getCurrentClip()) {
 			return;
 		}
-		//Adds the current clip to the array of clips and resizes the track to fit the width
-		//of the track view
-		track.clips = [...track.clips, Object.assign(this.cis.getCurrentClip(), { start: 0, end: 100 })];
-		this.changeDetectorRef.detectChanges();
+
+		//Start time and duration of each clip added together
+		let totalDuration = 0;
+		track.clips.forEach((clip: any) => {
+			console.log(clip);
+			
+			totalDuration += clip.duration;
+		});
+		
+		let newClip = JSON.parse(JSON.stringify(Object.assign(this.cis.getCurrentClip(), { in: 0, out: 100, startTime: totalDuration })));
+
+		track.clips = [...track.clips, newClip];
+		this.changeDetectorRef.markForCheck();
 
 		//Resets the current clip so that it can't be added
 		//multiple times
 		this.cis.setCurrentClip(null);
 
-		this.tracksList.nativeElement.querySelectorAll(".track-contents").forEach((trackContents: any) => {
-			console.log(this.tracksList.nativeElement.scrollWidth);
-			trackContents.style.width = this.tracksList.nativeElement.scrollWidth + "px";
-		});
+		// this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
+
+		let longestTrackWidth = 0;
+
+		setTimeout(() => {
+			this.tracksList.nativeElement.querySelectorAll(".track-contents").forEach((trackContents: any) => {
+				if(trackContents.getBoundingClientRect().width > longestTrackWidth) {
+					longestTrackWidth = trackContents.getBoundingClientRect().width;
+				}
+			});
+
+			longestTrackWidth += 100;
+
+			
+			if(longestTrackWidth > this.tracksList.nativeElement.getBoundingClientRect().width) {
+				this.timeLines.nativeElement.style.width = longestTrackWidth + "px";
+				this.tracksList.nativeElement.style.width = longestTrackWidth + "px";
+			}else {
+				this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
+			}
+
+			let roundedWidth = Math.round(longestTrackWidth / 50);
+			this.numbers = [];
+			for(let i = 0; i < roundedWidth+1; i++) {
+				this.numbers.push(i);
+			}
+			this.changeDetectorRef.detectChanges();
+		}, 0);
 	}
 
 	deleteTrack(id: number) {

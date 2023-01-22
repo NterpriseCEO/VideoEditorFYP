@@ -6,10 +6,13 @@
 >
 	<div
 		*ngIf = "showFileRepresentation"
-		class = "absolute w-4rem h-4rem bg-red-500 z-5 pointer-events-none"
+		class = "absolute w-7rem h-6rem p-1 surface-ground shadow-4 z-5 pointer-events-none"
 		[style.top.px] = "fileY"
 		[style.left.px] = "fileX"
 	>
+		<div class = "reel-edge w-full"></div>
+		<div class = "reel-middle w-full my-1"></div>
+		<div class = "reel-edge w-full"></div>
 	</div>
 	<router-outlet></router-outlet>
 </div>
