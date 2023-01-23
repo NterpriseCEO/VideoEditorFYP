@@ -40,7 +40,12 @@
 			</div>
 			<div class = "absolute min-w-full h-full w-max">
 				<ng-container *ngFor = "let track of tracks">
-					<div class = "flex" (mouseup) = "addClip(track)">
+					<div
+						class = "flex"
+						(mousemove) = "setPhantomClip($event, track)"
+						(mouseleave) = "phantomClip = null"
+						(mouseup) = "addClip(track, $event)"
+					>
 						<app-track-contents
 							[clips] = "track.clips ?? []"
 							[colour] = "track.colour"
@@ -48,6 +53,14 @@
 							class = "track-contents flex-grow-0 flex-shrink-0"
 						>
 						</app-track-contents>
+						<app-clip
+							*ngIf = "phantomClip && hoveringTrack === track"
+							[clip] = "phantomClip"
+							[colour] = "track.colour"
+							class = "absolute opacity-50"
+							[style.width.px] = "phantomClip.duration*10"
+							[style.left.px] = "phantomClip.startTime*10"
+						></app-clip>
 						<div style = "width: 100px" class = "inline-block flex-grow-0 flex-shrink-0"></div>
 					</div>
 					<div

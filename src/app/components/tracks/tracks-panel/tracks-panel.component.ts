@@ -1,6 +1,6 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
-import { Track } from "src/app/utils/interfaces";
+import { ClipInstance, Track } from "src/app/utils/interfaces";
 import { MenuItem, PrimeIcons } from "primeng/api";
 import { fromEvent } from "rxjs";
 import { ClipInsertionService } from "src/app/services/clip-insertion.service";
@@ -29,6 +29,9 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	];
 
 	numbers: number[] = [];
+
+	phantomClip: ClipInstance | null = null;
+	hoveringTrack: Track | null = null;
 
 	@ViewChild("tracksList") tracksList!: ElementRef;
 	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
@@ -118,7 +121,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
 	}
 
-	addClip(track: Track) {
+	addClip(track: Track, event: MouseEvent) {
 		//Creates an empty array if the track doesn't have any clips
 		if(!track.clips) {
 			track.clips = [];
@@ -128,18 +131,47 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			return;
 		}
 
-		//Start time and duration of each clip added together
-		let totalDuration = 0;
-		track.clips.forEach((clip: any) => {
-			console.log(clip);
-			
-			totalDuration += clip.duration;
-		});
+		//Gets the mouse position relative to the tracksList element including the scroll
+		let mousePositionSeconds = this.getMousePosition(event);
 		
-		let newClip = JSON.parse(JSON.stringify(Object.assign(this.cis.getCurrentClip(), { in: 0, out: 100, startTime: totalDuration })));
+		let newClip = JSON.parse(JSON.stringify(Object.assign(this.cis.getCurrentClip(), { in: 0, out: 100, startTime: mousePositionSeconds })));
+
+		track.clips.map((clip: ClipInstance) => {
+			//Checks if the current clip is inside the new clip completely
+			if(clip.startTime >= newClip.startTime && clip.startTime+clip.duration <= newClip.startTime + newClip.duration) {
+				//remove this clip
+				track.clips = track?.clips?.filter((clip2: ClipInstance) => {
+					return clip2 !== clip;
+				});
+				return;
+			}
+			//Checks if the new clip is cutting off the end of the current clip
+			if(clip.startTime+clip.duration > newClip.startTime && clip.startTime+clip.duration < newClip.startTime + newClip.duration) {
+				clip.duration = newClip.startTime - clip.startTime;
+			}else if(newClip.startTime > clip.startTime && newClip.startTime+newClip.duration < clip.startTime+clip.duration) {
+				//Checks if the new clip is inside the current clip
+				//Creates a new clip with the remaining duration
+				let newClip2 = JSON.parse(JSON.stringify(clip));
+				clip.duration = newClip.startTime - clip.startTime;
+				newClip2.startTime = newClip.startTime + newClip.duration;
+				newClip2.duration -= clip.duration+newClip.duration;
+				
+				//insert the clip after the current clip (clip)
+				track?.clips?.splice(track.clips.indexOf(clip)+1, 0, newClip2);
+				console.log(clip.duration+newClip.duration+newClip2.duration);
+				console.log(clip.duration, newClip.duration, newClip2.duration);
+				
+				
+			}else if(newClip.startTime+newClip.duration > clip.startTime && clip.startTime+clip.duration > newClip.startTime+newClip.duration) {
+				//Checks if the new clip is cutting off the start of the current clip
+				clip.duration = (clip.startTime+clip.duration) - (newClip.startTime+newClip.duration);
+				clip.startTime = newClip.startTime + newClip.duration;
+			}
+		});
 
 		track.clips = [...track.clips, newClip];
-		this.changeDetectorRef.markForCheck();
+		console.log(track.clips);
+		
 
 		//Resets the current clip so that it can't be added
 		//multiple times
@@ -158,13 +190,17 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 			longestTrackWidth += 100;
 
+			console.log(longestTrackWidth);
 			
+
 			if(longestTrackWidth > this.tracksList.nativeElement.getBoundingClientRect().width) {
 				this.timeLines.nativeElement.style.width = longestTrackWidth + "px";
 				this.tracksList.nativeElement.style.width = longestTrackWidth + "px";
 			}else {
 				this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
 			}
+
+			this.phantomClip = null;
 
 			let roundedWidth = Math.round(longestTrackWidth / 50);
 			this.numbers = [];
@@ -177,5 +213,22 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 	deleteTrack(id: number) {
 		this.tracksService.deleteTrack(id);
+	}
+
+	getMousePosition(event: MouseEvent) {
+		let mousePosition = event.clientX - this.tracksList.nativeElement.getBoundingClientRect().left + this.tracksList.nativeElement.scrollLeft;
+		//Converts the mouse position to seconds
+		return Math.floor(mousePosition / 10);
+	}
+
+	setPhantomClip(event: MouseEvent, track: Track) {
+		if(!this.cis.getCurrentClip()) {
+			return;
+		}
+		let mousePositionSeconds = this.getMousePosition(event);
+		this.phantomClip = Object.assign(this.cis.getCurrentClip(), { in: 0, out: 100, startTime: mousePositionSeconds });
+		this.changeDetectorRef.detectChanges();
+
+		this.hoveringTrack = track;
 	}
 }

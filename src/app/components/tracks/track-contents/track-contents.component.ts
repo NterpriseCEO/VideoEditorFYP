@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { ClipInstance, Track } from "src/app/utils/interfaces";
 
 @Component({
@@ -14,16 +14,17 @@ export class TrackContentsComponent implements OnChanges {
 
 	trackWidth: number = 0;
 
-	constructor() {}
+	constructor(private changeDetector: ChangeDetectorRef) {}
 
 	ngOnChanges(changes: SimpleChanges) {
 		if(this.clips.length > 0) {
 			this.trackWidth = 0;
-			//Calculates the width of the track based on the duration of all clips
-			//in the track
-			this.clips.forEach((clip: ClipInstance) => {
-				this.trackWidth += clip.duration*10;
-			});
+
+			//Finds the clip with the highest start time (not necessarily the last clip in the array)
+			let lastClip = this.clips.reduce((prev, current) => (prev.startTime > current.startTime) ? prev : current);
+
+			//Sets the width of the track = to the end coords of the last clip
+			this.trackWidth = (lastClip.startTime + lastClip.duration)*10;
 		}
 	}
 }
