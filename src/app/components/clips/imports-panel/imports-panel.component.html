@@ -30,7 +30,7 @@
 	</ng-template>
 	<ng-template let-clip pTemplate="gridItem">
 		<div class = "col-3 select-none">
-			<div class = "file card p-4 border-round cursor-pointer" [pTooltip] = "clip.location" (mousedown) = "cis.setCurrentClip(clip)">
+			<div class = "file card p-4 border-round cursor-pointer" [pTooltip] = "clip.location" (mousedown) = "cs.setCurrentClip(clip)">
 				<div class = "flex flex-column align-items-center">
 					<i class = "pi pi-file text-4xl"></i>
 					<span class = "product-price">{{clip.name}}</span>

@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { ClipInsertionService } from "./services/clip-insertion.service";
+import { ClipService } from "./services/clip.service";
 
 declare global {
 	interface Window {
@@ -21,7 +21,7 @@ export class AppComponent {
 	fileY: number = 0;
 	showFileRepresentation: boolean = false;
 
-	constructor(private cis: ClipInsertionService) {}
+	constructor(private cs: ClipService) {}
 
 	moveFileRepresentation(event: any) {
 		this.fileX = event.x;
@@ -30,13 +30,13 @@ export class AppComponent {
 
 
 	startAdd() {
-		this.showFileRepresentation = this.cis.getIsAddingClip();
+		this.showFileRepresentation = this.cs.getIsAddingClip();
 	}
 
 	cancelAdd() {
 		//Sets the current clip to null
 		//This will stop the clip from being addable to the timeline
-		this.cis.setCurrentClip(null);
+		this.cs.setCurrentClip(null);
 		this.showFileRepresentation = false;
 	}
 }

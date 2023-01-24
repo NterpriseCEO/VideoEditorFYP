@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewChild } from "@angular/core";
 import { SelectItem } from "primeng/api";
 import { Clip } from "src/app/utils/interfaces";
-import { ClipInsertionService } from "src/app/services/clip-insertion.service";
+import { ClipService } from "src/app/services/clip.service";
 
 @Component({
 	selector: "app-imports-panel",
@@ -26,7 +26,7 @@ export class ImportsPanelComponent {
 		{ name: "file4.mp4", location: "C:/Users/Alex/Video", duration: 45 }
 	]
 
-	constructor(public cis: ClipInsertionService) {
+	constructor(public cs: ClipService) {
 		this.sortOptions = [
 			{label: "A-Z", value: "name"},
             {label: "Z-A", value: "!name"}

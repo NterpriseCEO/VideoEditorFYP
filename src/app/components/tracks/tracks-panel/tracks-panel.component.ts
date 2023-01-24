@@ -1,9 +1,8 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
 import { ClipInstance, Track } from "src/app/utils/interfaces";
-import { MenuItem, PrimeIcons } from "primeng/api";
 import { fromEvent } from "rxjs";
-import { ClipInsertionService } from "src/app/services/clip-insertion.service";
+import { ClipService } from "src/app/services/clip.service";
 
 @Component({
 	selector: "app-tracks-panel",
@@ -18,20 +17,10 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 	addingTrack: boolean = false;
 
-	contextMenu: MenuItem[] = [
-		{
-			label: "Add track",
-			icon: PrimeIcons.PLUS,
-			command: () => {
-				this.tracksService.addTrack();
-			}
-		}
-	];
-
 	numbers: number[] = [];
 
-	phantomClip: ClipInstance | null = null;
 	hoveringTrack: Track | null = null;
+	originTrack: Track | null = null;
 
 	@ViewChild("tracksList") tracksList!: ElementRef;
 	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
@@ -41,7 +30,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	constructor(
 		public tracksService: TracksService,
 		public changeDetectorRef: ChangeDetectorRef,
-		private cis: ClipInsertionService
+		public cs: ClipService
 	) {
 		//Subscribes to the addTrackSubject in the tracks service
 		tracksService.tracksSubject.subscribe((tracks: Track[]) => {
@@ -127,19 +116,77 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			track.clips = [];
 		}
 		//Returns if there is no current clip to add
-		if(!this.cis.getCurrentClip()) {
+		if(!this.cs.getCurrentClip()) {
 			return;
 		}
 
 		//Gets the mouse position relative to the tracksList element including the scroll
 		let mousePositionSeconds = this.getMousePosition(event);
 		
-		let newClip = JSON.parse(JSON.stringify(Object.assign(this.cis.getCurrentClip(), { in: 0, out: 100, startTime: mousePositionSeconds })));
+		let newClip = JSON.parse(JSON.stringify(Object.assign(this.cs.getCurrentClip(), { in: 0, out: 100, startTime: mousePositionSeconds })));
 
-		track.clips.map((clip: ClipInstance) => {
+		this.checkIfClipOverlaps(track, newClip);
+
+		track.clips = [...track.clips, newClip];		
+
+		//Resets the current clip so that it can't be added
+		//multiple times
+		this.cs.setCurrentClip(null);
+
+		let longestTrackWidth = 0;
+
+		setTimeout(() => {
+			this.tracksList.nativeElement.querySelectorAll(".track-contents").forEach((trackContents: any) => {
+				if(trackContents.getBoundingClientRect().width > longestTrackWidth) {
+					longestTrackWidth = trackContents.getBoundingClientRect().width;
+				}
+			});
+
+			longestTrackWidth += 100;
+
+			//Checks if the longest track is longer than the tracksList element
+			//If it is then the timeLines and tracksList elements are set to the width of the longest track
+			if(longestTrackWidth > this.tracksList.nativeElement.getBoundingClientRect().width) {
+				this.timeLines.nativeElement.style.width = longestTrackWidth + "px";
+				this.tracksList.nativeElement.style.width = longestTrackWidth + "px";
+			}else {
+				this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
+			}
+
+			this.cs.phantomClip = null;
+
+			//Calculates the number of 5 second intervals to display
+			let roundedWidth = Math.round(longestTrackWidth / 50);
+			this.numbers = [];
+			for(let i = 0; i < roundedWidth+1; i++) {
+				this.numbers.push(i);
+			}
+			this.changeDetectorRef.detectChanges();
+		}, 0);
+	}
+
+	checkIfClipOverlaps(track: Track, newClip: ClipInstance) {
+		track?.clips?.map((clip: ClipInstance) => {
+			if(JSON.stringify(clip) === JSON.stringify(newClip)) {
+				//Count the number of clips that match the new clip
+				//If there is more than one then remove the new clip
+				//so that there are no duplicates
+				let count = 0;
+				track?.clips?.forEach((clip2: ClipInstance) => {
+					if(clip2 === newClip) {
+						count++;
+					}
+				});
+				if(count > 1) {
+					let index = track?.clips?.findIndex(clip2 => clip2 === newClip);
+					track?.clips?.splice(index!, 1);
+				}
+				return;
+			}
 			//Checks if the current clip is inside the new clip completely
 			if(clip.startTime >= newClip.startTime && clip.startTime+clip.duration <= newClip.startTime + newClip.duration) {
 				//remove this clip
+
 				track.clips = track?.clips?.filter((clip2: ClipInstance) => {
 					return clip2 !== clip;
 				});
@@ -168,47 +215,51 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 				clip.startTime = newClip.startTime + newClip.duration;
 			}
 		});
+	}
 
-		track.clips = [...track.clips, newClip];
-		console.log(track.clips);
+	completeDrag() {
+		if(!this.cs.getDraggedClip()) {
+			return;
+		}
+
+		//Checks if the clip is being dragged on the same track
+		if(this.cs.getDraggedClip() && this.cs.getPhantomClip() &&
+			this.cs.getDraggedClip()!.startTime === this.cs.getPhantomClip()!.startTime &&
+			this.hoveringTrack === this.originTrack
+		) {
+			this.cs.setDraggedClip(null);
+			this.cs.setPhantomClip(null);
+			return;
+		}
 		
+		let clip = JSON.parse(JSON.stringify(this.cs.getPhantomClip()));
 
-		//Resets the current clip so that it can't be added
-		//multiple times
-		this.cis.setCurrentClip(null);
+		//Checks if the clip is being dragged on the same track
+		if(this.originTrack == this.hoveringTrack) {
+			this.cs.completeDrag();
+		}else {
 
-		// this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
+			let origin = this.originTrack;
+			this.cs.resetDraggedClip();
 
-		let longestTrackWidth = 0;
-
-		setTimeout(() => {
-			this.tracksList.nativeElement.querySelectorAll(".track-contents").forEach((trackContents: any) => {
-				if(trackContents.getBoundingClientRect().width > longestTrackWidth) {
-					longestTrackWidth = trackContents.getBoundingClientRect().width;
-				}
+			//Remove the clip from the origin track
+			let clips = this.originTrack?.clips?.filter((clip2: ClipInstance) => {
+				return JSON.stringify(clip2) !== JSON.stringify(clip);
 			});
 
-			longestTrackWidth += 100;
+			//Get index of track with the origin id and replace the clips array
+			//with the modified version of itself
+			let index = this.tracksService.getTracks().findIndex(track => track.id === origin?.id);
 
-			console.log(longestTrackWidth);
-			
+			setTimeout(() => {
+				this.tracksService.getTracks()[index].clips = clips;
+			}, 0);
 
-			if(longestTrackWidth > this.tracksList.nativeElement.getBoundingClientRect().width) {
-				this.timeLines.nativeElement.style.width = longestTrackWidth + "px";
-				this.tracksList.nativeElement.style.width = longestTrackWidth + "px";
-			}else {
-				this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
-			}
+			this.hoveringTrack?.clips?.push(JSON.parse(JSON.stringify(clip)));			
 
-			this.phantomClip = null;
-
-			let roundedWidth = Math.round(longestTrackWidth / 50);
-			this.numbers = [];
-			for(let i = 0; i < roundedWidth+1; i++) {
-				this.numbers.push(i);
-			}
-			this.changeDetectorRef.detectChanges();
-		}, 0);
+			this.changeDetectorRef.markForCheck();
+		}
+		this.checkIfClipOverlaps(this.hoveringTrack!, clip);
 	}
 
 	deleteTrack(id: number) {
@@ -222,13 +273,21 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	}
 
 	setPhantomClip(event: MouseEvent, track: Track) {
-		if(!this.cis.getCurrentClip()) {
+		if(!this.cs.getCurrentClip() && !this.cs.isDraggingClip() && !this.cs.getDraggedClip()) {
 			return;
 		}
 		let mousePositionSeconds = this.getMousePosition(event);
-		this.phantomClip = Object.assign(this.cis.getCurrentClip(), { in: 0, out: 100, startTime: mousePositionSeconds });
+		this.cs.setPhantomClip(Object.assign(this.cs.getCurrentClip() || this.cs.getDraggedClip(), { in: 0, out: 100, startTime: mousePositionSeconds }));
 		this.changeDetectorRef.detectChanges();
 
 		this.hoveringTrack = track;
+	}
+
+	dragClip(event: MouseEvent) {
+		if(!this.cs.isDraggingClip() || !this.cs.getPhantomClip()) {
+			return;
+		}
+
+		this.cs.getPhantomClip()!.startTime = this.getMousePosition(event) - this.cs.getDraggedDistanceDiff();
 	}
 }

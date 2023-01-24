@@ -23,6 +23,10 @@ export class TracksService {
 		this.addFilterSubject.next(instance);
 	}
 
+	getTracks(): Track[] {
+		return this.tracks;
+	}
+
 	addTrack() {
 		//Adds a track with a name of "Track " + the number of tracks in the array
 		// It skips the track number when a track with that number in its name already exists

@@ -9,7 +9,6 @@
 			</span>
 		</div>
 	</div>
-	<p-contextMenu [target] = "tracksList" [model] = "contextMenu"></p-contextMenu>
 	<div
 		class = "w-full h-full overflow-hidden flex flex-grow-1"
 	>
@@ -30,7 +29,13 @@
 				</button>
 			</div>
 		</div>
-		<div class = "overflow-auto flex-grow-1 h-full relative" #tracksList>
+		<div
+			class = "overflow-auto flex-grow-1 h-full relative tracks-list"
+			#tracksList
+			(click) = "cs.unSelectClip()"
+			(mouseup) = "completeDrag()"
+			(mousemove) = "dragClip($event)"
+		>
 			<div
 				id = "time-lines"
 				#timeLines
@@ -42,8 +47,9 @@
 				<ng-container *ngFor = "let track of tracks">
 					<div
 						class = "flex"
+						(mousedown) = "originTrack = track"
 						(mousemove) = "setPhantomClip($event, track)"
-						(mouseleave) = "phantomClip = null"
+						(mouseleave) = "cs.phantomClip = null"
 						(mouseup) = "addClip(track, $event)"
 					>
 						<app-track-contents
@@ -54,12 +60,12 @@
 						>
 						</app-track-contents>
 						<app-clip
-							*ngIf = "phantomClip && hoveringTrack === track"
-							[clip] = "phantomClip"
+							*ngIf = "cs.phantomClip && hoveringTrack === track"
+							[clip] = "cs.phantomClip"
 							[colour] = "track.colour"
-							class = "absolute opacity-50"
-							[style.width.px] = "phantomClip.duration*10"
-							[style.left.px] = "phantomClip.startTime*10"
+							class = "absolute opacity-50 pointer-events-none"
+							[style.width.px] = "cs.phantomClip.duration*10"
+							[style.left.px] = "cs.phantomClip.startTime*10"
 						></app-clip>
 						<div style = "width: 100px" class = "inline-block flex-grow-0 flex-shrink-0"></div>
 					</div>

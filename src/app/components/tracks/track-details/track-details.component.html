@@ -4,7 +4,7 @@
 			<div style = "height: 45%">
 				<p-inplace [active] = "isEditingName" (onActivate) = "isEditingName = true" class = "h-full">
 					<ng-template pTemplate = "display">
-						<div class = "mask">{{track.name}}</div>
+						<div class = "white-space-nowrap text-overflow-ellipsis" [pTooltip] = "track.name">{{track.name}}</div>
 					</ng-template>
 					<ng-template pTemplate = "content">
 						<input
@@ -20,7 +20,7 @@
 			<div style = "height: 10%">
 				<hr width = "20px" class = "m-1">
 			</div>
-			<div class = "mask" style = "height: 45%">{{track.type}}</div>
+			<div style = "height: 45%">{{track.type}}</div>
 		</div>
 	</div>
 	<div class="flex flex-column w-6 flex-grow-0 flex-shrink-0 surface-ground" (click) = "isEditingName = false">

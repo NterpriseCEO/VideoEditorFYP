@@ -1,4 +1,7 @@
-<div class = "flex track-height" [style.width.px] = "trackWidth">
+<div
+	class = "flex track-height"
+	[style.width.px] = "trackWidth"
+>
 	<app-clip
 		*ngFor = "let clip of clips"
 		[clip] = "clip"
@@ -6,6 +9,9 @@
 		[style.width.px] = "clip.duration*10"
 		[style.left.px] = "clip.startTime*10"
 		[colour] = "colour"
+		(click) = "selectClip(clip, $event)"
+		[class.border-2] = "selectedClip === clip"
+		(mousedown) = "setDraggedClip(clip, $event)"
 	>
 	</app-clip>
 </div>
