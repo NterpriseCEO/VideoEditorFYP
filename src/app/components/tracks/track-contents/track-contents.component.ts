@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, ViewChild } from "@angular/core";
 import { ClipService } from "src/app/services/clip.service";
 import { KeyboardEventsService } from "src/app/services/keyboard-events.service";
+import { TracksService } from "src/app/services/tracks.service";
 import { ClipInstance, Track } from "src/app/utils/interfaces";
 
 @Component({
@@ -18,14 +19,13 @@ export class TrackContentsComponent implements OnChanges {
 
 	selectedClip: ClipInstance | null = null;
 
-	isDragging: boolean = false;
-
-	draggedClip: ClipInstance | null = null;
+	clipToResize: HTMLElement | null = null;
 
 	constructor(
 		private changeDetector: ChangeDetectorRef,
 		private keys: KeyboardEventsService,
-		public cs: ClipService
+		public cs: ClipService,
+		public tracksService: TracksService
 	) {
 		this.keys.keypress("keyup.delete").subscribe(() => {
 			//Deletes the selected clip
@@ -43,19 +43,6 @@ export class TrackContentsComponent implements OnChanges {
 			this.selectedClip = clip;
 			
 			this.changeDetector.detectChanges();
-		});
-
-		cs.lastDraggedClipSubject.subscribe(() => {
-			this.isDragging = false;
-
-			if(!this.draggedClip) {
-				return;
-			}
-			
-			//Sets the start time of the dragged clip to the start time of the phantom clip
-			//after the drag has ended
-			this.draggedClip!.startTime = this.cs.getPhantomClip()!.startTime;
-			this.cs.setPhantomClip(null);
 		});
 	}
 
@@ -77,21 +64,32 @@ export class TrackContentsComponent implements OnChanges {
 		this.cs.selectClip(clip);
 	}
 
-	setDraggedClip(clip: ClipInstance, event: MouseEvent) {
-		this.cs.setIsDraggingClip(true);
-		this.draggedClip = clip;
-		this.cs.setDraggedClip(clip);
+	dragStart(clip: ClipInstance, event: MouseEvent) {
+		//Checks if the user is clicking on the title of the clip or the resize handle
+		if((event.target as HTMLElement).classList.contains("clip-title")) {
+			this.cs.setIsDraggingClip(true);
+			this.cs.setDraggedClip(JSON.parse(JSON.stringify(clip)));
 
-		this.cs.setPhantomClip(JSON.parse(JSON.stringify(clip)));
+			this.cs.setPhantomClip(JSON.parse(JSON.stringify(clip)));
 
-		//Gets the distance between the mouse and the start of the clip
-		let parentNode = event.target as HTMLElement;
-		while(!parentNode.classList.contains("tracks-list")) {
-			parentNode = parentNode.parentNode as HTMLElement;
+			//Keeps iterating up the DOM tree until it finds
+			//the parent element with the class "tracks-list"
+			let parentNode = event.target as HTMLElement;
+			while(!parentNode.classList.contains("tracks-list")) {
+				parentNode = parentNode.parentNode as HTMLElement;
+			}
+			
+			//Gets the distance between the mouse and the start of the clip
+			let x = event.clientX - parentNode.getBoundingClientRect().left;
+			let clipStart = this.cs.getPhantomClip()!.startTime;
+			//Calculates the difference between the mouse and the start of the clip
+			//This ensures that the clip start is relative to its current position
+			//and not the position of the mouse
+			this.cs.setDraggedDistanceDiff(Math.floor(x/10) - clipStart);
+		}else if((event.target as HTMLElement).classList.contains("resize-handle")) {
+
+			this.cs.setClipBeingResized(clip);
+			this.cs.setClipElementBeingResized((event.target as HTMLElement).parentElement);
 		}
-
-		let x = event.clientX - parentNode.getBoundingClientRect().left;
-		let clipStart = this.cs.getPhantomClip()!.startTime;
-		this.cs.setDraggedDistanceDiff(Math.floor(x/10) - clipStart);
 	}
 }

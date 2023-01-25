@@ -76,9 +76,7 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 		//Sets the size of both panels based on the panelSizes array
 		if(this.horizontal) {
 			this.panel1.nativeElement.style.width = this.panelSizes[0] + "%";
-			console.log(this.panel1.nativeElement.style.width, this.panelSizes[0]);
 			this.panel2.nativeElement.style.width = this.panelSizes[1] + "%";
-			console.log(this.panel2.nativeElement.style.width, this.panelSizes[1]);
 		}else {
 			this.panel1.nativeElement.style.height = this.panelSizes[0] + "%";
 			this.panel2.nativeElement.style.height = this.panelSizes[1] + "%";

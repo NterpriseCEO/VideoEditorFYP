@@ -21,6 +21,9 @@ export class ClipService {
 	draggedDistanceDiff: number = 0;
 	isDragging: boolean = false;
 
+	clipBeingResized: ClipInstance | null = null;
+	clipElementBeingResized: HTMLElement | null = null;
+
 	phantomClip: ClipInstance | null = null;
 
 	constructor() { }
@@ -29,7 +32,6 @@ export class ClipService {
 		this.currentClip = clip;
 		this.isAddingClip = clip !== null;
 	}
-
 	getCurrentClip(): Clip {
 		return this.currentClip!;
 	}
@@ -42,20 +44,19 @@ export class ClipService {
 		this.currentlySelectedClip = clip;
 		this.clipSelectionUpdateSubject.next(clip);
 	}
-
-	getCurrentlySelectedClip(): ClipInstance | null {
-		return this.currentlySelectedClip;
-	}
-
 	unSelectClip() {
 		this.currentlySelectedClip = null;
 		this.clipSelectionUpdateSubject.next(null);
 	}
 
+	getCurrentlySelectedClip(): ClipInstance | null {
+		return this.currentlySelectedClip;
+	}
+
+
 	setDraggedClip(clip: ClipInstance | null) {
 		this.currentlyDraggedClip = clip;
 	}
-
 	getDraggedClip(): ClipInstance | null {
 		return this.currentlyDraggedClip;
 	}
@@ -78,7 +79,6 @@ export class ClipService {
 	setDraggedDistanceDiff(diff: number) {
 		this.draggedDistanceDiff = diff;
 	}
-
 	getDraggedDistanceDiff(): number {
 		return this.draggedDistanceDiff;
 	}
@@ -90,12 +90,24 @@ export class ClipService {
 	setIsDraggingClip(isDragging: boolean) {
 		this.isDragging = isDragging;
 	}
-
 	setPhantomClip(clip: ClipInstance | null) {
 		this.phantomClip = clip;
 	}
-
 	getPhantomClip(): ClipInstance | null {
 		return this.phantomClip;
+	}
+
+	getClipBeingResized(): ClipInstance | null {
+		return this.clipBeingResized;
+	}
+	setClipBeingResized(clip: ClipInstance | null) {
+		this.clipBeingResized = clip;
+	}
+
+	getClipElementBeingResized(): HTMLElement | null {
+		return this.clipElementBeingResized;
+	}
+	setClipElementBeingResized(element: HTMLElement | null) {
+		this.clipElementBeingResized = element;
 	}
 }

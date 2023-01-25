@@ -1,7 +1,13 @@
-<div class = "w-full border-right-2 border-50 flex flex-column" style = "height: 99px" [style.width.px] = "clip.duration*10">
-	<div [ngStyle] = "{backgroundColor: colour, color: titleColour}" class = "w-full pl-2">{{clip.name}}</div>
+<div
+	class = "w-full border-right-2 border-50 flex flex-column clip relative"
+	style = "height: 99px"
+	[style.width.px] = "clip.duration*10"
+>
+	<div class = "absolute h-full resize-handle"></div>
+	<div [ngStyle] = "{backgroundColor: colour, color: titleColour}" class = "w-full pl-2 clip-title">{{clip.name}}</div>
 	<div class = "flex-grow-1 flex">
 		<div style = "width: 99px" class = "h-full surface-ground border-right-2 border-50"></div>
 		<div [ngStyle] = "{backgroundColor: colour }" class = "flex-grow-1 opacity-30"></div>
 	</div>
+	<div class = "absolute h-full right-0 resize-handle"></div>
 </div>

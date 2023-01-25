@@ -133,36 +133,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		//multiple times
 		this.cs.setCurrentClip(null);
 
-		let longestTrackWidth = 0;
-
-		setTimeout(() => {
-			this.tracksList.nativeElement.querySelectorAll(".track-contents").forEach((trackContents: any) => {
-				if(trackContents.getBoundingClientRect().width > longestTrackWidth) {
-					longestTrackWidth = trackContents.getBoundingClientRect().width;
-				}
-			});
-
-			longestTrackWidth += 100;
-
-			//Checks if the longest track is longer than the tracksList element
-			//If it is then the timeLines and tracksList elements are set to the width of the longest track
-			if(longestTrackWidth > this.tracksList.nativeElement.getBoundingClientRect().width) {
-				this.timeLines.nativeElement.style.width = longestTrackWidth + "px";
-				this.tracksList.nativeElement.style.width = longestTrackWidth + "px";
-			}else {
-				this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
-			}
-
-			this.cs.phantomClip = null;
-
-			//Calculates the number of 5 second intervals to display
-			let roundedWidth = Math.round(longestTrackWidth / 50);
-			this.numbers = [];
-			for(let i = 0; i < roundedWidth+1; i++) {
-				this.numbers.push(i);
-			}
-			this.changeDetectorRef.detectChanges();
-		}, 0);
+		this.renderTimeline();
 	}
 
 	checkIfClipOverlaps(track: Track, newClip: ClipInstance) {
@@ -205,10 +176,6 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 				
 				//insert the clip after the current clip (clip)
 				track?.clips?.splice(track.clips.indexOf(clip)+1, 0, newClip2);
-				console.log(clip.duration+newClip.duration+newClip2.duration);
-				console.log(clip.duration, newClip.duration, newClip2.duration);
-				
-				
 			}else if(newClip.startTime+newClip.duration > clip.startTime && clip.startTime+clip.duration > newClip.startTime+newClip.duration) {
 				//Checks if the new clip is cutting off the start of the current clip
 				clip.duration = (clip.startTime+clip.duration) - (newClip.startTime+newClip.duration);
@@ -218,7 +185,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	}
 
 	completeDrag() {
-		if(!this.cs.getDraggedClip()) {
+		if(!this.cs.getDraggedClip() && !this.cs.getClipBeingResized()) {
 			return;
 		}
 
@@ -231,34 +198,47 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			this.cs.setPhantomClip(null);
 			return;
 		}
-		
+		//Checks if the clip is being resized
+		if(this.cs.getClipBeingResized()) {
+			this.cs.setClipBeingResized(null);
+			this.cs.setPhantomClip(null);
+			return;
+		}
+
 		let clip = JSON.parse(JSON.stringify(this.cs.getPhantomClip()));
+		let tracks = this.tracksService.getTracks();
+		let index = tracks.findIndex(track => track.id === this.originTrack?.id);
+
+		//Find the index of the clip that matches currently dragged clip
+		let clipIndex = this.originTrack?.clips?.findIndex((clip2: ClipInstance) => {
+			return JSON.stringify(clip2) === JSON.stringify(this.cs.getDraggedClip());
+		});
 
 		//Checks if the clip is being dragged on the same track
 		if(this.originTrack == this.hoveringTrack) {
-			this.cs.completeDrag();
+			//Replace the clip with the modified version of itself
+			tracks[index].clips![clipIndex!] = JSON.parse(JSON.stringify(clip));
+			this.cs.setDraggedClip(null);
+			this.cs.setPhantomClip(null);
 		}else {
 
-			let origin = this.originTrack;
 			this.cs.resetDraggedClip();
 
 			//Remove the clip from the origin track
-			let clips = this.originTrack?.clips?.filter((clip2: ClipInstance) => {
-				return JSON.stringify(clip2) !== JSON.stringify(clip);
-			});
 
 			//Get index of track with the origin id and replace the clips array
 			//with the modified version of itself
-			let index = this.tracksService.getTracks().findIndex(track => track.id === origin?.id);
+			let hoveringIndex = tracks.findIndex(track => track.id === this.hoveringTrack?.id);
 
-			setTimeout(() => {
-				this.tracksService.getTracks()[index].clips = clips;
-			}, 0);
+			tracks[index].clips?.splice(clipIndex!, 1);
 
-			this.hoveringTrack?.clips?.push(JSON.parse(JSON.stringify(clip)));			
+			tracks[hoveringIndex].clips?.push(JSON.parse(JSON.stringify(clip)));
 
 			this.changeDetectorRef.markForCheck();
 		}
+
+		this.renderTimeline();
+
 		this.checkIfClipOverlaps(this.hoveringTrack!, clip);
 	}
 
@@ -276,18 +256,80 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		if(!this.cs.getCurrentClip() && !this.cs.isDraggingClip() && !this.cs.getDraggedClip()) {
 			return;
 		}
+		if(this.cs.getClipBeingResized()) {
+			return;
+		}
 		let mousePositionSeconds = this.getMousePosition(event);
-		this.cs.setPhantomClip(Object.assign(this.cs.getCurrentClip() || this.cs.getDraggedClip(), { in: 0, out: 100, startTime: mousePositionSeconds }));
+		
+		//Sets the phantom clip to the current clip or the dragged clip
+		let clip = JSON.parse(JSON.stringify(this.cs.getCurrentClip())) || JSON.parse(JSON.stringify(this.cs.getDraggedClip()));
+		
+		this.cs.setPhantomClip(Object.assign(clip, { in: 0, out: 100, startTime: mousePositionSeconds }));
 		this.changeDetectorRef.detectChanges();
 
 		this.hoveringTrack = track;
 	}
 
-	dragClip(event: MouseEvent) {
-		if(!this.cs.isDraggingClip() || !this.cs.getPhantomClip()) {
+	onDrag(event: MouseEvent) {
+		if(!this.cs.isDraggingClip() && !this.cs.getPhantomClip() && !this.cs.getClipBeingResized()) {
 			return;
 		}
 
-		this.cs.getPhantomClip()!.startTime = this.getMousePosition(event) - this.cs.getDraggedDistanceDiff();
+		let clip = this.cs.getClipBeingResized();
+
+		if(clip) {
+			//Resizes the clip
+			let elementBeingResized = this.cs.getClipElementBeingResized()?.getBoundingClientRect()!;
+			if(event.clientX > elementBeingResized.right - 20) {
+				//The mouse psotion in seconds - the start time of the clip
+				clip!.duration = this.getMousePosition(event) - clip!.startTime;
+			}else if(event.clientX < elementBeingResized.left + 20) {
+				//Shrinks the duration of the clip proportionally to the
+				//new start time of the clip
+				clip!.duration = clip.startTime + clip.duration - this.getMousePosition(event);
+				clip!.startTime = this.getMousePosition(event);
+			}
+			//Recreates the clips array to trigger change detection
+			this.hoveringTrack!.clips = [...this.hoveringTrack?.clips!];
+			this.checkIfClipOverlaps(this.hoveringTrack!, clip);
+			this.renderTimeline();
+		}else {
+			this.cs.getPhantomClip()!.startTime = this.getMousePosition(event) - this.cs.getDraggedDistanceDiff();
+		}
+	}
+
+	renderTimeline() {
+		setTimeout(() => {
+			let longestTrackWidth = 0;
+			let roundedWidth = 0;
+			this.tracksList.nativeElement.querySelectorAll(".track-contents").forEach((trackContents: any) => {
+				if(trackContents.getBoundingClientRect().width > longestTrackWidth) {
+					longestTrackWidth = trackContents.getBoundingClientRect().width;
+				}
+			});
+
+			longestTrackWidth += 100;
+
+			//Checks if the longest track is longer than the tracksList element
+			//If it is then the timeLines and tracksList elements are set to the width of the longest track
+			
+			if(longestTrackWidth > this.tracksList.nativeElement.getBoundingClientRect().width) {
+				this.timeLines.nativeElement.style.width = longestTrackWidth + "px";
+				this.tracksList.nativeElement.style.width = longestTrackWidth + "px";
+				roundedWidth = Math.round(longestTrackWidth / 50);
+			}else {
+				this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.scrollWidth + "px";
+				roundedWidth = Math.round(this.tracksList.nativeElement.scrollWidth / 50);
+			}
+
+			this.cs.phantomClip = null;
+
+			//Calculates the number of 5 second intervals to display
+			this.numbers = [];
+			for(let i = 0; i < roundedWidth+1; i++) {
+				this.numbers.push(i);
+			}
+			this.changeDetectorRef.detectChanges();
+		}, 0);
 	}
 }
