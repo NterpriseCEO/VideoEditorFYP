@@ -24,16 +24,17 @@
 					pButton
 					pTooltip = "Import a new file"
 					icon = "pi pi-file-import"
+					(click) = "importFiles()"
 				></button>
 			</div>
 		</div>
 	</ng-template>
 	<ng-template let-clip pTemplate="gridItem">
-		<div class = "col-3 select-none">
-			<div class = "file card p-4 border-round cursor-pointer" [pTooltip] = "clip.location" (mousedown) = "cs.setCurrentClip(clip)">
+		<div class = "col-4 p-1 select-none">
+			<div class = "file card border-round cursor-pointer white-space-nowrap text-overflow-ellipsis overflow-hidden w-full" [pTooltip] = "clip.location" (mousedown) = "cs.setCurrentClip(clip)">
 				<div class = "flex flex-column align-items-center">
-					<i class = "pi pi-file text-4xl"></i>
-					<span class = "product-price">{{clip.name}}</span>
+					<img [src] = "clip.thumbnail" class = "w-full" ondragstart = "return false">
+					<span class = "w-full">{{clip.name}}</span>
 				</div>
 			</div>
 		</div>

@@ -4,9 +4,16 @@
 	[style.width.px] = "clip.duration*10"
 >
 	<div class = "absolute h-full resize-handle"></div>
-	<div [ngStyle] = "{backgroundColor: colour, color: titleColour}" class = "w-full pl-2 clip-title">{{clip.name}}</div>
+	<div
+		[ngStyle] = "{backgroundColor: colour, color: titleColour}"
+		class = "w-full pl-2 clip-title text-overflow-ellipsis white-space-nowrap overflow-hidden"
+	>
+		{{clip.name}}
+	</div>
 	<div class = "flex-grow-1 flex">
-		<div style = "width: 99px" class = "h-full surface-ground border-right-2 border-50"></div>
+		<div style = "width: 99px" class = "h-full surface-ground border-right-2 border-50 flex">
+			<img [src] = "clip.thumbnail" class = "thumbnail w-full h-full" ondragstart = "return false">
+		</div>
 		<div [ngStyle] = "{backgroundColor: colour }" class = "flex-grow-1 opacity-30"></div>
 	</div>
 	<div class = "absolute h-full right-0 resize-handle"></div>

@@ -49,6 +49,7 @@ export interface Clip {
 	name: string;
 	location: string;
 	duration: number;
+	thumbnail?: string;
 }
 
 export interface ClipInstance extends Clip {

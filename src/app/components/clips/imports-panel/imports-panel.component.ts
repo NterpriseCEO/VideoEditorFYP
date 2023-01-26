@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, ViewChild } from "@angular/core";
 import { SelectItem } from "primeng/api";
 import { Clip } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
@@ -19,18 +19,57 @@ export class ImportsPanelComponent {
 
 	sortField: string = "!name";
 
-	clips: Clip[] = [
-		{ name: "file1.mp4", location: "C:/Users/Alex/Video", duration: 120 },
-		{ name: "file2.mp4", location: "C:/Users/Alex/Video", duration: 140 },
-		{ name: "file3.mp4", location: "C:/Users/Alex/Video", duration: 30 },
-		{ name: "file4.mp4", location: "C:/Users/Alex/Video", duration: 45 }
-	]
+	clips: Clip[] = []
 
-	constructor(public cs: ClipService) {
+	constructor(
+		public cs: ClipService,
+		private ngZone: NgZone,
+		private changeDetector: ChangeDetectorRef
+	) {
 		this.sortOptions = [
 			{label: "A-Z", value: "name"},
             {label: "Z-A", value: "!name"}
         ];
+
+		this.listenForFileImports();
+	}
+
+	listenForFileImports() {
+		window.api.on("imported-files", (_:any, files: any[]) => this.ngZone.run(() => {
+			//checks if the clips array has any items matching the names of the files
+			//if not, adds them to the array
+
+			console.log(files);
+			
+
+			files.forEach((file: any) => {
+				//Gets everything after the last slash (the file name)
+				let nme = file.name;
+				let n = nme.substring(nme.lastIndexOf(nme.includes("/") ? "/" : "\\") + 1);
+				if (!this.clips.find(({name}) => name === n)) {
+					this.clips.push({ name: n, location: file, duration: file.duration });
+				}
+			});
+
+			//Update the clips array to trigger change detection
+			this.clips = [...this.clips];
+			this.changeDetector.detectChanges();
+		}));
+
+		window.api.on("thumbnails", (_:any, thumbnails: any[]) => {
+			//Adds the thumbnail data to the clips array
+			thumbnails.forEach((thumbnail: any, index: number) => {
+				//find the clip matching thumbnail.associatedFile
+				//and set the thumbnail property to the thumbnail data
+
+				this.clips.find(({name}) => name.startsWith(thumbnail.associatedFile))!
+					.thumbnail = "data:image/png;base64,"+thumbnail.thumbnail;
+				this.clips[index].thumbnail = "data:image/png;base64,"+thumbnail.thumbnail;
+			});
+			this.clips = [...this.clips];
+			
+			this.changeDetector.detectChanges();
+		});
 	}
 
 	removeFile(file: any) {
@@ -54,4 +93,8 @@ export class ImportsPanelComponent {
             this.sortField = value;
         }
     }
+
+	importFiles() {
+		window.api.emit("import-files");
+	}
 }

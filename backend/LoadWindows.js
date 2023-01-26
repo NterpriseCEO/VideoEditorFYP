@@ -4,6 +4,7 @@ const windowStateKeeper = require("electron-window-state");
 
 const { StreamingAndFilters } = require("./StreamingAndFilters");
 const { Worker } = require("worker_threads");
+const { ImportFiles } = require("./file-management/ImportFiles");
 
 function MainWindow() {
 
@@ -19,6 +20,7 @@ function MainWindow() {
 
 MainWindow.prototype.listenForEvents = function() {
 	new StreamingAndFilters(this.window, this.previewWindow).listenForEvents();
+	new ImportFiles(this.window).listenForEvents();
 
 	//Saves the video files to the user"s computer in a sparate thread
 	//WIll replace this with MediaRecorder in the future
