@@ -1,43 +1,34 @@
 <p-dialog header = "Select a sourcce" [(visible)] = "display" [style] = "{width: '50vw', height: '50vh'}">
-	<p-tabView>
+	<!-- <p-tabView>
 		<p-tabPanel header = "Webcam">
 			<button (click) = "selectSource('webcam')">Select webcam</button>
 		</p-tabPanel>
-		<p-tabPanel header = "Screen capture">
-			<!-- <div *ngFor = "let source of screenShareSources">
-				<button (click) = "selectSource('screen', source.id)">{{source.name}}</button><br>
-			</div> -->
-			<p-dataView [value] = "screenShareSources">
-				<ng-template let-source pTemplate = "listItem">
-					<div
-						class = "col-3 sm:col-6 shadow-2 cursor-pointer surface-ground p-2"
-						(click) = "selectSource('screen', source.id)"
-						[title] = "source.name"
-					>
-						<div class = "col-12">
-							<div>
-								<img
-									[src] = "source.thumbnail"
-									[alt] = "source.name"
-									class = "w-full"
-								/>
-								<div class = "w-full text-overflow-ellipsis overflow-hidden white-space-nowrap">
-									{{source.name}}
-								</div>
-							</div>
-						</div>
+	</p-tabView> -->
+	<div class = "flex w-full flex-wrap gap-4 justify-content-between">
+		<div
+			class = "w-5 flex-shrink-0 shadow-2 cursor-pointer border-2 surface-border border-round hover:surface-ground"
+			(click) = "selectSource('screen', source.id)"
+			[title] = "source.name"
+			*ngFor = "let source of screenShareSources"
+		>
+			<div class = "w-full">
+				<div>
+					<img
+						[src] = "source.thumbnail"
+						[alt] = "source.name"
+						class = "w-full border-round"
+					/>
+					<div class = "w-full text-overflow-ellipsis overflow-hidden white-space-nowrap text-center p-2">
+						{{source.name}}
 					</div>
-				</ng-template>
-			</p-dataView>
-			
-		</p-tabPanel>
-		<p-tabPanel header = "Video">
-			<button (click) = "selectSource('video')">Select video</button>
-		</p-tabPanel>
-	</p-tabView>
+				</div>
+			</div>
+		</div>
+	</div>
 </p-dialog>
 
 <button
+	*ngIf = "showButton"
 	pButton
 	(click) = "showDialog()"
 	pTooltip = "Select a source"

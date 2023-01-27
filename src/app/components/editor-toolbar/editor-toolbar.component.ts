@@ -1,6 +1,8 @@
-import { Component } from "@angular/core";
+import { Component, ViewChild } from "@angular/core";
 import { MenuItem, PrimeIcons } from "primeng/api";
 import { TracksService } from "src/app/services/tracks.service";
+import { TrackType } from "src/app/utils/constants";
+import { SourceSelectorComponent } from "../tracks/source-selector/source-selector.component";
 
 @Component({
 	selector: "app-editor-toolbar",
@@ -8,6 +10,8 @@ import { TracksService } from "src/app/services/tracks.service";
 	styleUrls: ["./editor-toolbar.component.scss"]
 })
 export class EditorToollbarComponent {
+
+	@ViewChild("sourceSelector") sourceSelector!: SourceSelectorComponent;
 
 	title = "Editor Toolbar";
 
@@ -26,28 +30,28 @@ export class EditorToollbarComponent {
 					label: "Add track",
 					icon: PrimeIcons.PLUS,
 					command: () => {
-						this.tracksService.addTrack();
+						this.tracksService.addTrack(TrackType.VIDEO);
 					},
 					items: [
 						{
 							label: "Video",
 							icon: PrimeIcons.PLUS,
 							command: () => {
-								alert("Adding a video track");
+								this.tracksService.addTrack(TrackType.VIDEO);
 							}
 						},
 						{
 							label: "Webcam",
 							icon: PrimeIcons.PLUS,
 							command: () => {
-								alert("Adding a webcam track");
+								this.tracksService.addTrack(TrackType.WEBCAM);
 							}
 						},
 						{
 							label: "Screen capture",
 							icon: PrimeIcons.PLUS,
 							command: () => {
-								alert("Adding a screen capture track");
+								this.sourceSelector.showDialog();
 							}
 						}
 					]
@@ -127,4 +131,8 @@ export class EditorToollbarComponent {
 	]
 
 	constructor(private tracksService: TracksService) { }
+
+	createScreenCaptureTrack() {
+		this.tracksService.addTrack(TrackType.SCREEN_CAPTURE);
+	}
 }

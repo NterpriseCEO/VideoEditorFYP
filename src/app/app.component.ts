@@ -21,7 +21,11 @@ export class AppComponent {
 	fileY: number = 0;
 	showFileRepresentation: boolean = false;
 
-	constructor(private cs: ClipService) {}
+	constructor(private cs: ClipService) {
+		window.api.on("server-port", (_:any, port: number) => {
+			console.log("Server is running on port " + port);
+		});
+	}
 
 	moveFileRepresentation(event: any) {
 		this.fileX = event.x;

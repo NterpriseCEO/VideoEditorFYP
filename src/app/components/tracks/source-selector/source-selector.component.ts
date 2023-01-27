@@ -1,11 +1,15 @@
-import { Component, NgZone, OnInit } from "@angular/core";
+import { Component, EventEmitter, Input, NgZone, OnInit, Output } from "@angular/core";
 
 @Component({
 	selector: "app-source-selector",
 	templateUrl: "./source-selector.component.html",
 	styleUrls: ["./source-selector.component.scss"]
 })
-export class SourceSelectorComponent{
+export class SourceSelectorComponent {
+
+	@Input() showButton: boolean = false;
+
+	@Output() sourceSelected = new EventEmitter();
 
 	display: boolean = false;
 
@@ -29,7 +33,8 @@ export class SourceSelectorComponent{
 
 	selectSource(source: string, sourceId: string = "") {
 		//Sends the new source to the main process and on to the preview window
-		window.api.emit("change-source", {source: source, sourceId: sourceId});
+		this.sourceSelected.emit({source: source, sourceId: sourceId});
 		this.display = false;
+		// window.api.emit("change-source", {source: source, sourceId: sourceId});
 	}
 }

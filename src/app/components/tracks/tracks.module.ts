@@ -53,6 +53,6 @@ import { TrackDetailsComponent } from "./track-details/track-details.component";
 		ContextMenuModule,
 		ClipsModule
 	],
-	exports: [TracksPanelComponent, TrackPropertiesPanelComponent],
+	exports: [TracksPanelComponent, TrackPropertiesPanelComponent, SourceSelectorComponent],
 })
 export class TracksModule { }

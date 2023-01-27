@@ -27,7 +27,7 @@ export class TracksService {
 		return this.tracks;
 	}
 
-	addTrack() {
+	addTrack(type: TrackType = TrackType.VIDEO) {
 		//Adds a track with a name of "Track " + the number of tracks in the array
 		// It skips the track number when a track with that number in its name already exists
 
@@ -44,7 +44,7 @@ export class TracksService {
 			id: number,
 			name: `Track ${number}`,
 			colour: this.setTrackColour(),
-			type: TrackType.WEBCAM,
+			type: type,
 			isVisible: true
 		};
 

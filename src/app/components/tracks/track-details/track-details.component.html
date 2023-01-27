@@ -1,3 +1,4 @@
+<app-source-selector #sourceSelector></app-source-selector>
 <div class = "flex track-controls">
 	<div class = "flex-shrink-0 w-6" [ngStyle] = "{backgroundColor: track.colour, color: titleColour }">
 		<div class = "h-full flex flex-column flex-grow-1 flex flex-column justify-content-center align-items-center">
@@ -20,7 +21,15 @@
 			<div style = "height: 10%">
 				<hr width = "20px" class = "m-1">
 			</div>
-			<div style = "height: 45%">{{track.type}}</div>
+			<div
+				class = "text-center"
+				[class.cursor-pointer] = "track.type == 'Screen capture'"
+				style = "height: 45%"
+				[pTooltip] = "track.type == 'Screen capture' ? 'Change Source': ''"
+				(click) = "changeSource()"
+			>
+				{{track.type}}
+			</div>
 		</div>
 	</div>
 	<div class="flex flex-column w-6 flex-grow-0 flex-shrink-0 surface-ground" (click) = "isEditingName = false">

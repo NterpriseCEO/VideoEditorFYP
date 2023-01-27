@@ -5,6 +5,7 @@ const windowStateKeeper = require("electron-window-state");
 const { StreamingAndFilters } = require("./StreamingAndFilters");
 const { Worker } = require("worker_threads");
 const { ImportFiles } = require("./file-management/ImportFiles");
+const { startServer } = require("./globals/http-server");
 
 function MainWindow() {
 
@@ -144,6 +145,7 @@ MainWindow.prototype.createWindow = function() {
 		this.previewWindow.webContents.openDevTools();
 	}
 
+	startServer(this.window);
 	this.listenForEvents();
 
 	ipcMain.handle("close-window", async (evt) => {

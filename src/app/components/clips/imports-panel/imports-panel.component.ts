@@ -36,12 +36,9 @@ export class ImportsPanelComponent {
 
 	listenForFileImports() {
 		window.api.on("imported-files", (_:any, files: any[]) => this.ngZone.run(() => {
-			//checks if the clips array has any items matching the names of the files
+			//Checks if the clips array has any items matching the names
+			//of the files being imported
 			//if not, adds them to the array
-
-			console.log(files);
-			
-
 			files.forEach((file: any) => {
 				//Gets everything after the last slash (the file name)
 				let nme = file.name;
@@ -82,17 +79,17 @@ export class ImportsPanelComponent {
 
 	//Terrible default code from PrimeNG but works for now
 	onSortChange(event) {
-        let value = event.value;
+		let value = event.value;
 
-        if (value.indexOf("!") === 0) {
-            this.sortOrder = -1;
-            this.sortField = value.substring(1, value.length);
-        }
-        else {
-            this.sortOrder = 1;
-            this.sortField = value;
-        }
-    }
+		if (value.indexOf("!") === 0) {
+			this.sortOrder = -1;
+			this.sortField = value.substring(1, value.length);
+		}
+		else {
+			this.sortOrder = 1;
+			this.sortField = value;
+		}
+	}
 
 	importFiles() {
 		window.api.emit("import-files");

@@ -17,16 +17,15 @@ import { ClipsModule } from "../components/clips/clips.module";
 import { MainViewComponent } from "./main-view/main-view.component";
 import { PreviewComponent } from "./preview/preview.component";
 import { VideoPreviewComponent } from "../components/video-preview/video-preview.component";
-import { EditorToollbarComponent } from "../components/editor-toolbar/editor-toolbar.component";
 import { CustomSplitterComponent } from "../components/ui-components/custom-splitter/custom-splitter.component";
 import { InfoPanelComponent } from "../components/info-panel/info-panel.component";
+import { EditorToolbarModule } from "../components/editor-toolbar/editor-toolbar.module";
 
 @NgModule({
 	declarations: [
 		MainViewComponent,
 		PreviewComponent,
 		VideoPreviewComponent,
-		EditorToollbarComponent,
 		CustomSplitterComponent,
 		InfoPanelComponent
 	],
@@ -41,7 +40,8 @@ import { InfoPanelComponent } from "../components/info-panel/info-panel.componen
 		TabViewModule,
 		SliderModule,
 		FormsModule,
-		ClipsModule
+		ClipsModule,
+		EditorToolbarModule
 	],
 	exports: [MainViewComponent, PreviewComponent],
 })
