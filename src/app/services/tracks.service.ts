@@ -59,6 +59,7 @@ export class TracksService {
 		// Adds the track to the array
 		this.tracks.push(track);
 		this.tracksSubject.next(this.tracks);
+		window.api.emit("send-tracks", this.tracks);
 	}
 
 	setSelectedTrack(track: Track) {

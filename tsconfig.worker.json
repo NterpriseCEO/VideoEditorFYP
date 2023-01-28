@@ -8,8 +8,5 @@
       "webworker"
     ],
     "types": []
-  },
-  "include": [
-    "src/**/*.worker.ts"
-  ]
+  }
 }

@@ -135,7 +135,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 
 		this.changeDetector.detectChanges();
 
-		window.api.emit("set-filters", this.enabledFilters);
+		// window.api.emit("set-filters", this.enabledFilters);
 	}
 
 	setEnabledFilters(filter: FilterInstance) {
