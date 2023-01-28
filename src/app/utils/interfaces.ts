@@ -49,6 +49,7 @@ export interface Clip {
 	name: string;
 	location: string;
 	duration: number;
+	type?: TrackType;
 	thumbnail?: string;
 }
 

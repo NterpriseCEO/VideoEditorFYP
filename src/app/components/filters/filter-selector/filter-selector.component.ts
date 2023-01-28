@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { SelectItemGroup } from "primeng/api";
 import { FilterLibrary } from "src/app/utils/constants";
 import { Filter } from "src/app/utils/interfaces";
@@ -32,7 +32,7 @@ export class FilterSelectorComponent {
 		let filterCategories = allFilters.map((filter) => filter.category);
 		//Filters out duplicate categories and maps them to the SelectItemGroup interface
 		//This adds all relevant filters to under their respective categories
-		let mappedFilters = filterCategories.filter((category, index) => filterCategories.indexOf(category) === index)
+		let mappedFilters: SelectItemGroup[] = filterCategories.filter((category, index) => filterCategories.indexOf(category) === index)
 			.map((category) => {
 			return {
 				label: category,
@@ -46,7 +46,7 @@ export class FilterSelectorComponent {
 				})
 			}
 		});
-		this.filters = mappedFilters as SelectItemGroup[];
+		this.filters = mappedFilters;
 	}
 
 	addFilter(option: Filter) {

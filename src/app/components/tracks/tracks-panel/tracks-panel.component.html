@@ -51,6 +51,7 @@
 						(mousemove) = "setPhantomClip($event, track)"
 						(mouseleave) = "cs.phantomClip = null"
 						(mouseup) = "addClip(track, $event)"
+						[class.selected-track] = "tracksService.getSelectedTrack() === track"
 					>
 						<app-track-contents
 							[clips] = "track.clips ?? []"

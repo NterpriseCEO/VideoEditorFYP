@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, ViewChil
 import { SelectItem } from "primeng/api";
 import { Clip } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
+import { TrackType } from "src/app/utils/constants";
 
 @Component({
 	selector: "app-imports-panel",
@@ -44,7 +45,7 @@ export class ImportsPanelComponent {
 				let nme = file.name;
 				let n = nme.substring(nme.lastIndexOf(nme.includes("/") ? "/" : "\\") + 1);
 				if (!this.clips.find(({name}) => name === n)) {
-					this.clips.push({ name: n, location: file, duration: file.duration });
+					this.clips.push({ name: n, location: file, duration: file.duration, type: TrackType.VIDEO });
 				}
 			});
 

@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from "@angular/core";
 import { Filter, FilterInstance } from "src/app/utils/interfaces";
 import { TracksService } from "src/app/services/tracks.service";
 
@@ -19,7 +19,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 	draggedFilterIndex: number = -1;
 
 	filters: FilterInstance[] = [];
-	enabledFilters: Filter[] = [];
+	enabledFilters: FilterInstance[] = [];
 
 	draggedFilter: FilterInstance | null = null;
 
@@ -27,12 +27,14 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 	filtersCount: number = 0;
 
 	constructor(private trackService: TracksService, private changeDetector: ChangeDetectorRef) {
-		trackService.addFilterSubject.subscribe((filter: FilterInstance) => {
+		trackService.filtersChangedSubject.subscribe(() => {
 			//Checks if a filter is being added not removed
 			this.addingFilter = this.filtersCount < this.filters.length;
 			this.filtersCount = this.filters.length;
 
-			this.filters = [...this.filters, JSON.parse(JSON.stringify(filter))];
+			let filters = this.trackService.getSelectedTrackFilters()!;
+
+			this.filters = filters ? filters : [];
 			this.changeFilters();
 		});
 	}

@@ -3,6 +3,7 @@ import { TracksService } from "src/app/services/tracks.service";
 import { ClipInstance, Track } from "src/app/utils/interfaces";
 import { fromEvent } from "rxjs";
 import { ClipService } from "src/app/services/clip.service";
+import { TrackType } from "src/app/utils/constants";
 
 @Component({
 	selector: "app-tracks-panel",
@@ -116,7 +117,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			track.clips = [];
 		}
 		//Returns if there is no current clip to add
-		if(!this.cs.getCurrentClip()) {
+		if(!this.cs.getCurrentClip() || track.type !== TrackType.VIDEO) {
 			return;
 		}
 
@@ -185,6 +186,11 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	}
 
 	completeDrag() {
+
+		//Selects the hovering track
+		this.tracksService.setSelectedTrack(this.hoveringTrack!);
+		this.tracksService.filtersChangedSubject.next(null);
+
 		if(!this.cs.getDraggedClip() && !this.cs.getClipBeingResized()) {
 			return;
 		}
@@ -205,8 +211,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			return;
 		}
 
-		let clip = JSON.parse(JSON.stringify(this.cs.getPhantomClip()));
-		let tracks = this.tracksService.getTracks();
+		let clip: ClipInstance = JSON.parse(JSON.stringify(this.cs.getPhantomClip()));
+		let tracks: Track[] = this.tracksService.getTracks();
 		let index = tracks.findIndex(track => track.id === this.originTrack?.id);
 
 		//Find the index of the clip that matches currently dragged clip
@@ -223,6 +229,10 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		}else {
 
 			this.cs.resetDraggedClip();
+
+			if(this.originTrack?.type != this.hoveringTrack?.type) {
+				return;
+			}
 
 			//Remove the clip from the origin track
 
@@ -253,6 +263,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	}
 
 	setPhantomClip(event: MouseEvent, track: Track) {
+		this.hoveringTrack = track;
 		if(!this.cs.getCurrentClip() && !this.cs.isDraggingClip() && !this.cs.getDraggedClip()) {
 			return;
 		}
@@ -266,8 +277,6 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		
 		this.cs.setPhantomClip(Object.assign(clip, { in: 0, out: 100, startTime: mousePositionSeconds }));
 		this.changeDetectorRef.detectChanges();
-
-		this.hoveringTrack = track;
 	}
 
 	onDrag(event: MouseEvent) {

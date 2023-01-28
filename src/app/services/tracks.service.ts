@@ -9,18 +9,26 @@ import { Filter, FilterInstance, Track } from "../utils/interfaces";
 export class TracksService {
 	
 	//Subject to add filter to the current track
-	public addFilterSubject = new Subject<FilterInstance>;
+	public filtersChangedSubject = new Subject();
 	public tracksSubject = new Subject<Track[]>;
 
 	tracks: Track[] = [];
+
+	selectedTrack!: Track;
 
 	constructor() { }
 
 	addFilter(filter: Filter) {
 		//Creates a new instance of the filter and sets it to enabled
-		let instance = Object.assign({}, filter, {enabled: true}) as FilterInstance;
-		//Emits the new filter instance to the subject (the tracks panel)
-		this.addFilterSubject.next(instance);
+		let instance: FilterInstance = Object.assign({}, filter, {enabled: true});
+		
+		//Adds the filter to the selected track
+		if (!this.selectedTrack.filters) {
+			this.selectedTrack.filters = [];
+		}
+		//Lets the track properties panel know that a filter has been added
+		this.selectedTrack.filters.push(instance);
+		this.filtersChangedSubject.next(null);
 	}
 
 	getTracks(): Track[] {
@@ -51,6 +59,18 @@ export class TracksService {
 		// Adds the track to the array
 		this.tracks.push(track);
 		this.tracksSubject.next(this.tracks);
+	}
+
+	setSelectedTrack(track: Track) {
+		this.selectedTrack = track;
+	}
+
+	getSelectedTrack(): Track {
+		return this.selectedTrack;
+	}
+
+	getSelectedTrackFilters(): FilterInstance[] | undefined {
+		return this.selectedTrack.filters;
 	}
 
 	setTrackColour() {
