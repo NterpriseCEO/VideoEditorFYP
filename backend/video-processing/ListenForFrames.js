@@ -66,7 +66,6 @@ function saveFrames() {
 			// Create outputX.mp4 from the frames
 			mergeFrames(`output${outputNumber}`);
 		}else {
-			// console.log("Merging frames AND TESTING TESTING TESTING TESTING BRO");
 			// Create temp.mp4 from the next set of frames
 			mergeFrames("temp", () => {
 				//merge output.mp4 and temp.mp4

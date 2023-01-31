@@ -23,11 +23,11 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 		});
 	});
 
-	ipcMain.on("set-filters", (_, filters) => {
-		this.previewWindow.webContents.send("get-filters", filters);
+	ipcMain.on("send-tracks", (_, tracks) => {
+		this.previewWindow.webContents.send("tracks", tracks);
 	});
-	ipcMain.on("change-source", (_, sourceData) => {
-		this.previewWindow.webContents.send("source-changed", sourceData);
+	ipcMain.on("update-filters", (_, track) => {
+		this.previewWindow.webContents.send("update-filters", track);
 	});
 }
 

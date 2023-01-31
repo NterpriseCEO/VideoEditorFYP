@@ -51,7 +51,7 @@
 					class = "p-button-sm p-button-text"
 					[icon] = "'pi pi-' + (track.isVisible ? 'eye' : 'eye-slash')"
 					tooltipPosition = "left"
-					(click) = "track.isVisible = !track.isVisible"
+					(click) = "toggleVisibility()"
 					[pTooltip] = "(track.isVisible ? 'Hide' : 'Show') + ' track'"
 				></button>
 			</div>

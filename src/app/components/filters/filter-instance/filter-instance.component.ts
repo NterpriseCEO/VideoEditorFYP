@@ -35,7 +35,7 @@ export class FilterInstanceComponent implements OnInit {
 				}
 			},
 			{
-				label: "Delete",
+				label: "Remove",
 				icon: "pi pi-trash",
 				command: () => this.onRemove.emit()
 			}

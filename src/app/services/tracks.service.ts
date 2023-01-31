@@ -29,13 +29,29 @@ export class TracksService {
 		//Lets the track properties panel know that a filter has been added
 		this.selectedTrack.filters.push(instance);
 		this.filtersChangedSubject.next(null);
+		//sends the updated filters to the preview window
+		window.api.emit("update-filters", this.selectedTrack);
+	}
+
+	removeFilter(filter: FilterInstance) {
+		//Removes the filter from the selected track
+		this.selectedTrack.filters = this.selectedTrack.filters!.filter((f) => f !== filter);
+		this.filtersChangedSubject.next(null);
+		window.api.emit("update-filters", this.selectedTrack);
+	}
+
+	toggleFilter(filter: FilterInstance) {
+		//Toggles the filter on or off
+		filter.enabled = !filter.enabled;
+		this.filtersChangedSubject.next(null);
+		window.api.emit("update-filters", this.selectedTrack);
 	}
 
 	getTracks(): Track[] {
 		return this.tracks;
 	}
 
-	addTrack(type: TrackType = TrackType.VIDEO) {
+	addTrack(type: TrackType = TrackType.VIDEO, source?: any) {
 		//Adds a track with a name of "Track " + the number of tracks in the array
 		// It skips the track number when a track with that number in its name already exists
 
@@ -53,12 +69,15 @@ export class TracksService {
 			name: `Track ${number}`,
 			colour: this.setTrackColour(),
 			type: type,
-			isVisible: true
+			isVisible: true,
+			source: source,
 		};
 
 		// Adds the track to the array
 		this.tracks.push(track);
 		this.tracksSubject.next(this.tracks);
+		//Sends the tracks to the preview window
+		window.api.emit("send-tracks", this.tracks);
 	}
 
 	setSelectedTrack(track: Track) {
@@ -70,7 +89,7 @@ export class TracksService {
 	}
 
 	getSelectedTrackFilters(): FilterInstance[] | undefined {
-		return this.selectedTrack.filters;
+		return this.selectedTrack?.filters;
 	}
 
 	setTrackColour() {
@@ -82,5 +101,6 @@ export class TracksService {
 		//Deletes the track from the array by filtering out
 		this.tracks = this.tracks.filter(t => t.id !== trackID);
 		this.tracksSubject.next(this.tracks);
+		window.api.emit("send-tracks", this.tracks);
 	}
 }

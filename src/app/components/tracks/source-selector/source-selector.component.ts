@@ -35,6 +35,5 @@ export class SourceSelectorComponent {
 		//Sends the new source to the main process and on to the preview window
 		this.sourceSelected.emit({source: source, sourceId: sourceId});
 		this.display = false;
-		// window.api.emit("change-source", {source: source, sourceId: sourceId});
 	}
 }

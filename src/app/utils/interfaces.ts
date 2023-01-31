@@ -39,10 +39,11 @@ export interface Track {
 	id: number;
 	isVisible: boolean;
 	name: string;
-	type: TrackType;
+	type: TrackType; //Video, webcam or screen capture
+	colour: string;
 	clips?: ClipInstance[];
 	filters?: FilterInstance[];
-	colour: string;
+	source?: any; // If screen capture, this is the source/ source id
 }
 
 export interface Clip {

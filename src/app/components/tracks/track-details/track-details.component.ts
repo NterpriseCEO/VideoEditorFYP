@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from "@angular/core";
+import { TracksService } from "src/app/services/tracks.service";
 import { Track } from "src/app/utils/interfaces";
 import { getHexBrightness } from "src/app/utils/utils";
 import { SourceSelectorComponent } from "../source-selector/source-selector.component";
@@ -22,7 +23,7 @@ export class TrackDetailsComponent implements OnChanges {
 
 	titleColour: string = "white";
 
-	constructor() { }
+	constructor(private tracksService: TracksService) { }
 
 	toggleRecording() {
 		this.isRecording = !this.isRecording;
@@ -38,5 +39,11 @@ export class TrackDetailsComponent implements OnChanges {
 
 	changeSource() {
 		this.sourceSelector.showDialog();
+	}
+
+	toggleVisibility() {
+		this.track.isVisible = !this.track.isVisible;
+		//Sends the tracks to the preview window
+		window.api.emit("send-tracks", this.tracksService.getTracks());
 	}
 }

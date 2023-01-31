@@ -30,7 +30,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 	constructor(
 		public tracksService: TracksService,
-		public changeDetectorRef: ChangeDetectorRef,
+		public changeDetector: ChangeDetectorRef,
 		public cs: ClipService
 	) {
 		//Subscribes to the addTrackSubject in the tracks service
@@ -45,7 +45,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 				this.moveTimeLines(true);
 			}
 
-			changeDetectorRef.detectChanges();
+			changeDetector.detectChanges();
 		});
 	}
 
@@ -61,7 +61,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			for(let i = 0; i < roundedWidth; i++) {
 				this.numbers.push(i);
 			}
-			this.changeDetectorRef.detectChanges();
+			this.changeDetector.detectChanges();
 		}, 0);
 		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
 			this.tracksDetails.nativeElement.scrollTop = event.target.scrollTop;
@@ -86,7 +86,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 			this.moveTimeLines();
 
-			this.changeDetectorRef.detectChanges();
+			this.changeDetector.detectChanges();
 		}
 	}
 
@@ -244,7 +244,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 			tracks[hoveringIndex].clips?.push(JSON.parse(JSON.stringify(clip)));
 
-			this.changeDetectorRef.markForCheck();
+			this.changeDetector.markForCheck();
 		}
 
 		this.renderTimeline();
@@ -276,7 +276,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		let clip = JSON.parse(JSON.stringify(this.cs.getCurrentClip())) || JSON.parse(JSON.stringify(this.cs.getDraggedClip()));
 		
 		this.cs.setPhantomClip(Object.assign(clip, { in: 0, out: 100, startTime: mousePositionSeconds }));
-		this.changeDetectorRef.detectChanges();
+		this.changeDetector.detectChanges();
 	}
 
 	onDrag(event: MouseEvent) {
@@ -338,7 +338,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			for(let i = 0; i < roundedWidth+1; i++) {
 				this.numbers.push(i);
 			}
-			this.changeDetectorRef.detectChanges();
+			this.changeDetector.detectChanges();
 		}, 0);
 	}
 }

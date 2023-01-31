@@ -1,1 +1,75 @@
-<app-video-preview></app-video-preview>
+<div class = "h-full overflow-hidden">
+	<div
+		class = "h-full flex"
+		[class.flex-row] = "isFullscreen"
+		[class.flex-wrap-reverse] = "isFullscreen"
+		[class.h-2screen] = "isFullscreen"
+	>
+		<div
+			class = "video-container flex flex-column justify-content-center border-right-1 surface-border relative"
+			[class.w-full] = "isFullscreen"
+			[class.h-6] = "isFullscreen"
+			[class.h-full] = "!isFullscreen"
+		>
+			<div
+				class = "align-self-center flex-grow-1 flex justify-content-center relative"
+				[class.flex-column] = "!isFullscreen"
+				[class.w-full] = "!isFullscreen"
+			>
+				<div class = "flex-grow-1 w-full"></div>
+				<video
+					#videos
+					*ngFor = "let track of getVisibleTracks()"
+					class = "w-full flex-grow-1 absolute"
+					[class.h-full] = "!isFullscreen"
+					[class.h-screen] = "isFullscreen"
+					[class.mt-6] = "isFullscreen"
+				>
+				</video>
+			</div>
+			<div class = "w-full">
+				<p-slider
+					[(ngModel)] = "currentTime"
+					[max] = "duration"
+					[step] = "1"
+					(onChange) = "seekVideo($event.value)"
+				></p-slider>
+				<div class = "w-full surface-50">
+					<button
+						pButton
+						class = "p-button-text"
+						[icon] = "'pi pi-' + (videoPlaying ? 'pause' : 'play')"
+						(click) = "playPauseVideo()"
+					></button>
+				</div>
+			</div>
+		</div>
+	
+		<div
+			class = "video-container flex flex-column justify-content-center border-left-1 surface-border"
+			[class.w-full] = "isFullscreen"
+			[class.h-screen] = "isFullscreen"
+			[class.h-full] = "!isFullscreen"
+		>
+			<div
+				class = "align-self-center flex-grow-1 flex justify-content-center relative"
+				[class.flex-column] = "!isFullscreen"
+				[class.w-full] = "!isFullscreen"
+			>
+				<div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
+				<canvas #finalCanvas class = "final-canvas w-full absolute"></canvas>
+			</div>
+			<div>
+				<div style = "height: 0.286rem;"></div>
+			</div>
+			<div class = "w-full surface-50 flex flex-row-reverse">
+				<button
+					pButton
+					class = "p-button-text"
+					icon = "pi pi-window-maximize"
+					(click) = "toggleFullScreen()"
+				></button>
+			</div>
+		</div>
+	</div>
+</div>

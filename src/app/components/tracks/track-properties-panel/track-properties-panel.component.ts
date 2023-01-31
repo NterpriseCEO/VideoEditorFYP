@@ -13,8 +13,6 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 	//Get dropzone viewchild
 	@ViewChild("dropzone") dropzone!: ElementRef;
 
-	selectedSource: string = "webcam";
-
 	adjacentElement: any;
 	draggedFilterIndex: number = -1;
 
@@ -135,11 +133,11 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 
 		this.changeDetector.detectChanges();
 
-		window.api.emit("set-filters", this.enabledFilters);
+		window.api.emit("update-filters", this.trackService.getSelectedTrack());
 	}
 
 	setEnabledFilters(filter: FilterInstance) {
-		filter.enabled = !filter.enabled;
+		this.trackService.toggleFilter(filter);
 		this.changeFilters();
 	}
 
@@ -157,7 +155,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 
 	removeFilter(filter: FilterInstance) {
 		// Remove the filter from the list of filters
-		this.filters.splice(this.findIndex(filter), 1);
+		this.trackService.removeFilter(filter);
 		// Gets a list of all the filters that are enabled
 		this.changeFilters();
 	}

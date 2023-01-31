@@ -132,7 +132,7 @@ export class EditorToollbarComponent {
 
 	constructor(private tracksService: TracksService) { }
 
-	createScreenCaptureTrack() {
-		this.tracksService.addTrack(TrackType.SCREEN_CAPTURE);
+	createScreenCaptureTrack(event: any) {
+		this.tracksService.addTrack(TrackType.SCREEN_CAPTURE, event);
 	}
 }
