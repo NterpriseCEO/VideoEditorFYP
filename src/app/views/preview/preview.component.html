@@ -26,6 +26,12 @@
 					[class.mt-6] = "isFullscreen"
 				>
 				</video>
+				<h1
+					*ngIf = "!getVisibleTracks().length"
+					class = "w-full flex-grow-1 absolute text-center p-component text-4xl"
+				>
+					This video has no tracks
+				</h1>
 			</div>
 			<div class = "w-full">
 				<p-slider
@@ -58,6 +64,12 @@
 			>
 				<div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
 				<canvas #finalCanvas class = "final-canvas w-full absolute"></canvas>
+				<h1
+					*ngIf = "!getVisibleTracks().length"
+					class = "w-full flex-grow-1 absolute text-center p-component text-4xl"
+				>
+					This video has no tracks
+				</h1>
 			</div>
 			<div>
 				<div style = "height: 0.286rem;"></div>

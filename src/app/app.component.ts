@@ -6,6 +6,9 @@ declare global {
 		api?: any;
 		getDisplayMedia?: any;
 	}
+	// interface HTMLCanvasElement {
+	// 	captureStream(frameRate?: number): MediaStream;
+	// }
 }
 
 @Component({
@@ -21,11 +24,7 @@ export class AppComponent {
 	fileY: number = 0;
 	showFileRepresentation: boolean = false;
 
-	constructor(private cs: ClipService) {
-		window.api.on("server-port", (_:any, port: number) => {
-			console.log("Server is running on port " + port);
-		});
-	}
+	constructor(private cs: ClipService) {}
 
 	moveFileRepresentation(event: any) {
 		this.fileX = event.x;

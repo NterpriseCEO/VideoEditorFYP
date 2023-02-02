@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, E
 import { FilterLibrary, TrackType } from "../../utils/constants";
 import { Filter, FilterInstance, Track } from "../../utils/interfaces";
 import { ImageFilters } from "src/app/utils/ImageFilters";
+import { io, Socket } from "socket.io-client";
 // import * as GPU from "../../utils/gpu.js";
 // const GPU = require("../../utils/gpu.js");
 
@@ -19,10 +20,14 @@ export class PreviewComponent implements AfterViewInit {
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
 	@ViewChildren("videos") videos!: QueryList<ElementRef>;
 
+	mediaRecorder: any;
+
+	ctx: any;
+
 	videosLength: number = 0;
 
 	tracks: Track[] = [];
-	
+
 	//Testing
 	fps: number = 0;
 
@@ -32,6 +37,8 @@ export class PreviewComponent implements AfterViewInit {
 	largestHeight: number = 0;
 
 	lStream: any[] = [];
+	stream: any;
+	exportStream: any;
 
 	hasChanged: boolean = false;
 
@@ -43,6 +50,8 @@ export class PreviewComponent implements AfterViewInit {
 
 	currentTime: number = 0;
 	duration: number = 0;
+
+	socket: any;
 
 	constructor(
 		private changeDetector: ChangeDetectorRef,
@@ -63,7 +72,26 @@ export class PreviewComponent implements AfterViewInit {
 
 		window.api.on("toggle-recording", (_, isRecording) => this.ngZone.run(() => {
 			this.isRecording = isRecording;
-			this.changeDetector.detectChanges();
+			if(isRecording) {
+				this.socket.emit("start-recording");
+				const recorderOptions = {
+					mimeType: 'video/webm; codecs=vp9',
+					videoBitsPerSecond: 200000 // 0.2 Mbit/sec.
+				};
+				//Captures the canvas and sends it to the server as new data is available
+				const mediaStream: MediaStream = new MediaStream(this.finalCanvas.nativeElement.captureStream());
+				this.mediaRecorder  = new MediaRecorder(this.stream, recorderOptions);
+				this.mediaRecorder.onstop = (event) => {};
+				this.mediaRecorder.ondataavailable = (event) => {
+					if (event.data && event.data.size > 0) {
+						this.socket.emit("recording-data", event.data);
+					}
+				};
+				this.mediaRecorder.start(100); // 1000 - the number of milliseconds to record into each Blob
+			}else {
+				this.socket.emit("stop-recording");
+				this.mediaRecorder.stop();
+			}
 		}));
 
 		window.api.on("tracks", (_, tracks: Track[]) => this.ngZone.run(() => {
@@ -74,6 +102,14 @@ export class PreviewComponent implements AfterViewInit {
 
 			this.changeDetector.detectChanges();
 		}));
+
+		//Gets the localhost server port.
+		//Used to send live video data to the server
+		window.api.emit("get-server-port");
+		window.api.on("server-port", (_:any, port: number) => {
+			//Sets the socket connection to the server
+			this.socket = io("http://localhost:" + port);
+		});
 
 		//KEEP THIS CODE FOR REFERENCE
 		// if(typeof Worker !== "undefined") {
@@ -93,8 +129,6 @@ export class PreviewComponent implements AfterViewInit {
 		this.videos.changes.subscribe((change: QueryList<ElementRef>) => {
 			//If the number of videos changes, regenerate the preview
 			//This ensures that the preview isn't rerendered unnecessarily
-			console.log("change", change.length, this.videosLength);
-			
 			if(this.videosLength == change.length) {
 				return;
 			}
@@ -103,7 +137,7 @@ export class PreviewComponent implements AfterViewInit {
 				//Gets the video source from each video element
 				this.setSource(this.tracks[index], video.nativeElement, index+1);
 			});
-			//Stops all live streams
+			//Stops all live streams to improve performance
 			this.lStream.forEach((stream) => {
 				stream.getTracks()[0].stop();
 			});
@@ -118,7 +152,22 @@ export class PreviewComponent implements AfterViewInit {
 	onResize() {
 		//Resizes the canvas when the window is resized
 		//to make sure the canvas is always the same size as the video
-		// this.setCanvasDimensions();
+		//Loop through all the canvas elements and finds the largest one
+		if(this.canvasElements.length) {
+			let finalCanvas = this.finalCanvas.nativeElement;
+			//Gets the dimensions of the largest video element using the videoDimensions function
+			this.videos.forEach(video => {
+				let dimensions = this.videoDimensions(video.nativeElement);
+				if(dimensions[0] > this.largestWidth) {
+					this.largestWidth = dimensions[0];
+				}
+				if(dimensions[1] > this.largestHeight) {
+					this.largestHeight = dimensions[1];
+				}
+			});
+			finalCanvas.width = this.largestWidth;
+			finalCanvas.height = this.largestHeight;
+		}
 	}
 
 	getVisibleTracks() {
@@ -171,8 +220,6 @@ export class PreviewComponent implements AfterViewInit {
 		//Removes all the canvas elements except the final render canvas
 		document.querySelectorAll(".non-final-canvas").forEach(canvas => canvas.remove());
 
-		console.log(this.tracks.filter(track => track.isVisible));
-
 		this.tracks.forEach(() => {
 			this.changeDetector.markForCheck();
 		});
@@ -201,9 +248,6 @@ export class PreviewComponent implements AfterViewInit {
 		const texture = canvas.texture(video);
 		const ifTexture = imageFilters.texture(video);
 
-		console.log("texture", texture);
-		
-
 		let now = window.performance.now();
 		let then = window.performance.now();
 		let fpsInterval = 1000 / 30;
@@ -218,7 +262,7 @@ export class PreviewComponent implements AfterViewInit {
 		let step = async () => {
 			// console.time("draw");
 			//Measure the time it takes to draw the canvas
-			let start = window.performance.now();
+			// let start = window.performance.now();
 
 			now = window.performance.now();
 			elapsedTime = now - then;
@@ -279,7 +323,8 @@ export class PreviewComponent implements AfterViewInit {
 
 	finalRender() {
 		let finalCanvas = this.finalCanvas.nativeElement;
-		let ctx = finalCanvas.getContext("2d");
+		this.ctx = finalCanvas.getContext("2d");
+
 
 		let step = async () => {
 			//Loops through all the canvas elements and draws them to the final canvas
@@ -288,8 +333,11 @@ export class PreviewComponent implements AfterViewInit {
 				//Gets the dimensions of the largest video element using the videoDimensions function
 				this.videos.forEach(video => {
 					let dimensions = this.videoDimensions(video.nativeElement);
-					if(dimensions[0] > this.largestWidth || dimensions[1] > this.largestHeight) {
-						[this.largestWidth, this.largestHeight] = dimensions;
+					if(dimensions[0] > this.largestWidth) {
+						this.largestWidth = dimensions[0];
+					}
+					if(dimensions[1] > this.largestHeight) {
+						this.largestHeight = dimensions[1];
 					}
 				});
 				finalCanvas.width = this.largestWidth;
@@ -305,20 +353,13 @@ export class PreviewComponent implements AfterViewInit {
 				let x = (finalCanvas.width / 2) - (width / 2);
 				let y = (finalCanvas.height / 2) - (height / 2);
 				
-				ctx.drawImage(canvas, x, y, width, height);
+				this.ctx.drawImage(canvas, x, y, width, height);
 			});
-			//Sends the frame to the backend if the user is recording
-			if(this.isRecording) {
-				let frame = finalCanvas.toDataURL("image/png");
-
-				//Send the frame to the server
-				window.api.emit("frame", frame);
-			}
-
 			window.requestAnimationFrame(step);
 		}
 
 		window.requestAnimationFrame(step);
+		this.stream = finalCanvas.captureStream();
 	}
 
 	setSource(track: Track, video: HTMLVideoElement, index: number) {

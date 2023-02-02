@@ -145,7 +145,7 @@ MainWindow.prototype.createWindow = function() {
 		this.previewWindow.webContents.openDevTools();
 	}
 
-	startServer(this.window);
+	startServer(this.previewWindow);
 	this.listenForEvents();
 
 	ipcMain.handle("close-window", async (evt) => {

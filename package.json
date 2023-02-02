@@ -36,6 +36,8 @@
     "primeng": "14.1.2",
     "rxjs": "~7.5.0",
     "sharp": "^0.31.3",
+    "socket.io": "^4.5.4",
+    "socket.io-client": "^4.5.4",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
@@ -50,7 +52,7 @@
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
     "@types/offscreencanvas": "^2019.7.0",
-    "electron": "^21.0.1",
+    "electron": "^22.2.0",
     "jasmine-core": "~4.0.0",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",
