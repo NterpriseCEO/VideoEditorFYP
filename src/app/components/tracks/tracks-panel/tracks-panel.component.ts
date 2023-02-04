@@ -134,6 +134,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		//multiple times
 		this.cs.setCurrentClip(null);
 
+		window.api.emit("update-track-clips", track);
+
 		this.renderTimeline();
 	}
 
@@ -250,6 +252,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		this.renderTimeline();
 
 		this.checkIfClipOverlaps(this.hoveringTrack!, clip);
+
+		window.api.emit("send-tracks", this.tracksService.getTracks());
 	}
 
 	deleteTrack(id: number) {

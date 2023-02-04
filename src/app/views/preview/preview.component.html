@@ -35,10 +35,10 @@
 			</div>
 			<div class = "w-full">
 				<p-slider
-					[(ngModel)] = "currentTime"
+					[(ngModel)] = "masterTime"
 					[max] = "duration"
-					[step] = "1"
-					(onChange) = "seekVideo($event.value)"
+					[step] = "0.01"
+					(onChange) = "seekVideo()"
 				></p-slider>
 				<div class = "w-full surface-50">
 					<button
@@ -63,7 +63,7 @@
 				[class.w-full] = "!isFullscreen"
 			>
 				<div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
-				<canvas #finalCanvas class = "final-canvas w-full absolute"></canvas>
+				<canvas #finalCanvas class = "final-canvas w-full absolute" width = "1920" height = "1080"></canvas>
 				<h1
 					*ngIf = "!getVisibleTracks().length"
 					class = "w-full flex-grow-1 absolute text-center p-component text-4xl"

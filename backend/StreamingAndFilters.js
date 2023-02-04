@@ -26,6 +26,9 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 	ipcMain.on("send-tracks", (_, tracks) => {
 		this.previewWindow.webContents.send("tracks", tracks);
 	});
+	ipcMain.on("update-track-clips", (_, track) => {
+		this.previewWindow.webContents.send("update-track-clips", track);
+	});
 	ipcMain.on("update-filters", (_, track) => {
 		this.previewWindow.webContents.send("update-filters", track);
 	});

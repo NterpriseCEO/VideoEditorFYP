@@ -45,7 +45,7 @@ export class ImportsPanelComponent {
 				let nme = file.name;
 				let n = nme.substring(nme.lastIndexOf(nme.includes("/") ? "/" : "\\") + 1);
 				if (!this.clips.find(({name}) => name === n)) {
-					this.clips.push({ name: n, location: file, duration: file.duration, type: TrackType.VIDEO });
+					this.clips.push({ name: n, location: file.name, duration: file.duration, type: TrackType.VIDEO });
 				}
 			});
 

@@ -27,6 +27,7 @@ export class PreviewComponent implements AfterViewInit {
 	videosLength: number = 0;
 
 	tracks: Track[] = [];
+	currentClip: number[] = [];
 
 	//Testing
 	fps: number = 0;
@@ -40,15 +41,16 @@ export class PreviewComponent implements AfterViewInit {
 	stream: any;
 	exportStream: any;
 
-	hasChanged: boolean = false;
-
 	animationFrames: any[] = [];
+	timeAnimationFrames: number[] = [];
 
 	isFullscreen: boolean = false;
-	videoPlaying: boolean = true;
+	videoPlaying: boolean = false;
 	isRecording: boolean = false;
 
+	startTime: number = 0;
 	currentTime: number = 0;
+	masterTime: number = 0;
 	duration: number = 0;
 
 	socket: any;
@@ -58,9 +60,11 @@ export class PreviewComponent implements AfterViewInit {
 		private ngZone: NgZone
 	) {
 
+		this.videoPlayback();
+
 		window.api.on("update-filters", (_, track: Track) => this.ngZone.run(() => {
 			//Maps the filters to an array of filter property values
-			this.tracks[track.id].filters = track!.filters!.filter(filter=> filter.enabled).map((filter: Filter, index: number) => {
+			this.tracks[track.id].filters = track!.filters?.filter(filter=> filter.enabled).map((filter: Filter, index: number) => {
 				return {
 					function: filter.function,
 					properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
@@ -76,7 +80,7 @@ export class PreviewComponent implements AfterViewInit {
 				this.socket.emit("start-recording");
 				const recorderOptions = {
 					mimeType: 'video/webm; codecs=vp9',
-					videoBitsPerSecond: 200000 // 0.2 Mbit/sec.
+					videoBitsPerSecond: 500000 // 0.2 Mbit/sec.
 				};
 				//Captures the canvas and sends it to the server as new data is available
 				const mediaStream: MediaStream = new MediaStream(this.finalCanvas.nativeElement.captureStream());
@@ -98,7 +102,29 @@ export class PreviewComponent implements AfterViewInit {
 			//Gets all the tracks
 			this.tracks = tracks;
 
+			this.masterTime = 0;
+			this.duration = 0;
+			this.currentTime = 0;
+			this.startTime = 0;
+
+			this.timeAnimationFrames.forEach((frame) => {
+				window.cancelAnimationFrame(frame);
+			});
+
+			this.timeAnimationFrames = [];
+			this.currentClip = [];
+
+			this.calculateDuration();
+
 			this.regeneratePreview();
+
+			this.changeDetector.detectChanges();
+		}));
+
+		window.api.on("update-track-clips", (_, track: Track) => this.ngZone.run(() => {
+			this.tracks[track.id].clips = track.clips;
+
+			this.calculateDuration();
 
 			this.changeDetector.detectChanges();
 		}));
@@ -144,34 +170,55 @@ export class PreviewComponent implements AfterViewInit {
 			//Resets the live stream array
 			this.lStream = [];
 		});
-		this.hasChanged = true;
-	}
-
-	//page resize event
-	@HostListener("window:resize", ["$event"])
-	onResize() {
-		//Resizes the canvas when the window is resized
-		//to make sure the canvas is always the same size as the video
-		//Loop through all the canvas elements and finds the largest one
-		if(this.canvasElements.length) {
-			let finalCanvas = this.finalCanvas.nativeElement;
-			//Gets the dimensions of the largest video element using the videoDimensions function
-			this.videos.forEach(video => {
-				let dimensions = this.videoDimensions(video.nativeElement);
-				if(dimensions[0] > this.largestWidth) {
-					this.largestWidth = dimensions[0];
-				}
-				if(dimensions[1] > this.largestHeight) {
-					this.largestHeight = dimensions[1];
-				}
-			});
-			finalCanvas.width = this.largestWidth;
-			finalCanvas.height = this.largestHeight;
-		}
 	}
 
 	getVisibleTracks() {
 		return this.tracks.filter((track) => track.isVisible);
+	}
+
+	calculateDuration() {
+		//find the duration from start to the end of the last clip
+		this.tracks.forEach(track => {
+			if(track.type == TrackType.VIDEO) {
+				//gets the duration of the last clip
+				if(!track.clips) {
+					return;
+				}
+				const lastClip = track.clips[track.clips.length - 1];
+				if(lastClip.startTime + lastClip.duration > this.duration) {
+					this.duration = lastClip.startTime + lastClip.duration;
+				}
+			}
+		});
+	}
+
+	videoPlayback() {
+		this.tracks.forEach((track: Track, index) => {
+			this.startTime = window.performance.now() / 1000;
+			let elapsedTime = 0;
+
+			const video = this.videos.toArray()[index].nativeElement;
+
+			video.src = "";
+			video.currentTime = 0;
+
+			let step = async () => {
+				if(this.videoPlaying) {
+					let currentTime = window.performance.now() / 1000;
+					this.masterTime = currentTime - this.startTime;
+					
+					this.checkIfClipNeedsChanging(video, track, index);
+					
+					if(this.masterTime >= this.duration) {
+						this.videoPlaying = false;
+						this.masterTime = 0;
+					}
+				}
+				this.changeDetector.markForCheck();
+				this.timeAnimationFrames[index] = requestAnimationFrame(step);
+			}
+			requestAnimationFrame(step);
+		});
 	}
 
 	toggleFullScreen() {
@@ -180,22 +227,6 @@ export class PreviewComponent implements AfterViewInit {
 		setTimeout(() => {
 			// this.setCanvasDimensions();
 		}, 100);
-	}
-
-	setCanvasDimensions(video: HTMLVideoElement, canvas: any) {
-		//Sets the canvas" dimensions to the same as the video
-		const parentWidth = canvas.parentNode.getBoundingClientRect().width;
-		const parentHeight = canvas.parentNode.getBoundingClientRect().height;
-		let [videoWidth, videoHeight] = this.videoDimensions(video);
-
-		videoWidth = this.isFullscreen ? parentWidth : videoWidth;
-		videoHeight = this.isFullscreen ? parentHeight : videoHeight;
-
-		canvas.style.width = `${videoWidth}px`;
-		canvas.style.height = `${videoHeight}px`;
-
-		// canvas.style.top = (parentHeight / 2 - this.videoHeight / 2) + "px";
-		// canvas.style.left = (parentWidth / 2 - this.videoWidth / 2) + "px";
 	}
 
 	//THIS CODE NEEDS TO BE REWRITTEN (probably)
@@ -219,10 +250,6 @@ export class PreviewComponent implements AfterViewInit {
 
 		//Removes all the canvas elements except the final render canvas
 		document.querySelectorAll(".non-final-canvas").forEach(canvas => canvas.remove());
-
-		this.tracks.forEach(() => {
-			this.changeDetector.markForCheck();
-		});
 	}
 
 	drawCanvas(video: HTMLVideoElement, track: Track, index: number) {
@@ -241,12 +268,14 @@ export class PreviewComponent implements AfterViewInit {
 		//Inserts the canvas into the DOM
 		nativeElement.parentNode.insertBefore(canvas, nativeElement.firstChild);
 
-		this.setCanvasDimensions(video, canvas);
+		canvas.width = 1920;
+		canvas.height = 1080;
+		
 		let imageFilters = new ImageFilters();
 
 		//Creates a WebGL texture from the video element
-		const texture = canvas.texture(video);
-		const ifTexture = imageFilters.texture(video);
+		let texture;
+		let ifTexture;
 
 		let now = window.performance.now();
 		let then = window.performance.now();
@@ -264,12 +293,31 @@ export class PreviewComponent implements AfterViewInit {
 			//Measure the time it takes to draw the canvas
 			// let start = window.performance.now();
 
+			if(video.paused || video.currentTime === 0) {
+				this.animationFrames[index] = window.requestAnimationFrame(step);
+				return;
+			}
+
+			if(!texture) {
+				texture = canvas.texture(video);
+			}
+
+			if(!ifTexture) {
+				ifTexture = imageFilters.texture(video);
+			}
+			
 			now = window.performance.now();
 			elapsedTime = now - then;
-
+			
 			if(elapsedTime > fpsInterval) {
+				then = now;
+
 				//Loads the contents of the video element into the texture
-				texture.loadContentsOf(video);
+				try {
+					texture.loadContentsOf(video);
+				}catch(e) {
+					console.log(e);
+				}
 				let draw = canvas.draw(texture);
 
 				let length = 0;
@@ -325,35 +373,16 @@ export class PreviewComponent implements AfterViewInit {
 		let finalCanvas = this.finalCanvas.nativeElement;
 		this.ctx = finalCanvas.getContext("2d");
 
-
 		let step = async () => {
 			//Loops through all the canvas elements and draws them to the final canvas
-			if(this.hasChanged && this.canvasElements.length) {
-				this.hasChanged = false;
-				//Gets the dimensions of the largest video element using the videoDimensions function
-				this.videos.forEach(video => {
-					let dimensions = this.videoDimensions(video.nativeElement);
-					if(dimensions[0] > this.largestWidth) {
-						this.largestWidth = dimensions[0];
-					}
-					if(dimensions[1] > this.largestHeight) {
-						this.largestHeight = dimensions[1];
-					}
-				});
-				finalCanvas.width = this.largestWidth;
-				finalCanvas.height = this.largestHeight;
-			}
 			this.canvasElements.forEach(canvas => {
-
 				//Loops through all canvases and centers them on the final canvas
 				//Needs to get rid of the split() and parseInt() and make it more efficient
-				let width = parseInt(canvas.style.width.split("px")[0]);
-				let height = parseInt(canvas.style.height.split("px")[0]);
 				//position is center of largest canvas
-				let x = (finalCanvas.width / 2) - (width / 2);
-				let y = (finalCanvas.height / 2) - (height / 2);
-				
-				this.ctx.drawImage(canvas, x, y, width, height);
+				let x = (finalCanvas.width / 2) - (canvas.width / 2);
+				let y = (finalCanvas.height / 2) - (canvas.height / 2);
+
+				this.ctx.drawImage(canvas, x, y, canvas.width, canvas.height);
 			});
 			window.requestAnimationFrame(step);
 		}
@@ -411,7 +440,6 @@ export class PreviewComponent implements AfterViewInit {
 			//Sets the video src = to the video in assets folder
 
 			this.changeDetector.markForCheck();
-			video.src = "/assets/video.mp4";
 			this.playPreview(video, track, index);
 		}
 	}
@@ -423,14 +451,9 @@ export class PreviewComponent implements AfterViewInit {
 		video.onloadedmetadata = () => {
 			//Once the video is loaded, the video is played and the filters canvas is created
 			video.play();
-
-
-			//Gets the max video time
-			this.duration = video.duration;
-
-			//Creates and draws the canvas corresponding to the video
-			this.drawCanvas(video, track, index);
 		};
+		//Creates and draws the canvas corresponding to the video
+		this.drawCanvas(video, track, index);
 
 		video.ontimeupdate = () => {
 			//Updates the time of the video
@@ -442,11 +465,85 @@ export class PreviewComponent implements AfterViewInit {
 	playPauseVideo() {
 		//Plays or pauses the video
 		// this.videoNativeElement.paused ? this.videoNativeElement.play() : this.videoNativeElement.pause();
-		// this.videoPlaying = !this.videoNativeElement.paused;
+		this.videoPlaying = !this.videoPlaying;
+		console.log(this.masterTime, this.duration);
+
+		this.videos.toArray().forEach((video, i) => {
+			video.nativeElement.paused ? video.nativeElement.play() : video.nativeElement.pause();
+		});
+
+		if(this.videoPlaying) {
+			if(this.masterTime === 0) {
+				this.timeAnimationFrames.forEach((frame) => {
+					window.cancelAnimationFrame(frame);
+				});
+
+
+				this.timeAnimationFrames = [];
+
+				this.currentClip = [];
+
+				this.startTime = window.performance.now() / 1000;
+				this.videoPlayback();
+			}else {
+				this.startTime = window.performance.now() / 1000 - this.masterTime;
+			}
+		}
 	}
 
-	seekVideo(time: number) {
+	seekVideo() {
 		//Seeks the video to the time
-		// this.videoNativeElement.currentTime = time;
+		this.getClipAtTime();
+	}
+
+	getClipAtTime() {
+		//Gets the clip at the time
+		let videos = this.videos.toArray();
+		this.tracks.forEach((track, i) => {
+			if(!track.clips) {
+				return;
+			}
+			track.clips.forEach((clip, j) => {
+				if(this.masterTime >= clip.startTime && this.masterTime <= clip.startTime + clip.duration) {
+					this.currentClip[i] = j;
+					videos[i].nativeElement.currentTime = this.masterTime - clip.startTime;
+					videos[i].nativeElement.play();
+					return
+				}
+			});
+		});
+	}
+
+	checkIfClipNeedsChanging(video: HTMLVideoElement, track: Track, index: number) {
+		//Checks if the clip needs to be changed
+		if(track.type !== TrackType.VIDEO || !track.clips) {
+			return;
+		}
+
+		if(!this.currentClip[index]) {
+			this.currentClip[index] = 0;
+		}
+
+		let clips = track.clips;
+		let clip = clips[this.currentClip[index]];
+
+		if(!clip) {
+			return;
+		}
+
+		// console.log(this.masterTime, clip.startTime, clip.startTime + clip.duration);
+		//convert this.startTime to seconds
+
+		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
+			if(video.src != "local-resource://getMediaFile/"+clip.location) {
+				video.src = "local-resource://getMediaFile/"+clip.location;
+				this.changeDetector.detectChanges();
+				video.play();
+				// this.currentClip[index]++;
+			}
+		}else if(this.masterTime >= clip.startTime + clip.duration) {
+			video.src = "";
+			this.currentClip[index]++;
+		}
 	}
 }

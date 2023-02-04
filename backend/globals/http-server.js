@@ -1,6 +1,7 @@
 const http = require("http");
 const { ipcMain } = require("electron");
 const fs = require("fs");
+const { listenForVideoData } = require("../video-processing/ListenForVideoData.js");
 
 let server;
 let window;
@@ -19,7 +20,6 @@ function startServer(win) {
 	});
 }
 
-exports.startServer = startServer;
 
 function socketConnections() {
 	const io = require('socket.io')(server, {
@@ -29,17 +29,9 @@ function socketConnections() {
 		}
 	});
 	io.on('connection', client => {
-		let fileStream;
-
-		client.on("start-recording", () => {
-			fileStream = fs.createWriteStream("./test.webm", { flags: 'a' });
-		});
-		client.on('recording-data', data => {
-			fileStream.write(Buffer.from(new Uint8Array(data)));
-		});
-		client.on('stop-recording', () => {
-			fileStream.end();
-		});
+		listenForVideoData(client);
 		client.on('disconnect', () => {});
 	});
 }
+
+exports.startServer = startServer;

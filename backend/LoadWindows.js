@@ -6,6 +6,7 @@ const { StreamingAndFilters } = require("./StreamingAndFilters");
 const { Worker } = require("worker_threads");
 const { ImportFiles } = require("./file-management/ImportFiles");
 const { startServer } = require("./globals/http-server");
+const { registerFileProtocol } = require("./file-management/FIleProtocol.js");
 
 function MainWindow() {
 
@@ -58,18 +59,7 @@ MainWindow.prototype.listenForEvents = function() {
 		}
 	});
 
-	//Keep thjis here for future reference
-	/*app.on("ready", async () => {
-		protocol.registerFileProtocol("test", (request, callback) => {
-			const url = request.url.replace("test://gem", "")
-			const decodedUrl = decodeURI(url)
-			try {
-				return callback(decodedUrl)
-			} catch (error) {
-				console.error("ERROR: registerLocalResourceProtocol: Could not get file path:", error)
-			}
-		})
-	});*/
+	registerFileProtocol();
 }
 
 MainWindow.prototype.createWindow = function() {
