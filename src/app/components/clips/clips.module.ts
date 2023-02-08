@@ -11,11 +11,13 @@ import { ButtonModule } from "primeng/button";
 
 import { ImportsPanelComponent } from "./imports-panel/imports-panel.component";
 import { ClipComponent } from "./clip/clip.component";
+import { SanitiseImageUrlPipe } from "src/app/utils/sanitise-image-url";
 
 @NgModule({
 	declarations: [
 		ImportsPanelComponent,
-		ClipComponent
+		ClipComponent,
+		SanitiseImageUrlPipe
 	],
 	imports: [
 		BrowserModule,

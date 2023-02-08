@@ -13,7 +13,7 @@ function ImportFiles(window) {
 ImportFiles.prototype.listenForEvents = function() {
 	ipcMain.on("import-files", (_, files) => {
 		//Electron code to import files
-		dialog.showOpenDialog({
+		dialog.showOpenDialog(this.mainWindow, {
 			properties: ["openFile", "multiSelections"],
 			filters: [
 				{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm"] },
@@ -69,23 +69,25 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
 			if (stderr) {
 				console.log(`error?: ${stderr}`);
 			}
-			console.log(`stdout: ${stdout}`);
+			// console.log(`stdout: ${stdout}`);
 
-			file = path.basename(file, ".mp4");
-			let thumbnail = fs.readFileSync(`${file}.png`);
-			//Compresses the png file
-			sharp(thumbnail)
-				.webp({ quality: 10 })
-				.toFile(`${file}.png`)
-				.then(() => {
-					//Adds the thumbnail to the array
-					thumbnails.push({
-						thumbnail: fs.readFileSync(`${file}.png`, { encoding: "base64" }),
-						associatedFile: file,
-					});
-					//Moves to the next thumnail file
-					this.extractThumbnails(++counter, thumbnails);
-				});
+			// file = path.basename(file, ".mp4");
+			// let thumbnail = fs.readFileSync(`${file}.png`);
+			// //Compresses the png file
+			// sharp(thumbnail)
+			// 	.webp({ quality: 10 })
+			// 	.toFile(`${file}.png`)
+			// 	.then(() => {
+			// 		//Adds the thumbnail to the array
+			let dirname = __dirname.substring(0, __dirname.length-24);
+			let thumbnail = `${dirname}/${path.basename(file, ".mp4")}.png`;
+			thumbnails.push({
+				thumbnail: thumbnail,
+				associatedFile: file,
+			});
+			//Moves to the next thumnail file
+			this.extractThumbnails(++counter, thumbnails);
+			// });
 		});
 	}else {
 		//Sends the thumbnails to the renderer process once all the thumbnails

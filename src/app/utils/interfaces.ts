@@ -50,12 +50,12 @@ export interface Clip {
 	name: string;
 	location: string;
 	duration: number;
+	totalDuration: number;
 	type?: TrackType;
 	thumbnail?: string;
 }
 
 export interface ClipInstance extends Clip {
 	in: number;
-	out: number;
 	startTime: number;
 }

@@ -124,11 +124,15 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		//Gets the mouse position relative to the tracksList element including the scroll
 		let mousePositionSeconds = this.getMousePosition(event);
 		
-		let newClip = JSON.parse(JSON.stringify(Object.assign(this.cs.getCurrentClip(), { in: 0, out: 100, startTime: mousePositionSeconds })));
+		let newClip = JSON.parse(JSON.stringify(Object.assign(this.cs.getCurrentClip(), { in: 0, startTime: mousePositionSeconds })));
 
-		this.checkIfClipOverlaps(track, newClip);
+		
+		this.checkIfClipOverlaps(track, newClip);		
+		this.insertClipAtPosition(track, newClip);
 
-		track.clips = [...track.clips, newClip];		
+		this.changeDetector.markForCheck();
+
+		track.clips = [...track.clips];
 
 		//Resets the current clip so that it can't be added
 		//multiple times
@@ -137,6 +141,23 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		window.api.emit("update-track-clips", track);
 
 		this.renderTimeline();
+	}
+
+	insertClipAtPosition(track: Track, newClip: ClipInstance) {
+		//This inserts the clip into the track at the correct index
+		//so that the clips are in order.
+		//This is necessary because code in the preview window
+		//assumes that the clips are in order
+		let clips = track.clips;
+		let index = 0
+
+		clips?.forEach((clip: ClipInstance, i: number) => {
+			if(newClip.startTime > clip.startTime) {
+				index = i+1;
+			}
+		});
+
+		track.clips?.splice(index, 0, newClip);
 	}
 
 	checkIfClipOverlaps(track: Track, newClip: ClipInstance) {
@@ -176,12 +197,16 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 				clip.duration = newClip.startTime - clip.startTime;
 				newClip2.startTime = newClip.startTime + newClip.duration;
 				newClip2.duration -= clip.duration+newClip.duration;
-				
+				newClip2.in += clip.duration + newClip.duration;
+
 				//insert the clip after the current clip (clip)
 				track?.clips?.splice(track.clips.indexOf(clip)+1, 0, newClip2);
 			}else if(newClip.startTime+newClip.duration > clip.startTime && clip.startTime+clip.duration > newClip.startTime+newClip.duration) {
 				//Checks if the new clip is cutting off the start of the current clip
 				clip.duration = (clip.startTime+clip.duration) - (newClip.startTime+newClip.duration);
+				//Calulates the distance start of the current clip and the end of the new clip
+				//This is used to calculate the new in point of the current clip
+				clip.in += (newClip.startTime+newClip.duration) - clip.startTime;
 				clip.startTime = newClip.startTime + newClip.duration;
 			}
 		});
@@ -253,7 +278,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 		this.checkIfClipOverlaps(this.hoveringTrack!, clip);
 
-		window.api.emit("send-tracks", this.tracksService.getTracks());
+		window.api.emit("update-track-clips", this.hoveringTrack);
+		window.api.emit("update-track-clips", this.originTrack);
 	}
 
 	deleteTrack(id: number) {
@@ -279,7 +305,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		//Sets the phantom clip to the current clip or the dragged clip
 		let clip = JSON.parse(JSON.stringify(this.cs.getCurrentClip())) || JSON.parse(JSON.stringify(this.cs.getDraggedClip()));
 		
-		this.cs.setPhantomClip(Object.assign(clip, { in: 0, out: 100, startTime: mousePositionSeconds }));
+		this.cs.setPhantomClip(Object.assign(clip, { in: 0, startTime: mousePositionSeconds }));
 		this.changeDetector.detectChanges();
 	}
 
@@ -294,17 +320,32 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			//Resizes the clip
 			let elementBeingResized = this.cs.getClipElementBeingResized()?.getBoundingClientRect()!;
 			if(event.clientX > elementBeingResized.right - 20) {
+				//Makes sure the clip can't be resized to a duration longer than the total duration
+				let newDuration = this.getMousePosition(event) - clip!.startTime;
+				if(newDuration > clip.totalDuration) {
+					newDuration = clip.totalDuration;
+				}
 				//The mouse psotion in seconds - the start time of the clip
-				clip!.duration = this.getMousePosition(event) - clip!.startTime;
+				clip!.duration = newDuration;
 			}else if(event.clientX < elementBeingResized.left + 20) {
 				//Shrinks the duration of the clip proportionally to the
 				//new start time of the clip
-				clip!.duration = clip.startTime + clip.duration - this.getMousePosition(event);
+				let newDuration = clip!.duration + clip!.startTime - this.getMousePosition(event);
+				if(newDuration > clip.totalDuration) {
+					newDuration = clip.totalDuration;
+				}
+				clip!.duration = newDuration;
+				//Sets the point where the clip starts
+				//The start point of the clip itself,
+				//not start point of the clip in the timeline
+				clip.in+= this.getMousePosition(event) - clip!.startTime;
+
 				clip!.startTime = this.getMousePosition(event);
 			}
 			//Recreates the clips array to trigger change detection
 			this.hoveringTrack!.clips = [...this.hoveringTrack?.clips!];
 			this.checkIfClipOverlaps(this.hoveringTrack!, clip);
+			window.api.emit("update-track-clips", this.hoveringTrack!);
 			this.renderTimeline();
 		}else {
 			this.cs.getPhantomClip()!.startTime = this.getMousePosition(event) - this.cs.getDraggedDistanceDiff();

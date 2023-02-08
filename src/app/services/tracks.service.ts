@@ -76,6 +76,7 @@ export class TracksService {
 		// Adds the track to the array
 		this.tracks.push(track);
 		this.tracksSubject.next(this.tracks);
+		this.selectedTrack = track;
 		//Sends the tracks to the preview window
 		window.api.emit("send-tracks", this.tracks);
 	}

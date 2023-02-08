@@ -65,7 +65,6 @@ function saveFrames() {
 		if((!isRecording && frameNumber === 0) || frameNumber < 150) {
 			return;
 		}
-		console.log("\n\n\n" + frameNumber + "\n\n\n");
 		let temp = frameNumber;
 		frameNumber = 0;
 		processFrames(temp);

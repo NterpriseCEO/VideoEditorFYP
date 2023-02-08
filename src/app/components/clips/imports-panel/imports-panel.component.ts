@@ -29,7 +29,7 @@ export class ImportsPanelComponent {
 	) {
 		this.sortOptions = [
 			{label: "A-Z", value: "name"},
-            {label: "Z-A", value: "!name"}
+			{label: "Z-A", value: "!name"}
         ];
 
 		this.listenForFileImports();
@@ -45,7 +45,13 @@ export class ImportsPanelComponent {
 				let nme = file.name;
 				let n = nme.substring(nme.lastIndexOf(nme.includes("/") ? "/" : "\\") + 1);
 				if (!this.clips.find(({name}) => name === n)) {
-					this.clips.push({ name: n, location: file.name, duration: file.duration, type: TrackType.VIDEO });
+					this.clips.push({
+						name: n,
+						location: file.name,
+						duration: file.duration,
+						totalDuration: file.duration,
+						type: TrackType.VIDEO
+					});
 				}
 			});
 
@@ -60,9 +66,17 @@ export class ImportsPanelComponent {
 				//find the clip matching thumbnail.associatedFile
 				//and set the thumbnail property to the thumbnail data
 
-				this.clips.find(({name}) => name.startsWith(thumbnail.associatedFile))!
-					.thumbnail = "data:image/png;base64,"+thumbnail.thumbnail;
-				this.clips[index].thumbnail = "data:image/png;base64,"+thumbnail.thumbnail;
+				thumbnail.associatedFile = thumbnail.associatedFile.replace(/\\/g, "/");
+
+				//Reformat the the clip name to convert backslashes to forward slashes
+				this.clips = this.clips.map((clip: Clip) => {
+					clip.location = clip.location.replace(/\\/g, "/");
+					return clip;
+				});
+
+				//Finds the clip matching the thumbnail.associatedFile and sets the thumbnail
+				this.clips.find(({location}) => location == thumbnail.associatedFile)!
+					.thumbnail = "local-resource://getMediaFile/" + thumbnail.thumbnail;
 			});
 			this.clips = [...this.clips];
 			

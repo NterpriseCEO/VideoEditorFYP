@@ -6,7 +6,7 @@
 		[class.h-2screen] = "isFullscreen"
 	>
 		<div
-			class = "video-container flex flex-column justify-content-center border-right-1 surface-border relative"
+			class = "video-container flex flex-column justify-content-center border-right-1 surface-border relative w-full"
 			[class.w-full] = "isFullscreen"
 			[class.h-6] = "isFullscreen"
 			[class.h-full] = "!isFullscreen"
@@ -34,18 +34,12 @@
 				</h1>
 			</div>
 			<div class = "w-full">
-				<p-slider
-					[(ngModel)] = "masterTime"
-					[max] = "duration"
-					[step] = "0.01"
-					(onChange) = "seekVideo()"
-				></p-slider>
+				<div style = "height: 0.286rem;"></div>
 				<div class = "w-full surface-50">
 					<button
 						pButton
 						class = "p-button-text"
 						[icon] = "'pi pi-' + (videoPlaying ? 'pause' : 'play')"
-						(click) = "playPauseVideo()"
 					></button>
 				</div>
 			</div>
@@ -58,9 +52,8 @@
 			[class.h-full] = "!isFullscreen"
 		>
 			<div
-				class = "align-self-center flex-grow-1 flex justify-content-center relative"
+				class = "align-self-center flex-grow-1 flex justify-content-center relative w-full"
 				[class.flex-column] = "!isFullscreen"
-				[class.w-full] = "!isFullscreen"
 			>
 				<div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
 				<canvas #finalCanvas class = "final-canvas w-full absolute" width = "1920" height = "1080"></canvas>
@@ -72,14 +65,26 @@
 				</h1>
 			</div>
 			<div>
-				<div style = "height: 0.286rem;"></div>
+				<p-slider
+					[(ngModel)] = "masterTime"
+					[max] = "duration"
+					[step] = "0.01"
+					(onChange) = "seekVideo($event)"
+				></p-slider>
 			</div>
-			<div class = "w-full surface-50 flex flex-row-reverse">
+			<div class = "w-full surface-50 flex flex-row justify-content-between">
+				<button
+					pButton
+					class = "p-button-text"
+					[icon] = "'pi pi-' + (videoPlaying ? 'pause' : 'play')"
+					(click) = "playPauseVideo()"
+				></button>
+				<span class = "align-self-center text-lg">{{convertTime(masterTime)}}</span>
 				<button
 					pButton
 					class = "p-button-text"
 					icon = "pi pi-window-maximize"
-					(click) = "toggleFullScreen()"
+					(click) = "toggleFullscreen()"
 				></button>
 			</div>
 		</div>

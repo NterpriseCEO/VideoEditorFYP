@@ -37,7 +37,7 @@
 				(mousedown) = "cs.setCurrentClip(clip)"
 			>
 				<div class = "flex flex-column align-items-center">
-					<img [src] = "clip.thumbnail" class = "w-full" ondragstart = "return false">
+					<img [src] = "clip.thumbnail | sanitiseImageUrl" class = "w-full" ondragstart = "return false">
 					<span class = "w-full">{{clip.name}}</span>
 				</div>
 			</div>

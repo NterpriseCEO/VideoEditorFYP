@@ -6,13 +6,13 @@
 	<div class = "absolute h-full resize-handle"></div>
 	<div
 		[ngStyle] = "{backgroundColor: colour, color: titleColour}"
-		class = "w-full pl-2 clip-title text-overflow-ellipsis white-space-nowrap overflow-hidden"
+		class = "flex-grow-1 flex-shrink-0 w-full pl-2 clip-title text-overflow-ellipsis white-space-nowrap overflow-hidden"
 	>
 		{{clip.name}}
 	</div>
-	<div class = "flex-grow-1 flex">
-		<div style = "width: 99px" class = "h-full surface-ground border-right-2 border-50 flex">
-			<img [src] = "clip.thumbnail" class = "thumbnail w-full h-full" ondragstart = "return false">
+	<div class = "flex flex-grow-1 overflow-hidden">
+		<div style = "width: 99px" class = "h-full surface-ground border-right-2 border-50">
+			<img [src] = "clip.thumbnail | sanitiseImageUrl" class = "thumbnail w-full h-full flex-grow-0" ondragstart = "return false">
 		</div>
 		<div [ngStyle] = "{backgroundColor: colour }" class = "flex-grow-1 opacity-30"></div>
 	</div>
