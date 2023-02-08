@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { ClipService } from "./services/clip.service";
-
+import { Router } from "@angular/router";
 declare global {
 	interface Window {
 		api?: any;
@@ -24,7 +24,7 @@ export class AppComponent {
 	fileY: number = 0;
 	showFileRepresentation: boolean = false;
 
-	constructor(private cs: ClipService) {}
+	constructor(private cs: ClipService, public router: Router) {}
 
 	moveFileRepresentation(event: any) {
 		this.fileX = event.x;
@@ -34,6 +34,10 @@ export class AppComponent {
 
 	startAdd() {
 		this.showFileRepresentation = this.cs.getIsAddingClip();
+	}
+
+	isNotPopup() {
+		return this.router.url !== '/mainview' && this.router.url !== '/startup' && this.router.url !== '/preview';
 	}
 
 	cancelAdd() {

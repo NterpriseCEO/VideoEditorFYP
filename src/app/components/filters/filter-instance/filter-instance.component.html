@@ -44,7 +44,6 @@
 							[class.w-6] = "filter.properties.length < 4"
 						>
 							<p-knob
-								*ngIf = "property.propertyType == 'number'"
 								[(ngModel)] = "property.value"
 								[size] = "filter.properties.length < 3 ? 225 / filter.properties.length : 75"
 								[strokeWidth] = "5"
@@ -71,7 +70,30 @@
 							>
 							</p-dropdown>
 							<input type = "text" [(ngModel)] = "property.value" *ngIf = "property.propertyType == 'array'">
-							<span *ngIf = "property.propertyType != 'boolean'">{{property.name}}</span>
+							<span *ngIf = "property.propertyType != 'boolean' && property.propertyType != 'number'">{{property.name}}</span>
+							<p-inplace
+								*ngIf = "property.propertyType == 'number'"
+								[closable] = "true"
+								closeIcon = "pi pi-check"
+							>
+								<ng-template pTemplate="display">
+									{{property.name}}
+								</ng-template>
+								<ng-template pTemplate="content">
+									<p-inputNumber
+										[(ngModel)] = "property.value"
+										mode = "decimal"
+										[min] = "property.min ?? 0"
+										[max] = "property.max ?? 100"
+										[step] = "property.step ?? 1"
+										[allowEmpty] = "false"
+										class = "w-6rem"
+										styleClass = "w-full"
+										inputStyleClass = "w-full"
+									>
+									</p-inputNumber>
+								</ng-template>
+							</p-inplace>
 						</div>
 					</ng-container>
 					<h1 *ngIf = "filter.properties.length == 0" class = "w-full align-self-center text-xl text-center">

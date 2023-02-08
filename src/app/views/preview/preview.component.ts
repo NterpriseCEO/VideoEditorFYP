@@ -82,7 +82,7 @@ export class PreviewComponent implements AfterViewInit {
 			if(isRecording) {
 				this.socket.emit("start-recording");
 				const recorderOptions = {
-					mimeType: 'video/webm; codecs=vp9',
+					mimeType: "video/webm; codecs=vp9",
 					videoBitsPerSecond: 500000 // 0.2 Mbit/sec.
 				};
 				//Captures the canvas and sends it to the server as new data is available

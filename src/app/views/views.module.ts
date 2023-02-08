@@ -9,6 +9,9 @@ import { ToolbarModule } from "primeng/toolbar";
 import { ButtonModule } from "primeng/button";
 import { TabViewModule } from "primeng/tabview";
 import { SliderModule } from "primeng/slider";
+import { TableModule } from "primeng/table";
+import { MenuModule } from "primeng/menu";
+import { ProgressBarModule } from "primeng/progressbar";
 
 import { FiltersModule } from "../components/filters/filters.module";
 import { TracksModule } from "../components/tracks/tracks.module";
@@ -19,13 +22,19 @@ import { PreviewComponent } from "./preview/preview.component";
 import { CustomSplitterComponent } from "../components/ui-components/custom-splitter/custom-splitter.component";
 import { InfoPanelComponent } from "../components/info-panel/info-panel.component";
 import { EditorToolbarModule } from "../components/editor-toolbar/editor-toolbar.module";
+import { StartupViewComponent } from "./startup-view/startup-view.component";
+import { SettingsViewComponent } from "./settings-view/settings-view.component";
+import { ExportsViewComponent } from "./exports-view/exports-view.component";
 
 @NgModule({
 	declarations: [
 		MainViewComponent,
 		PreviewComponent,
 		CustomSplitterComponent,
-		InfoPanelComponent
+		InfoPanelComponent,
+		StartupViewComponent,
+		SettingsViewComponent,
+		ExportsViewComponent
 	],
 	imports: [
 		BrowserModule,
@@ -39,7 +48,10 @@ import { EditorToolbarModule } from "../components/editor-toolbar/editor-toolbar
 		SliderModule,
 		FormsModule,
 		ClipsModule,
-		EditorToolbarModule
+		EditorToolbarModule,
+		TableModule,
+		MenuModule,
+		ProgressBarModule
 	],
 	exports: [MainViewComponent, PreviewComponent],
 })

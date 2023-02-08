@@ -16,3 +16,19 @@
 	</div>
 	<router-outlet></router-outlet>
 </div>
+<div
+	class = "absolute w-full h-full top-0 overflow-hidden flex flex-column surface-ground"
+	*ngIf = "isNotPopup()">
+	<div class = "w-full p-1 border-bottom-1 surface-border">
+		<button
+			pButton
+			icon = "pi pi-arrow-left"
+			class = "p-button-text"
+			[routerLink] = "[{ outlets: { panelOutlet: null}}]"
+		>
+		</button>
+	</div>
+	<div class = "flex-grow-1 overflow-auto">
+		<router-outlet name = "panelOutlet"></router-outlet>
+	</div>
+</div>

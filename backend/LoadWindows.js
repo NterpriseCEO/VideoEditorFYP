@@ -21,42 +21,46 @@ function MainWindow() {
 }
 
 MainWindow.prototype.listenForEvents = function() {
-	new StreamingAndFilters(this.window, this.previewWindow).listenForEvents();
 	new ImportFiles(this.window).listenForEvents();
 
 	//Saves the video files to the user"s computer in a sparate thread
 	//WIll replace this with MediaRecorder in the future
-	const worker = new Worker("./backend/video-processing/ListenForFrames.js");
+	// const worker = new Worker("./backend/video-processing/ListenForFrames.js");
 
-	//Pipes individual frames to the worker thread
+	/*//Pipes individual frames to the worker thread
 	//Will stream chunks over websocket in the future
 	ipcMain.on("frame", (_, source) => {
 		worker.postMessage({type: "frame", contents: source});
-	});
+	});*/
 
 	ipcMain.on("toggle-recording", (_, isRecording) => {
 		//Sends the recording status to the worker thread to start/stop the merging of frames
-		worker.postMessage({type: "toggle-recording", contents: isRecording});
+		// worker.postMessage({type: "toggle-recording", contents: isRecording});
 		this.previewWindow.webContents.send("toggle-recording", isRecording);
 	});
 
-	app.on("window-all-closed", function () {
+	app.on("window-all-closed", () => {
 		// On macOS specific close process
 		if (process.platform !== "darwin") {
 			app.quit()
 		}
 	});
 	
-	ipcMain.on("close-window", () => {
-		if (process.platform !== "darwin") {
-			app.quit()
-		}
-	});
-	
-	app.on("activate", function () {
+	app.on("activate", () => {
 		if (this.window === null) {
 			createWindow()
 		}
+	});
+
+	ipcMain.on("open-preview-window", () => {
+		this.createPreviewWindow();
+	});
+	ipcMain.on("exit-to-start-view", () => {
+		this.previewWindow.close();
+		this.loadStartView();
+	});
+	ipcMain.on("exit", () => {
+		app.quit();
 	});
 
 	registerFileProtocol();
@@ -65,11 +69,6 @@ MainWindow.prototype.listenForEvents = function() {
 MainWindow.prototype.createWindow = function() {
 
 	const mainWindowState = windowStateKeeper({
-		defaultWidth: 600,
-		defaultHeight: 600
-	});
-
-	const previewWindowState = windowStateKeeper({
 		defaultWidth: 600,
 		defaultHeight: 600
 	});
@@ -88,59 +87,66 @@ MainWindow.prototype.createWindow = function() {
 		}
 	});
 
-	this.previewWindow = new BrowserWindow({
-		titlebarStyle: "hidden",
-		width: previewWindowState.width,
-		height: previewWindowState.height,
-		minWidth: 600,
-		minHeight: 600,
-		x: previewWindowState.x,
-		y: previewWindowState.y,
-		webPreferences: {
-			contextIsolation: true,
-			preload: path.join(__dirname, "preload.js")
-		}
-	});
-
 
 	mainWindowState.manage(this.window);
-	previewWindowState.manage(this.previewWindow);
+
+	this.loadStartView();
 
 	//Hides the top menu bar
 	this.window.setMenu(null);
-	this.previewWindow.setMenu(null);
 
+	this.window.webContents.openDevTools();
+
+	this.listenForEvents();
+};
+
+MainWindow.prototype.loadStartView = function() {
 	if(this.serve) {
 		//Development mode
-		this.window.loadURL("http://localhost:4200/mainview");
-		this.previewWindow.loadURL("http://localhost:4200/preview");
-		this.window.webContents.openDevTools();
-		this.previewWindow.webContents.openDevTools();
+		this.window.loadURL("http://localhost:4200/startup");
 	}else {
 		//Production mode
 		this.window.loadURL(url.format({
 			pathname: path.join(__dirname, "../dist/video-editor/index.html"),
 			protocol: "file:",
 			slashes: true,
-			hash: "/mainview"
+			hash: "/startup"
 		}));
-		
-		this.window.webContents.openDevTools();
+	}
+}
+
+MainWindow.prototype.createPreviewWindow = function() {
+	this.previewWindow = new BrowserWindow({
+		titlebarStyle: "hidden",
+		width: 600,
+		height: 400,
+		minWidth: 600,
+		minHeight: 600,
+		x: 100,
+		y: 100,
+		webPreferences: {
+			contextIsolation: true,
+			preload: path.join(__dirname, "preload.js")
+		}
+	});
+
+	this.previewWindow.setMenu(null);
+
+	if(this.serve) {
+		//Development mode
+		this.previewWindow.loadURL("http://localhost:4200/preview");
+	}else {
 		this.previewWindow.loadURL(url.format({
 			pathname: path.join(__dirname, "../dist/video-editor/index.html"),
 			protocol: "file:",
 			slashes: true,
 			hash: "/preview"
 		}));
-		this.previewWindow.webContents.openDevTools();
 	}
+	this.previewWindow.webContents.openDevTools();
 
 	startServer(this.previewWindow);
-	this.listenForEvents();
-
-	ipcMain.handle("close-window", async (evt) => {
-		this.window.close();
-	});
-};
+	new StreamingAndFilters(this.window, this.previewWindow).listenForEvents();
+}
 
 exports.MainWindow = MainWindow;

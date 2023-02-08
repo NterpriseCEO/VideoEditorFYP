@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { EventManager } from '@angular/platform-browser';
-import { debounceTime, Observable } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { EventManager } from "@angular/platform-browser";
+import { debounceTime, Observable } from "rxjs";
 
 @Injectable({
-	providedIn: 'root',
+	providedIn: "root",
 })
 export class KeyboardEventsService {
 	constructor(

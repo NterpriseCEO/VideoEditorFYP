@@ -9,6 +9,8 @@ import { ToolbarModule } from "primeng/toolbar";
 import { KnobModule } from "primeng/knob";
 import { CheckboxModule } from "primeng/checkbox";
 import { DropdownModule } from "primeng/dropdown";
+import { InplaceModule } from "primeng/inplace";
+import { InputNumberModule } from "primeng/inputnumber";
 
 import { FilterSelectorComponent } from "./filter-selector/filter-selector.component";
 import { FilterInstanceComponent } from "./filter-instance/filter-instance.component";
@@ -28,7 +30,9 @@ import { FilterInstanceComponent } from "./filter-instance/filter-instance.compo
 		ToolbarModule,
 		KnobModule,
 		CheckboxModule,
-		DropdownModule
+		DropdownModule,
+		InplaceModule,
+		InputNumberModule
 	],
 	exports: [FilterSelectorComponent, FilterInstanceComponent],
 })

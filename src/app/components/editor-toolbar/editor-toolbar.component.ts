@@ -3,6 +3,7 @@ import { MenuItem, PrimeIcons } from "primeng/api";
 import { TracksService } from "src/app/services/tracks.service";
 import { TrackType } from "src/app/utils/constants";
 import { SourceSelectorComponent } from "../tracks/source-selector/source-selector.component";
+import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
 	selector: "app-editor-toolbar",
@@ -29,9 +30,6 @@ export class EditorToollbarComponent {
 				{
 					label: "Add track",
 					icon: PrimeIcons.PLUS,
-					command: () => {
-						this.tracksService.addTrack(TrackType.VIDEO);
-					},
 					items: [
 						{
 							label: "Video",
@@ -78,10 +76,18 @@ export class EditorToollbarComponent {
 					}
 				},
 				{
-					label: "Export Project",
-					icon: "pi pi-fw pi-file-export",
+					label: "Exit to start view",
+					icon: PrimeIcons.SIGN_OUT,
 					command: () => {
-						alert("Exporting the project");
+						window.api.emit("exit-to-start-view");
+						this.router.navigate(["/startup"]);
+					}
+				},
+				{
+					label: "Exit",
+					icon: PrimeIcons.SIGN_OUT,
+					command: () => {
+						window.api.emit("exit");
 					}
 				}
 			]
@@ -106,31 +112,25 @@ export class EditorToollbarComponent {
 			]
 		},
 		{
-			label: "View",
-			items: [
-				{
-					label: "Blah",
-					command: () => {
-						alert("Blah");
-					}
-				},
-				{
-					label: "Blah",
-					command: () => {
-						alert("Blah");
-					}
-				},
-				{
-					label: "Blah",
-					command: () => {
-						alert("Blah");
-					}
-				}
-			]
+			label: "Settings",
+			icon: PrimeIcons.COG,
+			command: () => {
+				this.router.navigate([{ outlets: { primary: ["mainview"], panelOutlet: ["settings"] } }]);
+			}
+		},
+		{
+			label: "Exports",
+			icon: "pi pi-fw pi-file-export",
+			command: () => {
+				this.router.navigate([{ outlets: { primary: ["mainview"], panelOutlet: ["exports"] } }]);
+			}
 		}
 	]
 
-	constructor(private tracksService: TracksService) { }
+	constructor(
+		private tracksService: TracksService,
+		private router: Router
+	) { }
 
 	createScreenCaptureTrack(event: any) {
 		this.tracksService.addTrack(TrackType.SCREEN_CAPTURE, event);

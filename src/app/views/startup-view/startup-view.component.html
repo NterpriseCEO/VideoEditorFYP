@@ -1,0 +1,61 @@
+<div class = "flex w-full h-full overflow-hidden">
+	<div class = "w-6 h-full surface-card flex flex-column">
+		<div class = "flex justify-content-center w-full text-center">
+			<div class = "m-4">
+				<button
+					pButton
+					label = "New project"
+					class = "p-button-lg mr-4"
+					(click) = "openEditor()"
+				>
+				</button>
+				<button
+					pButton
+					label = "Open project"
+					class = "p-button-lg"
+					(click) = "openEditor()"
+				>
+				</button>
+			</div>
+		</div>
+		<div class = "p-4 flex-grow-1 flex flex-column overflow-hidden">
+			<p-table [value] = "recentProjects">
+				<ng-template pTemplate="caption">
+					<div class="flex align-items-center justify-content-between">
+						<span class = "text-4xl">Recent projects</span>
+					</div>
+				</ng-template>
+				<ng-template pTemplate="header">
+					<tr>
+						<th class = "w-2">Name</th>
+						<th class = "w-6">Path</th>
+						<th class = "w-2">Open</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate = "body" let-project>
+					<tr>
+						<td class = "w-3">{{project.name}}</td>
+						<td
+							class = "white-space-nowrap overflow-hidden text-overflow-ellipsis w-3"
+							style = "max-width:200px"
+							[pTooltip] = "project.location"
+						>
+							{{project.location}}
+						</td>
+						<td><button pButton label = "Open"></button></td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+		<div class = "flex p-4 justify-content-center">
+			<button pButton icon = "pi pi-question" class = "p-button-lg mr-4" pTooltip = "Read the manual"></button>
+			<button pButton icon = "pi pi-discord" class = "p-button-lg mr-4" pTooltip = "Visit the W.A.V.E Foundation Discord server"></button>
+			<button pButton icon = "pi pi-image" class = "p-button-lg mr-4" pTooltip = "View community art"></button>
+		</div>
+	</div>
+	<div class = "w-6 flex align-items-center">
+		<div class = "w-full">
+			<h1 id = "community-art" class = "text-center">Community art will go here...</h1>
+		</div>
+	</div>
+</div>

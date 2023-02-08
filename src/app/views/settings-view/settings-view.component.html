@@ -1,0 +1,11 @@
+<div class = "w-full h-full flex">
+	<div class = "w-2">
+		<p-menu [model] = "settingsPages" class = "w-full h-full" styleClass = "w-full h-full"></p-menu>
+	</div>
+	<div class = "flex-grow-1">
+		<h1 *ngIf = "activeSettingsPage == 0">General</h1>
+		<h1 *ngIf = "activeSettingsPage == 1">Audio</h1>
+		<h1 *ngIf = "activeSettingsPage == 2" >Video</h1>
+		<h1 *ngIf = "activeSettingsPage == 3">Keyboard shortcuts</h1>
+	</div>
+</div>

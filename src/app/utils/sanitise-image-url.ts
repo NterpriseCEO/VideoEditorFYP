@@ -1,5 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Pipe, PipeTransform } from "@angular/core";
+import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 /*
  * Raise the value exponentially
  * Takes an exponent argument that defaults to 1.
@@ -9,7 +9,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
  *   {{ 2 | exponentialStrength:10 }}
  *   formats to: 1024
 */
-@Pipe({name: 'sanitiseImageUrl'})
+@Pipe({name: "sanitiseImageUrl"})
 export class SanitiseImageUrlPipe implements PipeTransform {
 	constructor(private sanitizer: DomSanitizer) {}
 

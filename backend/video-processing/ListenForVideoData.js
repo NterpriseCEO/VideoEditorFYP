@@ -8,12 +8,12 @@ exports.listenForVideoData = function(client) {
 		if (fs.existsSync("./test.webm")) {
 			fs.unlinkSync("./test.webm");
 		}
-		fileStream = fs.createWriteStream("./test.webm", { flags: 'a' });
+		fileStream = fs.createWriteStream("./test.webm", { flags: "a" });
 	});
-	client.on('recording-data', data => {
+	client.on("recording-data", data => {
 		fileStream.write(Buffer.from(new Uint8Array(data)));
 	});
-	client.on('stop-recording', () => {
+	client.on("stop-recording", () => {
 		fileStream.end();
 	});
 }

@@ -22,15 +22,15 @@ function startServer(win) {
 
 
 function socketConnections() {
-	const io = require('socket.io')(server, {
+	const io = require("socket.io")(server, {
 		cors: {
 			origin: server.address().port,
 			methods: ["GET", "POST"]
 		}
 	});
-	io.on('connection', client => {
+	io.on("connection", client => {
 		listenForVideoData(client);
-		client.on('disconnect', () => {});
+		client.on("disconnect", () => {});
 	});
 }
 

@@ -14,7 +14,7 @@ export class TracksService {
 
 	tracks: Track[] = [];
 
-	selectedTrack!: Track;
+	selectedTrack: Track | null = null;
 
 	constructor() { }
 
@@ -23,11 +23,11 @@ export class TracksService {
 		let instance: FilterInstance = Object.assign({}, filter, {enabled: true});
 		
 		//Adds the filter to the selected track
-		if (!this.selectedTrack.filters) {
-			this.selectedTrack.filters = [];
+		if (!this.selectedTrack!.filters) {
+			this.selectedTrack!.filters = [];
 		}
 		//Lets the track properties panel know that a filter has been added
-		this.selectedTrack.filters.push(instance);
+		this.selectedTrack!.filters.push(instance);
 		this.filtersChangedSubject.next(null);
 		//sends the updated filters to the preview window
 		window.api.emit("update-filters", this.selectedTrack);
@@ -35,7 +35,7 @@ export class TracksService {
 
 	removeFilter(filter: FilterInstance) {
 		//Removes the filter from the selected track
-		this.selectedTrack.filters = this.selectedTrack.filters!.filter((f) => f !== filter);
+		this.selectedTrack!.filters = this.selectedTrack!.filters!.filter((f) => f !== filter);
 		this.filtersChangedSubject.next(null);
 		window.api.emit("update-filters", this.selectedTrack);
 	}
@@ -85,7 +85,7 @@ export class TracksService {
 		this.selectedTrack = track;
 	}
 
-	getSelectedTrack(): Track {
+	getSelectedTrack(): Track | null {
 		return this.selectedTrack;
 	}
 
@@ -95,12 +95,18 @@ export class TracksService {
 
 	setTrackColour() {
 		//Generates a random hex colour
-		return '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+		return "#"+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, "0");
 	}
 
 	deleteTrack(trackID: number) {
+		let selectedID = this.selectedTrack?.id;
 		//Deletes the track from the array by filtering out
 		this.tracks = this.tracks.filter(t => t.id !== trackID);
+		if(selectedID === trackID) {
+			this.selectedTrack = null;
+
+			this.filtersChangedSubject.next(null);
+		}
 		this.tracksSubject.next(this.tracks);
 		window.api.emit("send-tracks", this.tracks);
 	}

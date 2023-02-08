@@ -1,0 +1,37 @@
+<div class = "flex w-full h-full overflow-hidden">
+	<div class = "w-6 h-full surface-card overflow-auto">
+		<p-table [value] = "recentExports">
+			<ng-template pTemplate="caption">
+				<div class="flex align-items-center justify-content-between">
+					<span class = "text-4xl">Recent exports</span>
+				</div>
+			</ng-template>
+			<ng-template pTemplate="header">
+				<tr>
+					<th class = "w-2">File</th>
+					<th class = "w-6">Path</th>
+					<th class = "w-2">date</th>
+				</tr>
+			</ng-template>
+			<ng-template pTemplate = "body" let-export>
+				<tr>
+					<td class = "w-3">{{export.file}}</td>
+					<td
+						class = "white-space-nowrap overflow-hidden text-overflow-ellipsis w-3"
+						style = "max-width:200px"
+						[pTooltip] = "export.location"
+					>
+						{{export.location}}
+					</td>
+					<td>{{export.date}}</td>
+				</tr>
+			</ng-template>
+		</p-table>
+	</div>
+	<div class = "w-6 flex align-items-center">
+		<div class = "w-full">
+			<video src = "" style = "background-color: black;"></video>
+			<p-progressBar [value] = "exportProgress"></p-progressBar>
+		</div>
+	</div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, NgZone, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, NgZone, Output } from "@angular/core";
 
 @Component({
 	selector: "app-source-selector",
