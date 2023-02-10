@@ -1,6 +1,8 @@
 import { Component } from "@angular/core";
 import { ClipService } from "./services/clip.service";
 import { Router } from "@angular/router";
+import { ProjectFileService } from "./services/project-file-service.service";
+import { ConfirmationService, ConfirmEventType } from "primeng/api";
 declare global {
 	interface Window {
 		api?: any;
@@ -24,13 +26,44 @@ export class AppComponent {
 	fileY: number = 0;
 	showFileRepresentation: boolean = false;
 
-	constructor(private cs: ClipService, public router: Router) {}
+	constructor(
+		private cs: ClipService,
+		public router: Router,
+		private pfService: ProjectFileService,
+		private confirmationService: ConfirmationService
+	) {
+		this.listenForEvents();
+	}
+
+	listenForEvents() {
+		window.api.on("check-if-can-exit", () => {
+			//If there are no unsaved changes, exit the app
+			if (!this.pfService.isProjectDirty()) {
+				window.api.emit("exit");
+			}
+
+			this.confirmationService.confirm({
+				message: 'Do you want to save this project first?',
+				icon: 'pi pi-exclamation-triangle',
+				accept: () => {
+					this.pfService.saveProject();
+					this.pfService.projectSavedSubject.subscribe(() => {
+						window.api.emit("exit");
+					});
+				},
+				reject: (type: ConfirmEventType) => {
+					if(type === ConfirmEventType.REJECT) {
+						window.api.emit("exit");
+					}
+				}
+			});
+		});
+	}
 
 	moveFileRepresentation(event: any) {
 		this.fileX = event.x;
 		this.fileY = event.y;
 	}
-
 
 	startAdd() {
 		this.showFileRepresentation = this.cs.getIsAddingClip();

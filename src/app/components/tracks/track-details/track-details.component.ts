@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, ViewChild } from "@angular/core";
+import { ProjectFileService } from "src/app/services/project-file-service.service";
 import { TracksService } from "src/app/services/tracks.service";
 import { Track } from "src/app/utils/interfaces";
 import { getHexBrightness } from "src/app/utils/utils";
@@ -23,7 +24,10 @@ export class TrackDetailsComponent implements OnChanges {
 
 	titleColour: string = "white";
 
-	constructor(private tracksService: TracksService) { }
+	constructor(
+		private tracksService: TracksService,
+		private pfService: ProjectFileService
+	) { }
 
 	toggleRecording() {
 		this.isRecording = !this.isRecording;
@@ -43,6 +47,10 @@ export class TrackDetailsComponent implements OnChanges {
 
 	toggleVisibility() {
 		this.track.isVisible = !this.track.isVisible;
+
+		//Updates the project file object
+		this.pfService.updateTracks(this.tracksService.getTracks());
+
 		//Sends the tracks to the preview window
 		window.api.emit("send-tracks", this.tracksService.getTracks());
 	}

@@ -13,12 +13,12 @@
 				[options] = "sortOptions"
 				(onChange) = "onSortChange($event)"
 			></p-dropdown>
-			<div class="p-inputgroup flex-grow-1">
+			<div class = "p-inputgroup flex-grow-1">
 				<input
 					type = "search"
 					pInputText
 					placeholder = "Search by Name"
-					(input)="filter($event)"
+					(input) = "filter($event)"
 				>
 				<button
 					pButton
@@ -29,7 +29,7 @@
 			</div>
 		</div>
 	</ng-template>
-	<ng-template let-clip pTemplate="gridItem">
+	<ng-template let-clip pTemplate = "gridItem">
 		<div class = "col-4 p-1 select-none">
 			<div
 				class = "file card border-round cursor-pointer white-space-nowrap text-overflow-ellipsis overflow-hidden w-full"

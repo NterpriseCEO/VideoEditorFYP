@@ -4,6 +4,7 @@ import { ClipInstance, Track } from "src/app/utils/interfaces";
 import { fromEvent } from "rxjs";
 import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
+import { ProjectFileService } from "src/app/services/project-file-service.service";
 
 @Component({
 	selector: "app-tracks-panel",
@@ -23,6 +24,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	hoveringTrack: Track | null = null;
 	originTrack: Track | null = null;
 
+	draggingTimeout: any = null;
+
 	@ViewChild("tracksList") tracksList!: ElementRef;
 	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
 	@ViewChild("timeLines") timeLines!: ElementRef;
@@ -31,7 +34,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	constructor(
 		public tracksService: TracksService,
 		public changeDetector: ChangeDetectorRef,
-		public cs: ClipService
+		public cs: ClipService,
+		private pfService: ProjectFileService
 	) {
 		//Subscribes to the addTrackSubject in the tracks service
 		tracksService.tracksSubject.subscribe((tracks: Track[]) => {
@@ -137,6 +141,10 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		//Resets the current clip so that it can't be added
 		//multiple times
 		this.cs.setCurrentClip(null);
+
+		//Updates the project file object
+		//2 events are being called here: NEED TO FIX/////////////////////////////////////////////////////////////
+		this.pfService.updateTracks(this.tracks);
 
 		window.api.emit("update-track-clips", track);
 
@@ -278,6 +286,9 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 		this.checkIfClipOverlaps(this.hoveringTrack!, clip);
 
+		//Updates the project file object
+		this.pfService.updateTracks(this.tracks);
+
 		window.api.emit("update-track-clips", this.hoveringTrack);
 		window.api.emit("update-track-clips", this.originTrack);
 	}
@@ -314,6 +325,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			return;
 		}
 
+		clearTimeout(this.draggingTimeout);
+
 		let clip = this.cs.getClipBeingResized();
 
 		if(clip) {
@@ -345,6 +358,12 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			//Recreates the clips array to trigger change detection
 			this.hoveringTrack!.clips = [...this.hoveringTrack?.clips!];
 			this.checkIfClipOverlaps(this.hoveringTrack!, clip);
+
+			this.draggingTimeout = setTimeout(() => {
+				//Updates the project file object
+				this.pfService.updateTracks(this.tracks);
+			}, 200);
+
 			window.api.emit("update-track-clips", this.hoveringTrack!);
 			this.renderTimeline();
 		}else {

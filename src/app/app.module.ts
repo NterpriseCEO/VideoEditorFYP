@@ -8,6 +8,9 @@ import { MenubarModule } from "primeng/menubar";
 import { PanelModule } from "primeng/panel";
 import { SplitterModule } from "primeng/splitter";
 import { ButtonModule } from "primeng/button";
+import { ToastModule } from "primeng/toast";
+import { ConfirmationService, MessageService } from "primeng/api";
+import { ConfirmDialogModule } from "primeng/confirmdialog";
 
 import { AppComponent } from "./app.component";
 import { ViewsModule } from "./views/views.module";
@@ -25,9 +28,11 @@ import { ViewsModule } from "./views/views.module";
 		FormsModule,
 		ButtonModule,
 		SplitterModule,
-		ViewsModule
+		ViewsModule,
+		ToastModule,
+		ConfirmDialogModule
 	],
-	providers: [],
+	providers: [MessageService, ConfirmationService],
 	bootstrap: [AppComponent]
 })
 export class AppModule { }

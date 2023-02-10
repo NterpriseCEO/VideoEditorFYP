@@ -59,3 +59,12 @@ export interface ClipInstance extends Clip {
 	in: number;
 	startTime: number;
 }
+
+export interface Project {
+	name: string;
+	dateCreated: Date;
+	lastModifiedDate: Date;
+	location: string;
+	clips: Clip[];
+	tracks: Track[];
+}

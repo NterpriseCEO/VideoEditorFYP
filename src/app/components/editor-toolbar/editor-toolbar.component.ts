@@ -1,9 +1,11 @@
 import { Component, ViewChild } from "@angular/core";
-import { MenuItem, PrimeIcons } from "primeng/api";
+import { ConfirmationService, ConfirmEventType, MenuItem, PrimeIcons } from "primeng/api";
+import { Router } from "@angular/router";
+
 import { TracksService } from "src/app/services/tracks.service";
 import { TrackType } from "src/app/utils/constants";
 import { SourceSelectorComponent } from "../tracks/source-selector/source-selector.component";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ProjectFileService } from "src/app/services/project-file-service.service";
 
 @Component({
 	selector: "app-editor-toolbar",
@@ -24,7 +26,25 @@ export class EditorToollbarComponent {
 					label: "New Project",
 					icon: PrimeIcons.PLUS,
 					command: () => {
-						alert("Creating a new project");
+						if(this.pfService.isProjectDirty()) {
+							this.confirmationService.confirm({
+								message: 'Do you want to save this project first?',
+								icon: 'pi pi-exclamation-triangle',
+								accept: () => {
+									this.pfService.saveProject();
+									this.pfService.projectSavedSubject.subscribe(() => {
+										this.pfService.createBlankProject();
+									});
+								},
+								reject: (type: ConfirmEventType) => {
+									if(type === ConfirmEventType.REJECT) {
+										this.pfService.createBlankProject();
+									}
+								}
+							});
+						}else {
+							this.pfService.createBlankProject();
+						}
 					}
 				},
 				{
@@ -58,36 +78,94 @@ export class EditorToollbarComponent {
 					label: "Open Project",
 					icon: PrimeIcons.FILE,
 					command: () => {
-						alert("Opening a project");
+						if(this.pfService.isProjectDirty()) {
+							this.confirmationService.confirm({
+								message: 'Do you want to save this project first?',
+								icon: 'pi pi-exclamation-triangle',
+								accept: () => {
+									this.pfService.saveProject();
+									this.pfService.projectSavedSubject.subscribe(() => {
+										this.pfService.projectSavedSubject.unsubscribe();
+										this.pfService.loadProject();
+									});
+								},
+								reject: (type: ConfirmEventType) => {
+									if(type === ConfirmEventType.REJECT) {
+										this.pfService.loadProject();
+									}
+								}
+							});
+						}else {
+							this.pfService.loadProject();
+						}
 					}
 				},
 				{
 					label: "Save Project",
 					icon: PrimeIcons.SAVE,
 					command: () => {
-						alert("Saving the project");
+						this.pfService.saveProject();
 					}
 				},
 				{
 					label: "Save Project As",
 					icon: PrimeIcons.SAVE,
 					command: () => {
-						alert("Saving the project as");
+						this.pfService.saveProjectAs();
 					}
 				},
 				{
 					label: "Exit to start view",
 					icon: PrimeIcons.SIGN_OUT,
 					command: () => {
-						window.api.emit("exit-to-start-view");
-						this.router.navigate(["/startup"]);
+						if(this.pfService.isProjectDirty()) {
+							this.confirmationService.confirm({
+								message: 'Do you want to save this project first?',
+								icon: 'pi pi-exclamation-triangle',
+								accept: () => {
+									this.pfService.saveProject();
+									this.pfService.projectSavedSubject.subscribe(() => {
+										window.api.emit("exit-to-start-view");
+										this.router.navigate(["/startup"]);
+										this.pfService.projectSavedSubject.unsubscribe();
+									});
+								},
+								reject: (type: ConfirmEventType) => {
+									if(type === ConfirmEventType.REJECT) {
+										window.api.emit("exit-to-start-view");
+										this.router.navigate(["/startup"]);
+									}
+								}
+							});
+						}else {
+							window.api.emit("exit-to-start-view");
+							this.router.navigate(["/startup"]);
+						}
 					}
 				},
 				{
 					label: "Exit",
 					icon: PrimeIcons.SIGN_OUT,
 					command: () => {
-						window.api.emit("exit");
+						if(this.pfService.isProjectDirty()) {
+							this.confirmationService.confirm({
+								message: 'Do you want to save this project first?',
+								icon: 'pi pi-exclamation-triangle',
+								accept: () => {
+									this.pfService.saveProject();
+									this.pfService.projectSavedSubject.subscribe(() => {
+										window.api.emit("exit");
+									});
+								},
+								reject: (type: ConfirmEventType) => {
+									if(type === ConfirmEventType.REJECT) {
+										window.api.emit("exit");
+									}
+								}
+							});
+						}else {
+							window.api.emit("exit");
+						}
 					}
 				}
 			]
@@ -129,7 +207,9 @@ export class EditorToollbarComponent {
 
 	constructor(
 		private tracksService: TracksService,
-		private router: Router
+		private router: Router,
+		private pfService: ProjectFileService,
+		private confirmationService: ConfirmationService
 	) { }
 
 	createScreenCaptureTrack(event: any) {

@@ -13,19 +13,19 @@
 					pButton
 					label = "Open project"
 					class = "p-button-lg"
-					(click) = "openEditor()"
+					(click) = "openProject()"
 				>
 				</button>
 			</div>
 		</div>
 		<div class = "p-4 flex-grow-1 flex flex-column overflow-hidden">
 			<p-table [value] = "recentProjects">
-				<ng-template pTemplate="caption">
-					<div class="flex align-items-center justify-content-between">
+				<ng-template pTemplate = "caption">
+					<div class = "flex align-items-center justify-content-between">
 						<span class = "text-4xl">Recent projects</span>
 					</div>
 				</ng-template>
-				<ng-template pTemplate="header">
+				<ng-template pTemplate = "header">
 					<tr>
 						<th class = "w-2">Name</th>
 						<th class = "w-6">Path</th>

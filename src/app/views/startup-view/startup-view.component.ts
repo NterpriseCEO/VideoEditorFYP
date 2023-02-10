@@ -44,4 +44,10 @@ export class StartupViewComponent {
 		window.api.emit("open-preview-window");
 		this.router.navigate(["/mainview"]);
 	}
+
+	openProject() {
+		window.api.emit("open-preview-window");
+		this.router.navigate(["/mainview"]);
+		window.api.emit("load-project");
+	}
 }

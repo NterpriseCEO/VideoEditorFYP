@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import { TrackType } from "../utils/constants";
 import { Filter, FilterInstance, Track } from "../utils/interfaces";
+import { ProjectFileService } from "./project-file-service.service";
 
 @Injectable({
 	providedIn: "root"
@@ -16,7 +17,16 @@ export class TracksService {
 
 	selectedTrack: Track | null = null;
 
-	constructor() { }
+	constructor(private pfService: ProjectFileService) {
+		this.listenForTracks();
+	}
+
+	listenForTracks() {
+		this.pfService.loadTracksSubject.subscribe((tracks) => {
+			this.tracks = tracks;
+			this.tracksSubject.next(this.tracks);
+		});
+	}
 
 	addFilter(filter: Filter) {
 		//Creates a new instance of the filter and sets it to enabled
@@ -29,6 +39,10 @@ export class TracksService {
 		//Lets the track properties panel know that a filter has been added
 		this.selectedTrack!.filters.push(instance);
 		this.filtersChangedSubject.next(null);
+
+		//Updates the project file object
+		this.pfService.updateTracks(this.tracks);
+
 		//sends the updated filters to the preview window
 		window.api.emit("update-filters", this.selectedTrack);
 	}
@@ -37,6 +51,10 @@ export class TracksService {
 		//Removes the filter from the selected track
 		this.selectedTrack!.filters = this.selectedTrack!.filters!.filter((f) => f !== filter);
 		this.filtersChangedSubject.next(null);
+
+		//Updates the project file object
+		this.pfService.updateTracks(this.tracks);
+
 		window.api.emit("update-filters", this.selectedTrack);
 	}
 
@@ -44,6 +62,10 @@ export class TracksService {
 		//Toggles the filter on or off
 		filter.enabled = !filter.enabled;
 		this.filtersChangedSubject.next(null);
+
+		//Updates the project file object
+		this.pfService.updateTracks(this.tracks);
+
 		window.api.emit("update-filters", this.selectedTrack);
 	}
 
@@ -77,6 +99,10 @@ export class TracksService {
 		this.tracks.push(track);
 		this.tracksSubject.next(this.tracks);
 		this.selectedTrack = track;
+
+		//Updates the project file object
+		this.pfService.updateTracks(this.tracks);
+
 		//Sends the tracks to the preview window
 		window.api.emit("send-tracks", this.tracks);
 	}
@@ -108,6 +134,10 @@ export class TracksService {
 			this.filtersChangedSubject.next(null);
 		}
 		this.tracksSubject.next(this.tracks);
+
+		//Updates the project file object
+		this.pfService.updateTracks(this.tracks);
+
 		window.api.emit("send-tracks", this.tracks);
 	}
 }

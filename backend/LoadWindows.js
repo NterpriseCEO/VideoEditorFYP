@@ -7,6 +7,7 @@ const { Worker } = require("worker_threads");
 const { ImportFiles } = require("./file-management/ImportFiles");
 const { startServer } = require("./globals/http-server");
 const { registerFileProtocol } = require("./file-management/FIleProtocol.js");
+const { SaveAndLoadProjects } = require("./file-management/SaveAndLoadProjects");
 
 function MainWindow() {
 
@@ -18,10 +19,13 @@ function MainWindow() {
 	//if the app is in development mode or not
 	this.args = process.argv.slice(1);
 	this.serve = this.args.some(val => val === "--localhost");
+
+	this.canExit = false;
 }
 
 MainWindow.prototype.listenForEvents = function() {
 	new ImportFiles(this.window).listenForEvents();
+	new SaveAndLoadProjects(this.window).listenForEvents();
 
 	//Saves the video files to the user"s computer in a sparate thread
 	//WIll replace this with MediaRecorder in the future
@@ -45,6 +49,15 @@ MainWindow.prototype.listenForEvents = function() {
 			app.quit()
 		}
 	});
+
+	this.window.on("close", (e) => {
+		if(!this.canExit) {
+			e.preventDefault();
+			this.window.webContents.send("check-if-can-exit");
+		}else {
+			this.canExit = false;
+		}
+	});
 	
 	app.on("activate", () => {
 		if (this.window === null) {
@@ -60,6 +73,7 @@ MainWindow.prototype.listenForEvents = function() {
 		this.loadStartView();
 	});
 	ipcMain.on("exit", () => {
+		this.canExit = true;
 		app.quit();
 	});
 

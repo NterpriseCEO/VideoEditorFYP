@@ -3,6 +3,7 @@ import { SelectItem } from "primeng/api";
 import { Clip } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
+import { ProjectFileService } from "src/app/services/project-file-service.service";
 
 @Component({
 	selector: "app-imports-panel",
@@ -25,7 +26,8 @@ export class ImportsPanelComponent {
 	constructor(
 		public cs: ClipService,
 		private ngZone: NgZone,
-		private changeDetector: ChangeDetectorRef
+		private changeDetector: ChangeDetectorRef,
+		private pfService: ProjectFileService
 	) {
 		this.sortOptions = [
 			{label: "A-Z", value: "name"},
@@ -33,6 +35,7 @@ export class ImportsPanelComponent {
         ];
 
 		this.listenForFileImports();
+		this.listenForClipLoading();
 	}
 
 	listenForFileImports() {
@@ -57,6 +60,9 @@ export class ImportsPanelComponent {
 
 			//Update the clips array to trigger change detection
 			this.clips = [...this.clips];
+
+			this.pfService.updateClips(this.clips);
+
 			this.changeDetector.detectChanges();
 		}));
 
@@ -79,7 +85,21 @@ export class ImportsPanelComponent {
 					.thumbnail = "local-resource://getMediaFile/" + thumbnail.thumbnail;
 			});
 			this.clips = [...this.clips];
-			
+
+			this.pfService.updateClips(this.clips);
+
+			this.changeDetector.detectChanges();
+		});
+	}
+
+	listenForClipLoading() {
+		this.pfService.loadClipsSubject.subscribe((clips: Clip[]) => {
+			console.log("Loading clips");
+
+			this.clips = [...clips];
+
+			console.log(this.clips);
+
 			this.changeDetector.detectChanges();
 		});
 	}

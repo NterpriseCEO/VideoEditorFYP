@@ -1,6 +1,7 @@
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from "@angular/core";
 import { Filter, FilterInstance } from "src/app/utils/interfaces";
 import { TracksService } from "src/app/services/tracks.service";
+import { ProjectFileService } from "src/app/services/project-file-service.service";
 
 @Component({
 	selector: "app-track-properties-panel",
@@ -24,7 +25,11 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 	addingFilter: boolean = false;
 	filtersCount: number = 0;
 
-	constructor(private trackService: TracksService, private changeDetector: ChangeDetectorRef) {
+	constructor(
+		private trackService: TracksService,
+		private changeDetector: ChangeDetectorRef,
+		private pfService: ProjectFileService
+	) {
 		trackService.filtersChangedSubject.subscribe(() => {
 			//Checks if a filter is being added not removed
 			this.addingFilter = this.filtersCount < this.filters.length;
@@ -132,6 +137,9 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		}) as FilterInstance[];
 
 		this.changeDetector.detectChanges();
+
+		//Updates the project file object
+		this.pfService.updateTracks(this.trackService.getTracks());
 
 		window.api.emit("update-filters", this.trackService.getSelectedTrack());
 	}

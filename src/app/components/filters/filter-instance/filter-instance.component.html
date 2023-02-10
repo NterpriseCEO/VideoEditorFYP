@@ -6,11 +6,11 @@
 		<div class = "h-full w-20rem flex-grow-0 flex flex-column">
 			<div class = "filter-header">
 				<p-toolbar class = "cursor-move">
-					<div class="p-toolbar-group-left cursor-auto">
+					<div class = "p-toolbar-group-left cursor-auto">
 						{{filter.displayName}}
 					</div>
 					
-					<div class="p-toolbar-group-right">
+					<div class = "p-toolbar-group-right">
 						<button
 							pButton
 							icon = "pi pi-ellipsis-v"
@@ -19,7 +19,7 @@
 							pTooltip = "Filter options"
 						>
 						</button>
-						<p-menu #menu [popup]="true" [model] = "dropdownItems"></p-menu>
+						<p-menu #menu [popup] = "true" [model] = "dropdownItems"></p-menu>
 						<button
 							pButton
 							[pTooltip] = "(filter.enabled ? 'Disable' : 'Enable')+ ' filter'"
@@ -76,10 +76,10 @@
 								[closable] = "true"
 								closeIcon = "pi pi-check"
 							>
-								<ng-template pTemplate="display">
+								<ng-template pTemplate = "display">
 									{{property.name}}
 								</ng-template>
-								<ng-template pTemplate="content">
+								<ng-template pTemplate = "content">
 									<p-inputNumber
 										[(ngModel)] = "property.value"
 										mode = "decimal"
@@ -102,6 +102,6 @@
 				</div>
 			</div>
 		</div>
-		<div class="right-drop relative h-full surface-section"></div>
+		<div class = "right-drop relative h-full surface-section"></div>
 	</div>
 </div>
