@@ -116,13 +116,14 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	}
 
 	addClip(track: Track, event: MouseEvent) {
-		//Creates an empty array if the track doesn't have any clips
-		if(!track.clips) {
-			track.clips = [];
-		}
 		//Returns if there is no current clip to add
 		if(!this.cs.getCurrentClip() || track.type !== TrackType.VIDEO) {
 			return;
+		}
+
+		//Creates an empty array if the track doesn't have any clips
+		if(!track.clips) {
+			track.clips = [];
 		}
 
 		//Gets the mouse position relative to the tracksList element including the scroll

@@ -29,6 +29,9 @@ export class ProjectFileService {
 		tracks: this.tracks
 	};
 
+	projectHistory: Project[] = [];
+	historyIndex: number = 0;
+
 	loadClipsSubject: Subject<Clip[]> = new Subject<Clip[]>();
 	loadTracksSubject: Subject<Track[]> = new Subject<Track[]>();
 	projectSavedSubject: Subject<any> = new Subject<any>();
@@ -45,6 +48,8 @@ export class ProjectFileService {
 		//Concatenates the two filter lists and sorts them by category
 		allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.IMAGE_FILTERS})) as Filter[])
 			.sort((a, b) => a.category.localeCompare(b.category));
+
+		this.projectHistory.push(JSON.parse(JSON.stringify(this.project)));
 
 		window.api.on("project-loaded", (_: any, project: Project) => {
 			this.project = project;
@@ -84,14 +89,51 @@ export class ProjectFileService {
 			//and that they should load these clips and tracks
 			this.loadClipsSubject.next(this.clips);
 			this.loadTracksSubject.next(this.tracks);
+
+			this.projectHistory = [];
+			this.historyIndex = 0;
+			this.projectHistory.push(JSON.parse(JSON.stringify(this.project)));
+
+			this.addProjectToRecentProjects();
 		});
 
-		window.api.on("project-saved", () => {
+		window.api.on("project-saved", (_: any, project: Project) => {
 			this.messageService.add({severity:'success', summary:'Project saved!'});
 			this.isDirty = false;
 
+			//Updates the project location
+			this.project.location = project.location;
+			this.location = project.location;
+
+			//Adds the project to the recent projects list
+			this.addProjectToRecentProjects();
+
 			this.projectSavedSubject.next(null);
 		});
+	}
+
+	addProjectToRecentProjects() {
+		let recentProjects = localStorage.getItem("recentProjects");
+		if(recentProjects) {
+			let recentProjectsArray = JSON.parse(recentProjects);
+			//Checks if the project is already in the list
+			let projectExists = recentProjectsArray.find((project: any) => 
+				project.location === this.location && project.name === this.name
+			);
+
+			if(!projectExists) {
+				//Checks if the list is full (max 5)
+				//and removes the first item if it is
+				if(recentProjectsArray.length === 5) {
+					recentProjectsArray.shift();
+				}
+				recentProjectsArray.push({name: this.name, location: this.location});
+				localStorage.setItem("recentProjects", JSON.stringify(recentProjectsArray));
+			}
+		}else {
+			//Adds the project to the list
+			localStorage.setItem("recentProjects", JSON.stringify([{name: this.name, location: this.location}]));
+		}
 	}
 
 	loadProject() {
@@ -99,10 +141,22 @@ export class ProjectFileService {
 	}
 
 	updateTracks(tracks: Track[]) {
-		this.tracks = tracks;
-		this.project.tracks = tracks;
+		//Compare the tracks to see if they have changed
+		//if they haven't changed, don't update them
+		//This prevent the project from being marked as dirty
+		//when the user clicks on a track
+
+		if(JSON.stringify(this.tracks) === JSON.stringify(tracks)) {
+			return;
+		}
+
+		this.tracks = JSON.parse(JSON.stringify(tracks));
+		this.project.tracks = JSON.parse(JSON.stringify(tracks));
+		
 
 		this.isDirty = true;
+
+		this.addProjectToHistory(this.project);
 	}
 
 	updateClips(clips: Clip[]) {
@@ -110,10 +164,19 @@ export class ProjectFileService {
 		this.project.clips = clips;
 
 		this.isDirty = true;
+
+		//Adds the clips to all projects in the history
+		//This prevents the clips from being lost when the user
+		//undoes a project change
+		//Should only track changes to the tracks in the future
+		this.projectHistory.forEach(project => {
+			project.clips = JSON.parse(JSON.stringify(clips));
+		});
 	}
 
 	saveProject() {
 		this.project.lastModifiedDate = new Date();
+		//If a project is loaded, save it instead of creating a new one
 		if(this.projectLoaded) {
 			window.api.emit("save-project", this.project);
 		}else {
@@ -147,10 +210,55 @@ export class ProjectFileService {
 		this.clips = this.project.clips;
 		this.tracks = this.project.tracks;
 
-		this.projectLoaded = true;
+		this.projectLoaded = false;
 		this.isDirty = false;
 
 		this.loadClipsSubject.next(this.clips);
 		this.loadTracksSubject.next(this.tracks);
+	}
+
+	addProjectToHistory(project: Project) {
+		//Adds the project to the history at the historyIndex
+		//and remove all projects after the historyIndex
+		this.historyIndex++;
+
+		//Set the length of the array to the historyIndex
+		this.projectHistory.length = this.historyIndex;
+		console.log(this.projectHistory);
+		
+		this.projectHistory.push(JSON.parse(JSON.stringify(project)));	
+	}
+
+	undo() {
+		this.historyIndex--;
+		if(this.historyIndex < 0) {
+			this.historyIndex = 0;
+		}
+
+		this.updateFromHistory();
+	}
+
+	redo() {
+		this.historyIndex++;
+		if(this.historyIndex > this.projectHistory.length - 1) {
+			this.historyIndex = this.projectHistory.length - 1;
+		}
+
+		this.updateFromHistory();
+	}
+
+	updateFromHistory() {
+		//Skips the update if the prject is the same as the one in the history
+		if(JSON.stringify(this.project) === JSON.stringify(this.projectHistory[this.historyIndex])) {
+			return;
+		}
+
+		this.project = JSON.parse(JSON.stringify(this.projectHistory[this.historyIndex]));
+
+		this.loadClipsSubject.next(this.project.clips);
+		this.clips = JSON.parse(JSON.stringify(this.project.clips));
+
+		this.loadTracksSubject.next(this.project.tracks);
+		this.tracks = JSON.parse(JSON.stringify(this.project.tracks));
 	}
 }

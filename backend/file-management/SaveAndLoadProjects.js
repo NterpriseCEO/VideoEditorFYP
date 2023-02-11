@@ -20,7 +20,7 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 
 			project.location = result.filePath;
 
-			//Loop through the tracks and filters and
+			//Loops through the tracks and filters and
 			//reduces the filter properties to just their values
 			if(project.tracks) {
 				project.tracks.forEach((track) => {
@@ -36,7 +36,7 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 				});
 			}
 
-			//Save the project to the file
+			//Saves the project to a file
 			fs.writeFile(result.filePath, JSON.stringify(project), (err) => {
 				if (err) {
 					console.log(err);
@@ -58,7 +58,7 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 		});
 	});
 
-	ipcMain.on("load-project", (_, project) => {
+	ipcMain.on("load-project", (_, __) => {
 		dialog.showOpenDialog(this.mainWindow, {
 			properties: ["openFile"],
 			filters: [
@@ -68,8 +68,6 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 			if (result.canceled) {
 				return;
 			}
-
-			console.log(result);
 
 			//Load the project from the file
 			fs.readFile(result.filePaths[0], (err, data) => {
@@ -83,6 +81,16 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 
 		}).catch((err) => {
 			console.log(err);
+		});
+	});
+
+	ipcMain.on("load-project-from-location", (_, location) => {
+		fs.readFile(location, (err, data) => {
+			if (err) {
+				console.log(err);
+			}
+
+			this.mainWindow.webContents.send("project-loaded", JSON.parse(data));
 		});
 	});
 }
