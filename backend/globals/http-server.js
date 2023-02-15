@@ -4,22 +4,22 @@ const fs = require("fs");
 const { listenForVideoData } = require("../video-processing/ListenForVideoData.js");
 
 let server;
-let window;
 
-function startServer(win) {
-	window = win;
+function Server() {
 	server = http.createServer();
 	//Finds a free port and starts the server
 	server.listen(0, "localhost", () => {
 		console.log(`Server is running on http://localhost:${server.address().port}`);
 		socketConnections();
 		ipcMain.on("get-server-port", () => {
-			window.webContents.send("server-port", server.address().port);
+			this.window.webContents.send("server-port", server.address().port);
 		});
-
 	});
 }
 
+Server.prototype.setWindow = function(win) {
+	this.window = win;
+}
 
 function socketConnections() {
 	const io = require("socket.io")(server, {
@@ -34,4 +34,4 @@ function socketConnections() {
 	});
 }
 
-exports.startServer = startServer;
+exports.Server = Server;

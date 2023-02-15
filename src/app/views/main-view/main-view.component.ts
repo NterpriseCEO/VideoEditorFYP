@@ -13,6 +13,7 @@ export class MainViewComponent {
 	tracksPanelIsVisible = true;
 	tracksPropertiesPanelIsVisible = true;
 	infoPanelIsVisible = true;
+	previewWindowIsVisible = true;
 
 	constructor(private keys: KeyboardEventsService, private pfService: ProjectFileService) {
 		//Reads the each panel"s visibility from local storage
@@ -39,6 +40,10 @@ export class MainViewComponent {
 		this.keys.keypress("keyup.control.y").subscribe(() => {
 			this.pfService.redo();
 		});
+
+		window.api.on("preview-exited", (_, __) => {
+			this.previewWindowIsVisible = false;
+		});
 	}
 
 	atLeastOnePanelIsVisible(): boolean {
@@ -54,5 +59,12 @@ export class MainViewComponent {
 		this[panel] = !this[panel];
 
 		localStorage.setItem(panel, this[panel].toString());
+	}
+
+	showPreviewWindow() {
+		if(!this.previewWindowIsVisible) {
+			window.api.emit("open-preview-window");
+		}
+		this.previewWindowIsVisible = true;
 	}
 }

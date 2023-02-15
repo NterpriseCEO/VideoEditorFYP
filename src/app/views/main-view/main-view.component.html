@@ -45,6 +45,14 @@
 				(click) = "togglePanel('infoPanelIsVisible')"
 				icon = "pi pi-info-circle"
 			></button>
+			<button
+				pButton
+				class = "p-button-lg p-button-text"
+				[class.p-button-secondary] = "!previewWindowIsVisible"
+				[pTooltip] = "previewWindowIsVisible ? '' : 'Show preview window'"
+				(click) = "showPreviewWindow()"
+				icon = "pi pi-image"
+			></button>
 		</div>
 		<div class = "flex-grow-1 w-11 surface-card">
 			<div class = "flex w-full h-full align-items-center justify-content-center" *ngIf = "!atLeastOnePanelIsVisible()">

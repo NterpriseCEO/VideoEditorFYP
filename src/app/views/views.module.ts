@@ -25,6 +25,7 @@ import { EditorToolbarModule } from "../components/editor-toolbar/editor-toolbar
 import { StartupViewComponent } from "./startup-view/startup-view.component";
 import { SettingsViewComponent } from "./settings-view/settings-view.component";
 import { ExportsViewComponent } from "./exports-view/exports-view.component";
+import { PipesModule } from "../utils/pipes.module";
 
 @NgModule({
 	declarations: [
@@ -51,7 +52,8 @@ import { ExportsViewComponent } from "./exports-view/exports-view.component";
 		EditorToolbarModule,
 		TableModule,
 		MenuModule,
-		ProgressBarModule
+		ProgressBarModule,
+		PipesModule
 	],
 	exports: [MainViewComponent, PreviewComponent],
 })

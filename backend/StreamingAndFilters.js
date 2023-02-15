@@ -1,10 +1,11 @@
 const { ipcMain, desktopCapturer } = require("electron");
 
-function StreamingAndFilters(window, previewWindow) {
+function StreamingAndFilters() {}
+
+StreamingAndFilters.prototype.setWindows = function(window, previewWindow) {
 	this.window = window;
 	this.previewWindow = previewWindow;
 }
-
 StreamingAndFilters.prototype.listenForEvents = function() {
 	ipcMain.on("get-stream", () => {
 		//Gets screenshare stream
@@ -31,6 +32,12 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 	});
 	ipcMain.on("update-filters", (_, track) => {
 		this.previewWindow.webContents.send("update-filters", track);
+	});
+
+	ipcMain.on("set-selected-clip-in-preview", (_, filePath) => {
+		//Sets the source of the video element in the preview window
+		//that is used to preview the selected clip
+		this.previewWindow.webContents.send("set-selected-clip-in-preview", filePath);
 	});
 }
 

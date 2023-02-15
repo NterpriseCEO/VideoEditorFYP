@@ -26,8 +26,8 @@ export function hexToRgb(hex: string) {
 //Deep comparison of two objects
 //https://stackoverflow.com/questions/38400594/javascript-deep-comparison
 export function deepCompare(a: any, b) {
-	if ((typeof a == 'object' && a != null) &&
-		(typeof b == 'object' && b != null)) {
+	if ((typeof a == "object" && a != null) &&
+		(typeof b == "object" && b != null)) {
 		var count = [0, 0];
 		for (var key in a) count[0]++;
 		for (var key in b) count[1]++;

@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { FilterLibrary, TrackType } from "../../utils/constants";
-import { Filter, FilterInstance, Track } from "../../utils/interfaces";
+import { ClipInstance, Filter, FilterInstance, Track } from "../../utils/interfaces";
 import { ImageFilters } from "src/app/utils/ImageFilters";
 import { io } from "socket.io-client";
 // import * as GPU from "../../utils/gpu.js";
@@ -18,6 +18,7 @@ export class PreviewComponent implements AfterViewInit {
 
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
+	@ViewChild("previewVideo") previewVideo!: ElementRef;
 	@ViewChildren("videos") videos!: QueryList<ElementRef>;
 
 	mediaRecorder: any;
@@ -57,6 +58,8 @@ export class PreviewComponent implements AfterViewInit {
 	duration: number = 0;
 
 	socket: any;
+
+	previewSrc: string = "";
 
 	constructor(
 		private changeDetector: ChangeDetectorRef,
@@ -137,7 +140,6 @@ export class PreviewComponent implements AfterViewInit {
 			this.currentClip = [];
 
 			this.calculateDuration();
-			console.log(this.tracks[track.id].clips, this.duration, this.masterTime);
 
 			this.changeDetector.detectChanges();
 		}));
@@ -149,6 +151,12 @@ export class PreviewComponent implements AfterViewInit {
 			//Sets the socket connection to the server
 			this.socket = io("http://localhost:" + port);
 		});
+
+		window.api.on("set-selected-clip-in-preview", (_, filePath) => this.ngZone.run(() => {
+			this.previewSrc = "local-resource://getMediaFile/"+filePath;
+			this.previewVideo.nativeElement.startTime = 0;
+			this.changeDetector.detectChanges();
+		}));
 
 		//KEEP THIS CODE FOR REFERENCE
 		// if(typeof Worker !== "undefined") {
@@ -231,7 +239,17 @@ export class PreviewComponent implements AfterViewInit {
 			this.startTime = window.performance.now() / 1000;
 			let elapsedTime = 0;
 
-			const video = this.videos.toArray()[index].nativeElement;
+			let video;
+
+			if(this.videos.toArray()[index]) {
+				video = this.videos.toArray()[index].nativeElement;
+			}
+
+			console.log(video);
+
+			if(!track.isVisible) {
+				return;
+			}
 
 			video.src = "";
 			video.currentTime = 0;
@@ -321,7 +339,6 @@ export class PreviewComponent implements AfterViewInit {
 			// let start = window.performance.now();
 
 			if(video.paused || video.currentTime === 0) {
-				console.log("video paused");
 				this.animationFrames[index] = window.requestAnimationFrame(step);
 				return;
 			}
@@ -545,6 +562,7 @@ export class PreviewComponent implements AfterViewInit {
 		this.videoPlaying = !this.videoPlaying;
 
 		this.videos.toArray().forEach((video, i) => {
+			console.log(video.nativeElement.classList);
 			video.nativeElement.paused ? video.nativeElement.play() : video.nativeElement.pause();
 		});
 
@@ -556,7 +574,6 @@ export class PreviewComponent implements AfterViewInit {
 				this.timeAnimationFrames.forEach((frame) => {
 					window.cancelAnimationFrame(frame);
 				});
-
 
 				this.timeAnimationFrames = [];
 
@@ -578,11 +595,11 @@ export class PreviewComponent implements AfterViewInit {
 	getClipAtTime(time: number) {
 		//Gets all the clips that overlap a given time
 		let videos = this.videos.toArray();
-		this.tracks.forEach((track, i) => {
-			if(!track.clips) {
+		this.tracks.forEach((track: Track, i) => {
+			if(!track.clips || !track.isVisible) {
 				return;
 			}
-			track.clips.forEach((clip, j) => {
+			track.clips.forEach((clip: ClipInstance, j) => {
 				if(this.masterTime >= clip.startTime && time < clip.startTime + clip.duration) {
 					let video = videos[i].nativeElement;
 					if(video.src != "local-resource://getMediaFile/"+clip.location) {

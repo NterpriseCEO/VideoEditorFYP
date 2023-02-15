@@ -25,6 +25,7 @@ export class TracksService {
 		this.pfService.loadTracksSubject.subscribe((tracks) => {
 			this.tracks = tracks;
 			this.tracksSubject.next(this.tracks);
+			window.api.emit("send-tracks", this.tracks);
 		});
 	}
 

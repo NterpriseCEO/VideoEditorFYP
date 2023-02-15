@@ -12,7 +12,7 @@
 	</div>
 	<div class = "flex flex-grow-1 overflow-hidden">
 		<div style = "width: 99px" class = "h-full surface-ground border-right-2 border-50">
-			<img [src] = "clip.thumbnail | sanitiseImageUrl" class = "thumbnail w-full h-full flex-grow-0" ondragstart = "return false">
+			<img [src] = "clip.thumbnail | sanitiseUrl" class = "thumbnail w-full h-full flex-grow-0" ondragstart = "return false">
 		</div>
 		<div [ngStyle] = "{backgroundColor: colour }" class = "flex-grow-1 opacity-30"></div>
 	</div>

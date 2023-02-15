@@ -26,6 +26,15 @@
 					[class.mt-6] = "isFullscreen"
 				>
 				</video>
+				<video
+					#previewVideo
+					class = "w-full flex-grow-1 absolute preview-video"
+					[class.h-full] = "!isFullscreen"
+					[class.h-screen] = "isFullscreen"
+					[class.mt-6] = "isFullscreen"
+					[src] = "previewSrc | sanitiseUrl"
+				>
+				</video>
 				<h1
 					*ngIf = "!getVisibleTracks().length"
 					class = "w-full flex-grow-1 absolute text-center p-component text-4xl"
@@ -39,7 +48,8 @@
 					<button
 						pButton
 						class = "p-button-text"
-						[icon] = "'pi pi-' + (videoPlaying ? 'pause' : 'play')"
+						[icon] = "'pi pi-' + (!previewVideo.paused ? 'pause' : 'play')"
+						(click) = "previewVideo.paused ? previewVideo.play() : previewVideo.pause()"
 					></button>
 				</div>
 			</div>

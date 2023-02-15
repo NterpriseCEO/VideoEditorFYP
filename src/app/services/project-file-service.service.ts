@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
 
 import { Clip, Filter, Project, Track } from "../utils/interfaces";
@@ -34,13 +34,17 @@ export class ProjectFileService {
 
 	loadClipsSubject: Subject<Clip[]> = new Subject<Clip[]>();
 	loadTracksSubject: Subject<Track[]> = new Subject<Track[]>();
+	loadProjectNameSubject: Subject<string> = new Subject<string>();
 	projectSavedSubject: Subject<any> = new Subject<any>();
 
 	isDirty: boolean = false;
 
 	projectLoaded: boolean = false;
 
-	constructor(private messageService: MessageService) {
+	constructor(
+		private messageService: MessageService,
+		private ngZone: NgZone
+	) {
 		GLFX_Filters.filters = GLFX_Filters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX}));
 
 		let allFilters;
@@ -52,12 +56,12 @@ export class ProjectFileService {
 		this.projectHistory.push(JSON.parse(JSON.stringify(this.project)));
 
 		window.api.on("project-loaded", (_: any, project: Project) => {
-			this.project = project;
+			this.project = JSON.parse(JSON.stringify(project));
 			this.name = project.name;
 			this.dateCreated = project.dateCreated;
 			this.lastModifiedDate = project.lastModifiedDate;
 			this.location = project.location;
-			this.clips = project.clips;
+			this.clips = JSON.parse(JSON.stringify(project.clips));
 
 			//Loops through the tracks and filters merges the filter properties
 			//from the project with the filter properties from the list of all filters
@@ -80,15 +84,16 @@ export class ProjectFileService {
 				return track;
 			});
 
-			this.tracks = project.tracks;
+			this.tracks = JSON.parse(JSON.stringify(project.tracks));
 
 			this.projectLoaded = true;
 			this.isDirty = false;
 
 			//Tells other components that the project has been loaded
 			//and that they should load these clips and tracks
-			this.loadClipsSubject.next(this.clips);
-			this.loadTracksSubject.next(this.tracks);
+			this.loadClipsSubject.next(JSON.parse(JSON.stringify(project.clips)));
+			this.loadTracksSubject.next(JSON.parse(JSON.stringify(project.tracks)));
+			this.loadProjectNameSubject.next(project.name);
 
 			this.projectHistory = [];
 			this.historyIndex = 0;
@@ -97,8 +102,8 @@ export class ProjectFileService {
 			this.addProjectToRecentProjects();
 		});
 
-		window.api.on("project-saved", (_: any, project: Project) => {
-			this.messageService.add({severity:'success', summary:'Project saved!'});
+		window.api.on("project-saved", (_: any, project: Project) => this.ngZone.run(() => {
+			this.messageService.add({severity:"success", summary:"Project saved!"});
 			this.isDirty = false;
 
 			//Updates the project location
@@ -109,7 +114,7 @@ export class ProjectFileService {
 			this.addProjectToRecentProjects();
 
 			this.projectSavedSubject.next(null);
-		});
+		}));
 	}
 
 	addProjectToRecentProjects() {
@@ -149,10 +154,9 @@ export class ProjectFileService {
 		if(JSON.stringify(this.tracks) === JSON.stringify(tracks)) {
 			return;
 		}
-
+		
 		this.tracks = JSON.parse(JSON.stringify(tracks));
 		this.project.tracks = JSON.parse(JSON.stringify(tracks));
-		
 
 		this.isDirty = true;
 
@@ -161,7 +165,6 @@ export class ProjectFileService {
 
 	updateClips(clips: Clip[]) {
 		this.clips = clips;
-		this.project.clips = clips;
 
 		this.isDirty = true;
 
@@ -215,6 +218,7 @@ export class ProjectFileService {
 
 		this.loadClipsSubject.next(this.clips);
 		this.loadTracksSubject.next(this.tracks);
+		this.loadProjectNameSubject.next(this.name);
 	}
 
 	addProjectToHistory(project: Project) {
@@ -224,7 +228,6 @@ export class ProjectFileService {
 
 		//Set the length of the array to the historyIndex
 		this.projectHistory.length = this.historyIndex;
-		console.log(this.projectHistory);
 		
 		this.projectHistory.push(JSON.parse(JSON.stringify(project)));	
 	}
@@ -260,5 +263,18 @@ export class ProjectFileService {
 
 		this.loadTracksSubject.next(this.project.tracks);
 		this.tracks = JSON.parse(JSON.stringify(this.project.tracks));
+	}
+
+	setProjectName(name: string) {
+		this.name = name;
+		this.project.name = name;
+		this.isDirty = true;
+
+		//add the project name to all projects in the history
+		//This prevents the project name from being lost when the user
+		//undoes a project change
+		this.projectHistory.forEach(project => {
+			project.name = name;
+		});
 	}
 }

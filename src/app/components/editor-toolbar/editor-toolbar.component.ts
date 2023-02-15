@@ -28,8 +28,8 @@ export class EditorToollbarComponent {
 					command: () => {
 						if(this.pfService.isProjectDirty()) {
 							this.confirmationService.confirm({
-								message: 'Do you want to save this project first?',
-								icon: 'pi pi-exclamation-triangle',
+								message: "Do you want to save this project first?",
+								icon: "pi pi-exclamation-triangle",
 								accept: () => {
 									this.pfService.saveProject();
 									this.pfService.projectSavedSubject.subscribe(() => {
@@ -80,8 +80,8 @@ export class EditorToollbarComponent {
 					command: () => {
 						if(this.pfService.isProjectDirty()) {
 							this.confirmationService.confirm({
-								message: 'Do you want to save this project first?',
-								icon: 'pi pi-exclamation-triangle',
+								message: "Do you want to save this project first?",
+								icon: "pi pi-exclamation-triangle",
 								accept: () => {
 									this.pfService.saveProject();
 									this.pfService.projectSavedSubject.subscribe(() => {
@@ -120,8 +120,8 @@ export class EditorToollbarComponent {
 					command: () => {
 						if(this.pfService.isProjectDirty()) {
 							this.confirmationService.confirm({
-								message: 'Do you want to save this project first?',
-								icon: 'pi pi-exclamation-triangle',
+								message: "Do you want to save this project first?",
+								icon: "pi pi-exclamation-triangle",
 								accept: () => {
 									this.pfService.saveProject();
 									this.pfService.projectSavedSubject.subscribe(() => {
@@ -149,8 +149,8 @@ export class EditorToollbarComponent {
 					command: () => {
 						if(this.pfService.isProjectDirty()) {
 							this.confirmationService.confirm({
-								message: 'Do you want to save this project first?',
-								icon: 'pi pi-exclamation-triangle',
+								message: "Do you want to save this project first?",
+								icon: "pi pi-exclamation-triangle",
 								accept: () => {
 									this.pfService.saveProject();
 									this.pfService.projectSavedSubject.subscribe(() => {
@@ -203,16 +203,31 @@ export class EditorToollbarComponent {
 				this.router.navigate([{ outlets: { primary: ["mainview"], panelOutlet: ["exports"] } }]);
 			}
 		}
-	]
+	];
+
+	projectName: string = "Untitled project";
 
 	constructor(
 		private tracksService: TracksService,
 		private router: Router,
 		private pfService: ProjectFileService,
-		private confirmationService: ConfirmationService
-	) { }
+		private confirmationService: ConfirmationService,
+	) {
+		this.listenForEvents();
+	}
+
+	listenForEvents() {
+		//Is triggered when a project is loaded
+		this.pfService.loadProjectNameSubject.subscribe((name: string) => {
+			this.projectName = name;
+		});
+	}
 
 	createScreenCaptureTrack(event: any) {
 		this.tracksService.addTrack(TrackType.SCREEN_CAPTURE, event);
+	}
+
+	updateProjectName() {
+		this.pfService.setProjectName(this.projectName);
 	}
 }

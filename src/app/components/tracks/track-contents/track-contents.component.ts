@@ -41,7 +41,9 @@ export class TrackContentsComponent implements OnChanges {
 
 		cs.clipSelectionUpdateSubject.subscribe((clip: ClipInstance | null) => {
 			this.selectedClip = clip;
-			
+
+			window.api.emit("set-selected-clip-in-preview", clip?.location)
+
 			this.changeDetector.detectChanges();
 		});
 	}

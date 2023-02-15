@@ -5,7 +5,7 @@ const windowStateKeeper = require("electron-window-state");
 const { StreamingAndFilters } = require("./StreamingAndFilters");
 const { Worker } = require("worker_threads");
 const { ImportFiles } = require("./file-management/ImportFiles");
-const { startServer } = require("./globals/http-server");
+const { Server } = require("./globals/http-server");
 const { registerFileProtocol } = require("./file-management/FIleProtocol.js");
 const { SaveAndLoadProjects } = require("./file-management/SaveAndLoadProjects");
 
@@ -26,6 +26,10 @@ function MainWindow() {
 MainWindow.prototype.listenForEvents = function() {
 	new ImportFiles(this.window).listenForEvents();
 	new SaveAndLoadProjects(this.window).listenForEvents();
+	this.streamingAndFilters = new StreamingAndFilters();
+	this.streamingAndFilters.listenForEvents();
+
+	this.server = new Server();
 
 	//Saves the video files to the user"s computer in a sparate thread
 	//WIll replace this with MediaRecorder in the future
@@ -69,7 +73,9 @@ MainWindow.prototype.listenForEvents = function() {
 		this.createPreviewWindow();
 	});
 	ipcMain.on("exit-to-start-view", () => {
-		this.previewWindow.close();
+		if(this.previewWindow) {
+			this.previewWindow.close();
+		}
 		this.loadStartView();
 	});
 	ipcMain.on("exit", () => {
@@ -100,7 +106,6 @@ MainWindow.prototype.createWindow = function() {
 			preload: path.join(__dirname, "preload.js")
 		}
 	});
-
 
 	mainWindowState.manage(this.window);
 
@@ -159,8 +164,16 @@ MainWindow.prototype.createPreviewWindow = function() {
 	}
 	this.previewWindow.webContents.openDevTools();
 
-	startServer(this.previewWindow);
-	new StreamingAndFilters(this.window, this.previewWindow).listenForEvents();
+	this.server.setWindow(this.previewWindow);
+	this.streamingAndFilters.setWindows(this.window, this.previewWindow);
+
+	//Clears the previous on close event
+	this.previewWindow.removeAllListeners("close");
+
+	this.previewWindow.on("close", (e) => {
+		this.previewWindow = null;
+		this.window.webContents.send("preview-exited");
+	});
 }
 
 exports.MainWindow = MainWindow;

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, NgZone } from "@angular/core";
 import { ClipService } from "./services/clip.service";
 import { Router } from "@angular/router";
 import { ProjectFileService } from "./services/project-file-service.service";
@@ -30,21 +30,22 @@ export class AppComponent {
 		private cs: ClipService,
 		public router: Router,
 		private pfService: ProjectFileService,
-		private confirmationService: ConfirmationService
+		private confirmationService: ConfirmationService,
+		private ngZone: NgZone
 	) {
 		this.listenForEvents();
 	}
 
 	listenForEvents() {
-		window.api.on("check-if-can-exit", () => {
+		window.api.on("check-if-can-exit", () => this.ngZone.run(() => {
 			//If there are no unsaved changes, exit the app
 			if (!this.pfService.isProjectDirty()) {
 				window.api.emit("exit");
 			}
 
 			this.confirmationService.confirm({
-				message: 'Do you want to save this project first?',
-				icon: 'pi pi-exclamation-triangle',
+				message: "Do you want to save this project first?",
+				icon: "pi pi-exclamation-triangle",
 				accept: () => {
 					this.pfService.saveProject();
 					this.pfService.projectSavedSubject.subscribe(() => {
@@ -57,7 +58,7 @@ export class AppComponent {
 					}
 				}
 			});
-		});
+		}));
 	}
 
 	moveFileRepresentation(event: any) {
@@ -70,7 +71,7 @@ export class AppComponent {
 	}
 
 	isNotPopup() {
-		return this.router.url !== '/mainview' && this.router.url !== '/startup' && this.router.url !== '/preview';
+		return this.router.url !== "/mainview" && this.router.url !== "/startup" && this.router.url !== "/preview";
 	}
 
 	cancelAdd() {

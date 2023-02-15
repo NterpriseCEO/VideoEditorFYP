@@ -94,12 +94,7 @@ export class ImportsPanelComponent {
 
 	listenForClipLoading() {
 		this.pfService.loadClipsSubject.subscribe((clips: Clip[]) => {
-			console.log("Loading clips");
-
 			this.clips = [...clips];
-
-			console.log(this.clips);
-
 			this.changeDetector.detectChanges();
 		});
 	}

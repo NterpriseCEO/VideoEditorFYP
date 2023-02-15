@@ -1,3 +1,21 @@
-<p-menubar [model] = "items" [autoDisplay] = "false"></p-menubar>
+<p-menubar [model] = "items" [autoDisplay] = "false">
+	<ng-template pTemplate="end">
+		<div class="p-inputgroup">
+			<input
+				type = "text"
+				[(ngModel)] = "projectName"
+				(change) = "updateProjectName()"
+				pTooltip = "Change the project name"
+				pInputText
+			>
+			<button
+				pButton
+				icon = "pi pi-cog"
+				pTooltip = "Project settings"
+			>
+			</button>
+		</div>
+	</ng-template>
+</p-menubar>
 
 <app-source-selector #sourceSelector (sourceSelected) = "createScreenCaptureTrack($event)"></app-source-selector>

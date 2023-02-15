@@ -1,6 +1,9 @@
 import { NgModule } from "@angular/core";
 
 import { MenubarModule } from "primeng/menubar";
+import { InplaceModule } from "primeng/inplace";
+import { InputTextModule } from "primeng/inputtext";
+import { FormsModule } from "@angular/forms";
 
 import { EditorToollbarComponent } from "./editor-toolbar.component";
 import { TracksModule } from "../tracks/tracks.module";
@@ -11,7 +14,10 @@ import { TracksModule } from "../tracks/tracks.module";
 	],
 	imports: [
 		MenubarModule,
-		TracksModule
+		TracksModule,
+		InplaceModule,
+		InputTextModule,
+		FormsModule
 	],
 	exports: [EditorToollbarComponent]
 })

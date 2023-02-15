@@ -10,13 +10,12 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 		dialog.showSaveDialog(this.mainWindow, {
 			properties: ["saveFile"],
 			filters: [
-				{ name: "Project File", extensions: ["json"] },
+				{ name: "Project File", extensions: ["vls"] },
 			],
 		}).then((result) => {
 			if (result.canceled) {
 				return;
 			}
-			console.log(result);
 
 			project.location = result.filePath;
 
@@ -62,7 +61,7 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 		dialog.showOpenDialog(this.mainWindow, {
 			properties: ["openFile"],
 			filters: [
-				{ name: "Project File", extensions: ["json"] },
+				{ name: "Project File", extensions: ["vls"] },
 			],
 		}).then((result) => {
 			if (result.canceled) {
@@ -74,7 +73,6 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 				if (err) {
 					console.log(err);
 				}
-				console.log("hello 2");
 
 				this.mainWindow.webContents.send("project-loaded", JSON.parse(data));
 			});
