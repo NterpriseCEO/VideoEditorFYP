@@ -28,10 +28,14 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 		this.previewWindow.webContents.send("tracks", tracks);
 	});
 	ipcMain.on("update-track-clips", (_, track) => {
-		this.previewWindow.webContents.send("update-track-clips", track);
+		if(this.previewWindow) {
+			this.previewWindow.webContents.send("update-track-clips", track);
+		}
 	});
 	ipcMain.on("update-filters", (_, track) => {
-		this.previewWindow.webContents.send("update-filters", track);
+		if(this.previewWindow) {
+			this.previewWindow.webContents.send("update-filters", track);
+		}
 	});
 
 	ipcMain.on("set-selected-clip-in-preview", (_, filePath) => {

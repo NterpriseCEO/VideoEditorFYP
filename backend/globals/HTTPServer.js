@@ -12,13 +12,16 @@ function Server() {
 		console.log(`Server is running on http://localhost:${server.address().port}`);
 		socketConnections();
 		ipcMain.on("get-server-port", () => {
-			this.window.webContents.send("server-port", server.address().port);
+			let port = server.address().port;
+			this.window.webContents.send("server-port", port);
+			this.previewWindow.webContents.send("server-port", port);
 		});
 	});
 }
 
-Server.prototype.setWindow = function(win) {
-	this.window = win;
+Server.prototype.setWindows = function(window, previewWindow) {
+	this.window = window;
+	this.previewWindow = previewWindow;
 }
 
 function socketConnections() {
@@ -28,6 +31,7 @@ function socketConnections() {
 			methods: ["GET", "POST"]
 		}
 	});
+	console.log("socket connections");
 	io.on("connection", client => {
 		listenForVideoData(client);
 		client.on("disconnect", () => {});

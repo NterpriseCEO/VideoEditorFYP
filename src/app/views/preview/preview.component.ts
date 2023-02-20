@@ -70,7 +70,8 @@ export class PreviewComponent implements AfterViewInit {
 
 		window.api.on("update-filters", (_, track: Track) => this.ngZone.run(() => {
 			//Maps the filters to an array of filter property values
-			this.tracks[track.id].filters = track!.filters?.filter(filter=> filter.enabled).map((filter: Filter, index: number) => {
+			this.tracks.find(({id}) => id === track.id)!.filters =
+				track!.filters?.filter(filter=> filter.enabled).map((filter: Filter, index: number) => {
 				return {
 					function: filter.function,
 					properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
@@ -90,7 +91,7 @@ export class PreviewComponent implements AfterViewInit {
 				};
 				//Captures the canvas and sends it to the server as new data is available
 				const mediaStream: MediaStream = new MediaStream(this.finalCanvas.nativeElement.captureStream());
-				this.mediaRecorder  = new MediaRecorder(this.stream, recorderOptions);
+				this.mediaRecorder = new MediaRecorder(this.stream, recorderOptions);
 				this.mediaRecorder.onstop = (event) => {};
 				this.mediaRecorder.ondataavailable = (event) => {
 					if (event.data && event.data.size > 0) {
@@ -144,14 +145,6 @@ export class PreviewComponent implements AfterViewInit {
 			this.changeDetector.detectChanges();
 		}));
 
-		//Gets the localhost server port.
-		//Used to send live video data to the server
-		window.api.emit("get-server-port");
-		window.api.on("server-port", (_:any, port: number) => {
-			//Sets the socket connection to the server
-			this.socket = io("http://localhost:" + port);
-		});
-
 		window.api.on("set-selected-clip-in-preview", (_, filePath) => this.ngZone.run(() => {
 			this.previewSrc = "local-resource://getMediaFile/"+filePath;
 			this.previewVideo.nativeElement.startTime = 0;
@@ -172,6 +165,16 @@ export class PreviewComponent implements AfterViewInit {
 		// }
 	}
 	ngAfterViewInit() {
+		//Gets the localhost server port.
+		//Used to send live video data to the server
+		window.api.emit("get-server-port");
+		window.api.once("server-port", (_:any, port: number) => {
+			//Sets the socket connection to the server
+			console.log("Server port: " + port);
+			
+			this.socket = io("http://localhost:" + port);
+		});
+
 		this.initAudio();
 		this.finalRender();
 		this.videos.changes.subscribe((change: QueryList<ElementRef>) => {
@@ -244,8 +247,6 @@ export class PreviewComponent implements AfterViewInit {
 			if(this.videos.toArray()[index]) {
 				video = this.videos.toArray()[index].nativeElement;
 			}
-
-			console.log(video);
 
 			if(!track.isVisible) {
 				return;
@@ -446,7 +447,6 @@ export class PreviewComponent implements AfterViewInit {
 					return;
 				}
 				//Loops through all canvases and centers them on the final canvas
-				//Needs to get rid of the split() and parseInt() and make it more efficient
 				//position is center of largest canvas
 				let x = (finalCanvas.width / 2) - (canvas.width / 2);
 				let y = (finalCanvas.height / 2) - (canvas.height / 2);
@@ -511,8 +511,6 @@ export class PreviewComponent implements AfterViewInit {
 				});
 			}));
 		}else if(type === TrackType.VIDEO) {
-			//Sets the video src = to the video in assets folder
-
 			this.changeDetector.markForCheck();
 			this.playPreview(video, track, index);
 		}
@@ -562,7 +560,6 @@ export class PreviewComponent implements AfterViewInit {
 		this.videoPlaying = !this.videoPlaying;
 
 		this.videos.toArray().forEach((video, i) => {
-			console.log(video.nativeElement.classList);
 			video.nativeElement.paused ? video.nativeElement.play() : video.nativeElement.pause();
 		});
 

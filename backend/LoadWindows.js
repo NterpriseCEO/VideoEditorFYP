@@ -5,9 +5,10 @@ const windowStateKeeper = require("electron-window-state");
 const { StreamingAndFilters } = require("./StreamingAndFilters");
 const { Worker } = require("worker_threads");
 const { ImportFiles } = require("./file-management/ImportFiles");
-const { Server } = require("./globals/http-server");
+const { Server } = require("./globals/HTTPServer");
 const { registerFileProtocol } = require("./file-management/FIleProtocol.js");
 const { SaveAndLoadProjects } = require("./file-management/SaveAndLoadProjects");
+const { listenForExportEvents } = require("./file-management/ExportFiles");
 
 function MainWindow() {
 
@@ -28,6 +29,7 @@ MainWindow.prototype.listenForEvents = function() {
 	new SaveAndLoadProjects(this.window).listenForEvents();
 	this.streamingAndFilters = new StreamingAndFilters();
 	this.streamingAndFilters.listenForEvents();
+	listenForExportEvents(this.window);
 
 	this.server = new Server();
 
@@ -164,15 +166,20 @@ MainWindow.prototype.createPreviewWindow = function() {
 	}
 	this.previewWindow.webContents.openDevTools();
 
-	this.server.setWindow(this.previewWindow);
+	this.server.setWindows(this.window, this.previewWindow);
 	this.streamingAndFilters.setWindows(this.window, this.previewWindow);
 
 	//Clears the previous on close event
-	this.previewWindow.removeAllListeners("close");
-
-	this.previewWindow.on("close", (e) => {
+	this.previewWindow.once("close", (e) => {
 		this.previewWindow = null;
+		this.streamingAndFilters.setWindows(this.window, this.previewWindow);
 		this.window.webContents.send("preview-exited");
+	});
+	
+	//Tells the main window that the preview window has loaded
+	//And is ready to receive data
+	this.previewWindow.webContents.once("did-finish-load", () => {
+		this.window.webContents.send("preview-opened");
 	});
 }
 

@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
 import { TrackType } from "../utils/constants";
 import { Filter, FilterInstance, Track } from "../utils/interfaces";
@@ -17,16 +17,41 @@ export class TracksService {
 
 	selectedTrack: Track | null = null;
 
-	constructor(private pfService: ProjectFileService) {
+	canSendTracks = false;
+
+	constructor(
+		private pfService: ProjectFileService,
+		private ngZone: NgZone
+	) {
 		this.listenForTracks();
 	}
 
 	listenForTracks() {
+		let interval;
 		this.pfService.loadTracksSubject.subscribe((tracks) => {
 			this.tracks = tracks;
 			this.tracksSubject.next(this.tracks);
-			window.api.emit("send-tracks", this.tracks);
+			interval = setInterval(() => {
+				//Waits until the preview window is
+				//open to send the tracks to it
+				if(this.canSendTracks) {
+					window.api.emit("send-tracks", this.tracks);
+					clearInterval(interval);
+					interval = null;
+				}
+			}, 10);
 		});
+
+		window.api.on("preview-opened", () => this.ngZone.run(() => {
+			this.canSendTracks = true;
+			if(!interval) {
+				window.api.emit("send-tracks", this.tracks);
+			}
+		}));
+
+		window.api.on("preview-exited", () => this.ngZone.run(() => {
+			this.canSendTracks = false;
+		}));
 	}
 
 	addFilter(filter: Filter) {

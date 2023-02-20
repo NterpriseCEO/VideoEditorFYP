@@ -1,5 +1,17 @@
+<video
+	#videos
+	*ngFor = "let track of tracks"
+	class = "w-full flex-grow-1 absolute h-full"
+	muted
+	controls
+>
+</video>
+<div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
 <div class = "flex w-full h-full overflow-hidden">
 	<div class = "w-6 h-full surface-card overflow-auto">
+		<div class = "p-2">
+			<button pButton label = "Export current project" (click) = "startExport()"></button>
+		</div>
 		<p-table [value] = "recentExports">
 			<ng-template pTemplate = "caption">
 				<div class = "flex align-items-center justify-content-between">
@@ -30,8 +42,14 @@
 	</div>
 	<div class = "w-6 flex align-items-center">
 		<div class = "w-full">
-			<video src = "" style = "background-color: black;"></video>
-			<p-progressBar [value] = "exportProgress"></p-progressBar>
+			<canvas
+				#finalCanvas
+				class = "final-canvas w-full"
+				width = "1920"
+				height = "1080"
+			>
+			</canvas>
+			<p-progressBar [value] = "exportProgress()"></p-progressBar>
 		</div>
 	</div>
 </div>

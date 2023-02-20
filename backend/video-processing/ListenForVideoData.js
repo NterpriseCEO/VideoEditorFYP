@@ -1,19 +1,32 @@
 const fs = require("fs");
+const { ipcMain } = require("electron");
+
+const { getExportPath } = require("../globals/Globals");
+
+let fileStream;
 
 exports.listenForVideoData = function(client) {
-	let fileStream;
+	let couldOpenStream = false;
 
 	client.on("start-recording", () => {
-		//delete test.webm if it exists
-		if (fs.existsSync("./test.webm")) {
-			fs.unlinkSync("./test.webm");
+		//Delete webm if it exists before opening a new stream
+		let exportPath = getExportPath();
+		if (fs.existsSync(exportPath)) {
+			fs.unlinkSync(exportPath);
 		}
-		fileStream = fs.createWriteStream("./test.webm", { flags: "a" });
+		if(!fileStream) {
+			couldOpenStream = true;
+			fileStream = fs.createWriteStream(exportPath, { flags: "a" });
+		}
 	});
 	client.on("recording-data", data => {
-		fileStream.write(Buffer.from(new Uint8Array(data)));
+		if(couldOpenStream) {
+			fileStream.write(Buffer.from(new Uint8Array(data)));
+		}
 	});
 	client.on("stop-recording", () => {
 		fileStream.end();
+		fileStream = null;
+		couldOpenStream = false;
 	});
 }
