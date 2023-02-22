@@ -1,19 +1,48 @@
 <p-menubar [model] = "items" [autoDisplay] = "false">
-	<ng-template pTemplate="end">
-		<div class="p-inputgroup">
-			<input
-				type = "text"
-				[(ngModel)] = "projectName"
-				(change) = "updateProjectName()"
-				pTooltip = "Change the project name"
-				pInputText
-			>
-			<button
-				pButton
-				icon = "pi pi-cog"
-				pTooltip = "Project settings"
-			>
-			</button>
+	<ng-template pTemplate = "end">
+		<div class = "w-full flex">
+			<div class = "flex-grow-1 flex justify-content-center align-items-center">
+				<button
+					pButton
+					class = "p-button-text"
+					icon = "pi pi-fast-backward"
+					tooltipPosition = "left"
+					[pTooltip] = "(isRecording ? 'Stop' : 'Start') + ' recording'"
+				>
+				</button>
+				<button
+					pButton
+					class = "p-button-text p-button-danger"
+					[icon] = "'pi pi-' + (isRecording ? 'stop-circle' : 'circle-on')"
+					tooltipPosition = "left"
+					[pTooltip] = "(isRecording ? 'Stop' : 'Start') + ' recording'"
+					(click) = "toggleRecording()"
+				>
+				</button>
+				<button
+					pButton
+					class = "p-button-text"
+					[icon] = "'pi pi-' + (isPlaying ? 'pause' : 'play')"
+					tooltipPosition = "left"
+					[pTooltip] = "(isRecording ? 'Stop' : 'Start') + ' recording'"
+				>
+				</button>
+			</div>
+			<div class = "p-inputgroup w-3">
+				<input
+					type = "text"
+					[(ngModel)] = "projectName"
+					(change) = "updateProjectName()"
+					pTooltip = "Change the project name"
+					pInputText
+				>
+				<button
+					pButton
+					icon = "pi pi-cog"
+					pTooltip = "Project settings"
+				>
+				</button>
+			</div>
 		</div>
 	</ng-template>
 </p-menubar>

@@ -10,7 +10,7 @@ import { ProjectFileService } from "./project-file-service.service";
 export class TracksService {
 	
 	//Subject to add filter to the current track
-	public filtersChangedSubject = new Subject();
+	public filtersChangedSubject = new Subject<boolean>();
 	public tracksSubject = new Subject<Track[]>;
 
 	tracks: Track[] = [];
@@ -19,9 +19,11 @@ export class TracksService {
 
 	canSendTracks = false;
 
+	currentlyRecordingTrack: Track | null = null;
+
 	constructor(
 		private pfService: ProjectFileService,
-		private ngZone: NgZone
+		private ngZone: NgZone,
 	) {
 		this.listenForTracks();
 	}
@@ -30,12 +32,27 @@ export class TracksService {
 		let interval;
 		this.pfService.loadTracksSubject.subscribe((tracks) => {
 			this.tracks = tracks;
-			this.tracksSubject.next(this.tracks);
 			interval = setInterval(() => {
 				//Waits until the preview window is
 				//open to send the tracks to it
 				if(this.canSendTracks) {
 					window.api.emit("send-tracks", this.tracks);
+					this.selectedTrack = this.tracks[0];
+					this.tracksSubject.next(this.tracks);
+					setTimeout(() => {
+						//This is a hack to fix the bug where the webcam stream is not shown in the preview window
+						let selectedTrack = JSON.parse(JSON.stringify(this.selectedTrack));
+						selectedTrack.filters = selectedTrack.filters.map((filter: FilterInstance, index: number) => {
+							return {
+								function: filter.function,
+								properties: filter.properties ? filter.properties.map(prop => prop.value.value ?? prop.defaultValue) : [],
+								type: filter.type,
+								enabled: filter.enabled
+							}
+						}) as FilterInstance[];
+						
+						window.api.emit("update-filters", selectedTrack);
+					});
 					clearInterval(interval);
 					interval = null;
 				}
@@ -52,6 +69,29 @@ export class TracksService {
 		window.api.on("preview-exited", () => this.ngZone.run(() => {
 			this.canSendTracks = false;
 		}));
+		
+		window.api.on("add-clip-to-track", (_, clip) => this.ngZone.run(() => {
+			//find the end time of the last clip in the currently recording track
+			let lastClipEndTime = 0;
+			if(this.currentlyRecordingTrack!.clips && this.currentlyRecordingTrack!.clips.length > 0) {
+				let lastClip = this.currentlyRecordingTrack!.clips[this.currentlyRecordingTrack!.clips.length - 1];
+				lastClipEndTime = lastClip.startTime + lastClip.duration;
+			}else {
+				this.currentlyRecordingTrack!.clips = [];
+			}
+			//Adds the clip to the currently recording track
+			this.currentlyRecordingTrack!.clips.push({
+				...clip,
+				startTime: lastClipEndTime,
+				type: this.currentlyRecordingTrack!.type,
+				in: 0
+			});
+			this.currentlyRecordingTrack!.clips = [...this.currentlyRecordingTrack!.clips];
+
+			this.tracksSubject.next(this.tracks);
+			this.pfService.updateTracks(this.tracks);
+			window.api.emit("send-tracks", this.tracks);
+		}));
 	}
 
 	addFilter(filter: Filter) {
@@ -64,7 +104,7 @@ export class TracksService {
 		}
 		//Lets the track properties panel know that a filter has been added
 		this.selectedTrack!.filters.push(instance);
-		this.filtersChangedSubject.next(null);
+		this.filtersChangedSubject.next(true);
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracks);
@@ -76,7 +116,7 @@ export class TracksService {
 	removeFilter(filter: FilterInstance) {
 		//Removes the filter from the selected track
 		this.selectedTrack!.filters = this.selectedTrack!.filters!.filter((f) => f !== filter);
-		this.filtersChangedSubject.next(null);
+		this.filtersChangedSubject.next(true);
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracks);
@@ -87,7 +127,7 @@ export class TracksService {
 	toggleFilter(filter: FilterInstance) {
 		//Toggles the filter on or off
 		filter.enabled = !filter.enabled;
-		this.filtersChangedSubject.next(null);
+		this.filtersChangedSubject.next(true);
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracks);
@@ -157,7 +197,7 @@ export class TracksService {
 		if(selectedID === trackID) {
 			this.selectedTrack = null;
 
-			this.filtersChangedSubject.next(null);
+			this.filtersChangedSubject.next(true);
 		}
 		this.tracksSubject.next(this.tracks);
 
@@ -165,5 +205,9 @@ export class TracksService {
 		this.pfService.updateTracks(this.tracks);
 
 		window.api.emit("send-tracks", this.tracks);
+	}
+
+	setCurrentlyRecordingTrack(track: Track) {
+		this.currentlyRecordingTrack = track;
 	}
 }

@@ -32,7 +32,9 @@ export class TrackDetailsComponent implements OnChanges {
 	toggleRecording() {
 		this.isRecording = !this.isRecording;
 
-		window.api.emit("toggle-recording", this.isRecording);
+		this.tracksService.setCurrentlyRecordingTrack(this.track);
+
+		window.api.emit("toggle-recording", {isRecording: this.isRecording, track: this.track});
 	}
 
 	ngOnChanges(changes: SimpleChanges) {

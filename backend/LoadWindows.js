@@ -9,6 +9,7 @@ const { Server } = require("./globals/HTTPServer");
 const { registerFileProtocol } = require("./file-management/FIleProtocol.js");
 const { SaveAndLoadProjects } = require("./file-management/SaveAndLoadProjects");
 const { listenForExportEvents } = require("./file-management/ExportFiles");
+const { setMainWindow } = require("./globals/Globals");
 
 function MainWindow() {
 
@@ -43,10 +44,10 @@ MainWindow.prototype.listenForEvents = function() {
 		worker.postMessage({type: "frame", contents: source});
 	});*/
 
-	ipcMain.on("toggle-recording", (_, isRecording) => {
+	ipcMain.on("toggle-recording", (_, data) => {
 		//Sends the recording status to the worker thread to start/stop the merging of frames
 		// worker.postMessage({type: "toggle-recording", contents: isRecording});
-		this.previewWindow.webContents.send("toggle-recording", isRecording);
+		this.previewWindow.webContents.send("toggle-recording", data);
 	});
 
 	app.on("window-all-closed", () => {
@@ -134,6 +135,8 @@ MainWindow.prototype.loadStartView = function() {
 			hash: "/startup"
 		}));
 	}
+
+	setMainWindow(this.window);
 }
 
 MainWindow.prototype.createPreviewWindow = function() {

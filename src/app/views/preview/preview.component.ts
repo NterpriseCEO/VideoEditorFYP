@@ -61,6 +61,8 @@ export class PreviewComponent implements AfterViewInit {
 
 	previewSrc: string = "";
 
+	hack: FilterInstance[] = [];
+
 	constructor(
 		private changeDetector: ChangeDetectorRef,
 		private ngZone: NgZone
@@ -69,28 +71,37 @@ export class PreviewComponent implements AfterViewInit {
 		this.videoPlayback();
 
 		window.api.on("update-filters", (_, track: Track) => this.ngZone.run(() => {
+			console.log("Updating filters", track);
+			
 			//Maps the filters to an array of filter property values
+			this.hack = JSON.parse(JSON.stringify(this.tracks.find(({id}) => id === track.id)!.filters)) ?? [];
 			this.tracks.find(({id}) => id === track.id)!.filters =
 				track!.filters?.filter(filter=> filter.enabled).map((filter: Filter, index: number) => {
+					console.log(filter.properties.map(prop => isNaN(prop) ? (prop.value ?? prop.defaultValue) : prop));
 				return {
 					function: filter.function,
-					properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
+					properties: filter.properties ? filter.properties.map(prop => isNaN(prop) ? (prop.value ?? prop.defaultValue) : prop) : [],
 					type: filter.type
 				}
 			}) as FilterInstance[];
 			this.changeDetector.detectChanges();
 		}));
 
-		window.api.on("toggle-recording", (_, isRecording) => this.ngZone.run(() => {
-			this.isRecording = isRecording;
-			if(isRecording) {
-				this.socket.emit("start-recording");
+		window.api.on("toggle-recording", (_, data) => this.ngZone.run(() => {
+			this.isRecording = data.isRecording;
+			if(this.isRecording) {
+				//find the track matching data.drack
+				let id = this.tracks.findIndex(track => track.id === data.track.id);
+
+				let video = this.videos.toArray()[id].nativeElement;
+				this.stream = video.captureStream();
+
+				this.socket.emit("start-recording", true);
 				const recorderOptions = {
 					mimeType: "video/webm; codecs=vp9",
 					videoBitsPerSecond: 500000 // 0.2 Mbit/sec.
 				};
 				//Captures the canvas and sends it to the server as new data is available
-				const mediaStream: MediaStream = new MediaStream(this.finalCanvas.nativeElement.captureStream());
 				this.mediaRecorder = new MediaRecorder(this.stream, recorderOptions);
 				this.mediaRecorder.onstop = (event) => {};
 				this.mediaRecorder.ondataavailable = (event) => {
@@ -107,25 +118,27 @@ export class PreviewComponent implements AfterViewInit {
 
 		window.api.on("tracks", (_, tracks: Track[]) => this.ngZone.run(() => {
 			//Gets all the tracks
-			this.tracks = tracks;
+			this.tracks = [...tracks];
 
 			this.masterTime = 0;
 			this.duration = 0;
 			this.currentTime = 0;
 			this.startTime = 0;
 
-			this.timeAnimationFrames.forEach((frame) => {
-				window.cancelAnimationFrame(frame);
-			});
-
 			this.timeAnimationFrames = [];
 			this.currentClip = [];
 
 			this.calculateDuration();
 
-			this.regeneratePreview();
+			let videos = this.videos.toArray();
 
-			this.changeDetector.detectChanges();
+			tracks.forEach((track, index) => {
+				//unpause all live tracks
+				if(track.type !== TrackType.VIDEO) {
+					videos[index].nativeElement.play();
+				}
+			});
+			// this.changeDetector.detectChanges();
 		}));
 
 		window.api.on("update-track-clips", (_, track: Track) => this.ngZone.run(() => {
@@ -183,14 +196,21 @@ export class PreviewComponent implements AfterViewInit {
 			if(this.videosLength == change.length) {
 				return;
 			}
+			this.timeAnimationFrames.forEach((frame) => {
+				window.cancelAnimationFrame(frame);
+			});
+
+			this.deleteCanvases();
 			this.initAudio();
 			//Remove all audio tracks from the stream if they
 			//were removed from the preview
 			//All new audio tracks will fail otherwise
-			this.stream.getAudioTracks().forEach((track) => {
-				track.stop();
-				this.stream.removeTrack(track);
-			});
+			if(this.stream) {
+				this.stream.getAudioTracks().forEach((track) => {
+					track.stop();
+					this.stream.removeTrack(track);
+				});
+			}
 			this.videosLength = change.length;
 			change.forEach((video, index) => {
 				//Gets the video source from each video element
@@ -212,20 +232,18 @@ export class PreviewComponent implements AfterViewInit {
 	calculateDuration() {
 		//find the duration from start to the end of the last clip
 		this.tracks.forEach(track => {
-			if(track.type == TrackType.VIDEO) {
-				//gets the duration of the last clip
-				if(!track.clips) {
-					return;
-				}
-				let lastClip = track.clips[track.clips.length - 1];
+			//gets the duration of the last clip
+			if(!track.clips) {
+				return;
+			}
+			let lastClip = track.clips[track.clips.length - 1];
 
-				if(!lastClip) {
-					return;
-				}
+			if(!lastClip) {
+				return;
+			}
 
-				if(lastClip.startTime + lastClip.duration > this.duration) {
-					this.duration = lastClip.startTime + lastClip.duration;
-				}
+			if(lastClip.startTime + lastClip.duration > this.duration) {
+				this.duration = lastClip.startTime + lastClip.duration;
 			}
 		});
 	}
@@ -289,7 +307,7 @@ export class PreviewComponent implements AfterViewInit {
 		return [width, height];
 	}
 
-	regeneratePreview() {
+	deleteCanvases() {
 		const nativeElement = this.replaceWithCanvas.nativeElement;
 		this.canvasElements = [];
 
@@ -339,6 +357,8 @@ export class PreviewComponent implements AfterViewInit {
 			//Measure the time it takes to draw the canvas
 			// let start = window.performance.now();
 
+			console.log(video.paused);
+
 			if(video.paused || video.currentTime === 0) {
 				this.animationFrames[index] = window.requestAnimationFrame(step);
 				return;
@@ -351,10 +371,10 @@ export class PreviewComponent implements AfterViewInit {
 			if(!ifTexture) {
 				ifTexture = imageFilters.texture(video);
 			}
-			
+
 			now = window.performance.now();
 			elapsedTime = now - then;
-			
+
 			if(elapsedTime > fpsInterval) {
 				then = now;
 
@@ -457,7 +477,7 @@ export class PreviewComponent implements AfterViewInit {
 		}
 
 		window.requestAnimationFrame(step);
-		this.stream = finalCanvas.captureStream();
+		// this.stream = finalCanvas.captureStream();
 	}
 
 	setSource(track: Track, video: HTMLVideoElement, index: number) {
@@ -477,7 +497,9 @@ export class PreviewComponent implements AfterViewInit {
 				//The video preview element src
 				video.srcObject = stream;				
 
-				this.stream.addTrack(stream.getAudioTracks()[0]);
+				// track.filters = JSON.parse(JSON.stringify(track.filters?.filter(filter=>filter.enabled)));
+
+				// this.stream.addTrack(stream.getAudioTracks()[0]);
 
 				this.lStream.push(stream);
 
@@ -527,7 +549,7 @@ export class PreviewComponent implements AfterViewInit {
 			};
 		}
 
-		this.createAudioTrack(video);
+		// this.createAudioTrack(video);
 
 		//Creates and draws the canvas corresponding to the video
 		this.drawCanvas(video, track, index);
@@ -540,12 +562,18 @@ export class PreviewComponent implements AfterViewInit {
 	}
 
 	createAudioTrack(video: HTMLVideoElement) {
-		//Creates an audio track from the video
-		let sourceNode = this.audioCtx.createMediaElementSource(video);
-		// Connect the video element's output to the stream
-		sourceNode.connect(this.audioDestination);
-		sourceNode.connect(this.audioCtx.destination);
-		this.stream.addTrack(this.audioDestination.stream.getAudioTracks()[0]);
+		try {
+			//Creates an audio track from the video
+			//check if the video is already connected to the audio context
+	
+			let sourceNode = this.audioCtx.createMediaElementSource(video);
+			// Connect the video element's output to the stream
+			sourceNode.connect(this.audioDestination);
+			sourceNode.connect(this.audioCtx.destination);
+			this.stream.addTrack(this.audioDestination.stream.getAudioTracks()[0]);
+		} catch(e) {
+			console.log(e);
+		}
 	}
 
 	initAudio() {
@@ -560,6 +588,8 @@ export class PreviewComponent implements AfterViewInit {
 		this.videoPlaying = !this.videoPlaying;
 
 		this.videos.toArray().forEach((video, i) => {
+			console.log(video.nativeElement.paused, "paused");
+			
 			video.nativeElement.paused ? video.nativeElement.play() : video.nativeElement.pause();
 		});
 
@@ -618,7 +648,7 @@ export class PreviewComponent implements AfterViewInit {
 
 	checkIfClipNeedsChanging(video: HTMLVideoElement, track: Track, index: number) {
 		//Checks if the clip needs to be changed
-		if(track.type !== TrackType.VIDEO || !track.clips) {
+		if(!track.clips) {
 			return;
 		}
 
@@ -637,15 +667,25 @@ export class PreviewComponent implements AfterViewInit {
 
 		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
 			if(video.src != "local-resource://getMediaFile/"+clip.location) {
+				if(track.type !== TrackType.VIDEO) {
+					console.log("Hello");
+					video.srcObject = null;
+				}
 				video.src = "local-resource://getMediaFile/"+clip.location;
 				this.changeDetector.detectChanges();
 				video.currentTime = clip.in;
+				console.log("Hello");
+				
 				video.play();
 				// this.currentClip[index]++;
 			}
 		}else if(this.masterTime >= clip.startTime + clip.duration) {
 			video.src = "";
 			this.currentClip[index]++;
+
+			if(track.type !== TrackType.VIDEO) {
+				this.setSource(track, video, index);
+			}
 		}
 	}
 

@@ -172,6 +172,7 @@ export class ProjectFileService {
 		//This prevents the clips from being lost when the user
 		//undoes a project change
 		//Should only track changes to the tracks in the future
+		this.project.clips = JSON.parse(JSON.stringify(clips));
 		this.projectHistory.forEach(project => {
 			project.clips = JSON.parse(JSON.stringify(clips));
 		});

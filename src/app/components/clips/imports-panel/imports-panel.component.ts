@@ -62,6 +62,8 @@ export class ImportsPanelComponent {
 			this.clips = [...this.clips];
 
 			this.pfService.updateClips(this.clips);
+			console.log(this.clips);
+			
 
 			this.changeDetector.detectChanges();
 		}));
@@ -87,7 +89,6 @@ export class ImportsPanelComponent {
 			this.clips = [...this.clips];
 
 			this.pfService.updateClips(this.clips);
-
 			this.changeDetector.detectChanges();
 		});
 	}

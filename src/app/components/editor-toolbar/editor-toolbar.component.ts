@@ -207,6 +207,10 @@ export class EditorToollbarComponent {
 
 	projectName: string = "Untitled project";
 
+	isRecording: boolean = false;
+
+	isPlaying: boolean = false;
+
 	constructor(
 		private tracksService: TracksService,
 		private router: Router,
@@ -229,5 +233,11 @@ export class EditorToollbarComponent {
 
 	updateProjectName() {
 		this.pfService.setProjectName(this.projectName);
+	}
+
+	toggleRecording() {
+		this.isRecording = !this.isRecording;
+
+		window.api.emit("toggle-recording", this.isRecording);
 	}
 }

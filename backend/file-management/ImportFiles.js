@@ -4,6 +4,7 @@ const path = require("path");
 const sharp = require("sharp");
 const { exec } = require("child_process");
 const { getVideoDurationInSeconds } = require("get-video-duration");
+const { getMainWindow } = require("../globals/Globals");
 
 function ImportFiles(window) {
 	this.mainWindow = window;
@@ -94,6 +95,26 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
 		//have been extracted
 		this.mainWindow.webContents.send("thumbnails", thumbnails);
 	}
+}
+
+exports.extractMetadataFromFile = function(file) {
+	//remove everything after last dot
+	let newFile = file.substring(0, file.lastIndexOf(".")) + "_n.webm";
+	exec(`ffmpeg -i ${file} -vcodec copy -acodec copy ${newFile}`, (error, stdout, stderr) => {
+		//delete the origin file
+		fs.unlink(file, (error) => {
+			if (error) {
+				console.log(error);
+			}
+		});
+		getVideoDurationInSeconds(newFile).then((duration) => {
+			//get file name
+			let name = path.basename(newFile);
+			let file = {name: name, location: newFile, duration: duration, totalDuration: duration};
+			getMainWindow().webContents.send("imported-files", [file]);
+			getMainWindow().webContents.send("add-clip-to-track", file);
+		});
+	});
 }
 
 exports.ImportFiles = ImportFiles;
