@@ -138,8 +138,6 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 
 		this.changeDetector.detectChanges();
 
-		console.log(this.trackService.getSelectedTrack());
-
 		//Updates the project file object
 		if(updateProjectFile) {
 			this.pfService.updateTracks(this.trackService.getTracks());

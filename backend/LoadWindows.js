@@ -45,9 +45,13 @@ MainWindow.prototype.listenForEvents = function() {
 	});*/
 
 	ipcMain.on("toggle-recording", (_, data) => {
-		//Sends the recording status to the worker thread to start/stop the merging of frames
 		// worker.postMessage({type: "toggle-recording", contents: isRecording});
 		this.previewWindow.webContents.send("toggle-recording", data);
+	});
+
+	ipcMain.on("toggle-recording-all", () => {
+		//Toggles the recording of all tracks
+		this.previewWindow.webContents.send("toggle-recording-all");
 	});
 
 	app.on("window-all-closed", () => {

@@ -31,7 +31,6 @@ function socketConnections() {
 			methods: ["GET", "POST"]
 		}
 	});
-	console.log("socket connections");
 	io.on("connection", client => {
 		listenForVideoData(client);
 		client.on("disconnect", () => {});

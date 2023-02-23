@@ -43,6 +43,21 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 		//that is used to preview the selected clip
 		this.previewWindow.webContents.send("set-selected-clip-in-preview", filePath);
 	});
+
+	ipcMain.on("toggle-playing", () => {
+		//Toggles the playing state of the preview
+		this.previewWindow.webContents.send("toggle-playing");
+	});
+
+	ipcMain.on("rewind-to-start", () => {
+		//Rewinds the preview to the start
+		this.previewWindow.webContents.send("rewind-to-start");
+	});
+
+	ipcMain.on("update-play-video-button", (_, playing) => {
+		//Changes the state of the play button in the main window
+		this.window.webContents.send("update-play-video-button", playing);
+	});
 }
 
 module.exports.StreamingAndFilters = StreamingAndFilters;

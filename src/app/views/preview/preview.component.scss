@@ -28,9 +28,8 @@
 
 .preview-video {
 	z-index: 100;
-	visibility: hidden;
 }
 
 video:not(.preview-video) {
-	// visibility: hidden;
+	visibility: hidden;
 }

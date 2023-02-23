@@ -39,20 +39,7 @@ export class TracksService {
 					window.api.emit("send-tracks", this.tracks);
 					this.selectedTrack = this.tracks[0];
 					this.tracksSubject.next(this.tracks);
-					setTimeout(() => {
-						//This is a hack to fix the bug where the webcam stream is not shown in the preview window
-						let selectedTrack = JSON.parse(JSON.stringify(this.selectedTrack));
-						selectedTrack.filters = selectedTrack.filters.map((filter: FilterInstance, index: number) => {
-							return {
-								function: filter.function,
-								properties: filter.properties ? filter.properties.map(prop => prop.value.value ?? prop.defaultValue) : [],
-								type: filter.type,
-								enabled: filter.enabled
-							}
-						}) as FilterInstance[];
-						
-						window.api.emit("update-filters", selectedTrack);
-					});
+					this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 					clearInterval(interval);
 					interval = null;
 				}
@@ -90,8 +77,23 @@ export class TracksService {
 
 			this.tracksSubject.next(this.tracks);
 			this.pfService.updateTracks(this.tracks);
-			window.api.emit("send-tracks", this.tracks);
+			window.api.emit("update-track-clips", this.currentlyRecordingTrack);
 		}));
+	}
+
+	_hack(track: Track) {
+		//This is a hack to fix the bug where the webcam stream is not shown in the preview window
+		//A better solution would be to fix the bug itself and not plaster over it with a hack
+		track.filters = track.filters?.map((filter: FilterInstance, index: number) => {
+			return {
+				function: filter.function,
+				properties: filter.properties ? filter.properties.map(prop => prop.value.value ?? prop.defaultValue) : [],
+				type: filter.type,
+				enabled: filter.enabled
+			}
+		}) as FilterInstance[];
+		
+		window.api.emit("update-filters", track);
 	}
 
 	addFilter(filter: Filter) {
@@ -171,6 +173,7 @@ export class TracksService {
 
 		//Sends the tracks to the preview window
 		window.api.emit("send-tracks", this.tracks);
+		this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 	}
 
 	setSelectedTrack(track: Track) {
@@ -205,9 +208,18 @@ export class TracksService {
 		this.pfService.updateTracks(this.tracks);
 
 		window.api.emit("send-tracks", this.tracks);
+		this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 	}
 
 	setCurrentlyRecordingTrack(track: Track) {
 		this.currentlyRecordingTrack = track;
+	}
+
+	toggleTrackVisibility(track: Track) {
+		track.isVisible = !track.isVisible;
+		this.tracksSubject.next(this.tracks);
+		this.pfService.updateTracks(this.tracks);
+		window.api.emit("send-tracks", this.tracks);
+		this._hack(JSON.parse(JSON.stringify(track)));
 	}
 }

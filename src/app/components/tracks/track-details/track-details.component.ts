@@ -48,7 +48,7 @@ export class TrackDetailsComponent implements OnChanges {
 	}
 
 	toggleVisibility() {
-		this.track.isVisible = !this.track.isVisible;
+		this.tracksService.toggleTrackVisibility(this.track);
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracksService.getTracks());

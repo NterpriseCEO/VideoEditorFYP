@@ -61,9 +61,7 @@ export class ImportsPanelComponent {
 			//Update the clips array to trigger change detection
 			this.clips = [...this.clips];
 
-			this.pfService.updateClips(this.clips);
-			console.log(this.clips);
-			
+			this.pfService.updateClips(this.clips);			
 
 			this.changeDetector.detectChanges();
 		}));

@@ -7,7 +7,8 @@
 					class = "p-button-text"
 					icon = "pi pi-fast-backward"
 					tooltipPosition = "left"
-					[pTooltip] = "(isRecording ? 'Stop' : 'Start') + ' recording'"
+					pTooltip = "Rewind to start"
+					(click) = "rewind()"
 				>
 				</button>
 				<button
@@ -15,7 +16,7 @@
 					class = "p-button-text p-button-danger"
 					[icon] = "'pi pi-' + (isRecording ? 'stop-circle' : 'circle-on')"
 					tooltipPosition = "left"
-					[pTooltip] = "(isRecording ? 'Stop' : 'Start') + ' recording'"
+					[pTooltip] = "(isRecording ? 'Stop' : 'Start') + ' recording all tracks'"
 					(click) = "toggleRecording()"
 				>
 				</button>
@@ -24,7 +25,8 @@
 					class = "p-button-text"
 					[icon] = "'pi pi-' + (isPlaying ? 'pause' : 'play')"
 					tooltipPosition = "left"
-					[pTooltip] = "(isRecording ? 'Stop' : 'Start') + ' recording'"
+					[pTooltip] = "isPlaying ? 'Pause' : 'Play'"
+					(click) = "togglePlaying()"
 				>
 				</button>
 			</div>

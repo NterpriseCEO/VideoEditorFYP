@@ -151,13 +151,11 @@ export class ExportsViewComponent implements AfterViewInit {
 		const mediaStream: MediaStream = new MediaStream(this.finalCanvas.nativeElement.captureStream());
 		this.mediaRecorder = new MediaRecorder(this.stream, recorderOptions);
 		this.mediaRecorder.onstop = (event) => {};
-		console.log("mediaRecorder: ", this.mediaRecorder);
 		this.mediaRecorder.ondataavailable = (event) => {
 			if (event.data && event.data.size > 0 && this.isRecording) {
 				this.socket.emit("recording-data", event.data);
 			}
 		};
-		console.log("called once?");
 		
 		this.mediaRecorder.start(100); // 1000 - the number of milliseconds to record into each Blob
 	}

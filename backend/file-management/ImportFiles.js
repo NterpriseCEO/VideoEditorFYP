@@ -70,16 +70,6 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
 			if (stderr) {
 				console.log(`error?: ${stderr}`);
 			}
-			// console.log(`stdout: ${stdout}`);
-
-			// file = path.basename(file, ".mp4");
-			// let thumbnail = fs.readFileSync(`${file}.png`);
-			// //Compresses the png file
-			// sharp(thumbnail)
-			// 	.webp({ quality: 10 })
-			// 	.toFile(`${file}.png`)
-			// 	.then(() => {
-			// 		//Adds the thumbnail to the array
 			let dirname = __dirname.substring(0, __dirname.length-24);
 			let thumbnail = `${dirname}/${path.basename(file, ".mp4")}.png`;
 			thumbnails.push({
@@ -88,7 +78,6 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
 			});
 			//Moves to the next thumnail file
 			this.extractThumbnails(++counter, thumbnails);
-			// });
 		});
 	}else {
 		//Sends the thumbnails to the renderer process once all the thumbnails
@@ -97,23 +86,13 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
 	}
 }
 
-exports.extractMetadataFromFile = function(file) {
-	//remove everything after last dot
-	let newFile = file.substring(0, file.lastIndexOf(".")) + "_n.webm";
-	exec(`ffmpeg -i ${file} -vcodec copy -acodec copy ${newFile}`, (error, stdout, stderr) => {
-		//delete the origin file
-		fs.unlink(file, (error) => {
-			if (error) {
-				console.log(error);
-			}
-		});
-		getVideoDurationInSeconds(newFile).then((duration) => {
-			//get file name
-			let name = path.basename(newFile);
-			let file = {name: name, location: newFile, duration: duration, totalDuration: duration};
-			getMainWindow().webContents.send("imported-files", [file]);
-			getMainWindow().webContents.send("add-clip-to-track", file);
-		});
+exports.extractMetadataAndImportFile = function(file) {
+	getVideoDurationInSeconds(file).then((duration) => {
+		//get file name
+		let name = path.basename(file);
+		let _file = {name: name, location: file, duration: duration, totalDuration: duration};
+		getMainWindow().webContents.send("imported-files", [_file]);
+		getMainWindow().webContents.send("add-clip-to-track", _file);
 	});
 }
 

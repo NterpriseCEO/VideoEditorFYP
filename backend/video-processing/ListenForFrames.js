@@ -90,7 +90,6 @@ function processFrames(frameNumber) {
 					// return;
 				}
 				console.log(`stdout: ${stdout}`);
-				console.log("Video compiled");
 				//Deletes output(X-1).mp4
 				// fs.unlinkSync(`./output${outputNumber - 1}.mp4`);
 			});
@@ -99,11 +98,7 @@ function processFrames(frameNumber) {
 }
 
 function mergeFrames(name, callback, range) {
-	console.log("\n\n\n\n\n");
-
 	// exec(`ffmpeg -f concat -i frames.txt -vf fps=30 -pix_fmt yuv420p ${name}.mp4`, (error, stdout, stderr) => {
-
-	console.log(`ffmpeg -y -framerate 30 -i frame%d.png -frames:v ${range} -c:v libx264 -pix_fmt yuv420p ${name}.mp4`);
 
 	//ffmpeg yes to overwrite, framerate 30, input files = frame%d.png, encoding stuff??, output  = {{name}}.mp4
 	exec(`ffmpeg -y -framerate 30 -i frame%d.png -frames:v ${range} -c:v libx264 -pix_fmt yuv420p ${name}.mp4`, (error, stdout, stderr) => {
@@ -116,7 +111,6 @@ function mergeFrames(name, callback, range) {
 			// return;
 		}
 		console.log(`stdout: ${stdout}`);
-		console.log("\n\n\n\n\n" + name + ".mp4 compiled");
 
 		if(callback) {
 			//Return callback if it exists
