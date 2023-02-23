@@ -41,20 +41,24 @@ export class ProjectFileService {
 
 	projectLoaded: boolean = false;
 
+	allFilters: any[] = [];
+
 	constructor(
 		private messageService: MessageService,
 		private ngZone: NgZone
 	) {
 		GLFX_Filters.filters = GLFX_Filters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX}));
 
-		let allFilters;
-
 		//Concatenates the two filter lists and sorts them by category
-		allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.IMAGE_FILTERS})) as Filter[])
+		this.allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.IMAGE_FILTERS})) as Filter[])
 			.sort((a, b) => a.category.localeCompare(b.category));
 
 		this.projectHistory.push(JSON.parse(JSON.stringify(this.project)));
 
+		this.listenForEvents();
+	}
+
+	listenForEvents() {
 		window.api.on("project-loaded", (_: any, project: Project) => {
 			this.project = JSON.parse(JSON.stringify(project));
 			this.name = project.name;
@@ -69,7 +73,7 @@ export class ProjectFileService {
 			project.tracks.map(track => {
 				track.filters = track.filters?.map(filter => {
 					//get the filter by name from the list of all filters and assign it to the track
-					const newFilter = allFilters.find(f => f.displayName === filter.displayName);
+					const newFilter = this.allFilters.find(f => f.displayName === filter.displayName);
 
 					if (newFilter) {
 						newFilter.enabled = filter.enabled;
@@ -114,6 +118,10 @@ export class ProjectFileService {
 			this.addProjectToRecentProjects();
 
 			this.projectSavedSubject.next(null);
+		}));
+
+		window.api.on("video-sucessfully-exported", () => this.ngZone.run(() => {
+			this.messageService.add({severity:"success", summary:"Video successfully exported!"});
 		}));
 	}
 
@@ -172,6 +180,7 @@ export class ProjectFileService {
 		//This prevents the clips from being lost when the user
 		//undoes a project change
 		//Should only track changes to the tracks in the future
+		this.project.clips = JSON.parse(JSON.stringify(clips));
 		this.projectHistory.forEach(project => {
 			project.clips = JSON.parse(JSON.stringify(clips));
 		});

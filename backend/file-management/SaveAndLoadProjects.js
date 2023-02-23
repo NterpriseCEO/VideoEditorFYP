@@ -1,6 +1,8 @@
 const { ipcMain, dialog } = require("electron");
 const fs = require("fs");
 
+const { setProjectPath } = require("../globals/Globals");
+
 function SaveAndLoadProjects(window) {
 	this.mainWindow = window;
 }
@@ -17,7 +19,16 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 				return;
 			}
 
-			project.location = result.filePath;
+			let split = result.filePath.split("\\");
+			let name = split.pop();
+			let folderName = name.substring(0, name.lastIndexOf("."));
+			project.location = split.join("\\")+"\\"+folderName+"\\"+name;
+
+			let projectFolder = split.join("\\")+"\\"+folderName+"\\";
+
+			//create a folder for the project
+			fs.mkdirSync(projectFolder);
+			setProjectPath(projectFolder);
 
 			//Loops through the tracks and filters and
 			//reduces the filter properties to just their values
@@ -36,7 +47,7 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 			}
 
 			//Saves the project to a file
-			fs.writeFile(result.filePath, JSON.stringify(project), (err) => {
+			fs.writeFile(project.location, JSON.stringify(project), (err) => {
 				if (err) {
 					console.log(err);
 				}
@@ -49,6 +60,9 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 	});
 
 	ipcMain.on("save-project", (_, project) => {
+		//remove everything after the last slash
+		let folderName = project.location.substring(0, project.location.lastIndexOf("\\"));
+		setProjectPath(folderName);
 		fs.writeFile(project.location, JSON.stringify(project), (err) => {
 			if (err) {
 				console.log(err);
@@ -68,6 +82,10 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 				return;
 			}
 
+			//remove everything after the last slash
+			let folderName = result.filePaths[0].substring(0, result.filePaths[0].lastIndexOf("\\"));
+			setProjectPath(folderName);
+
 			//Load the project from the file
 			fs.readFile(result.filePaths[0], (err, data) => {
 				if (err) {
@@ -83,6 +101,9 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 	});
 
 	ipcMain.on("load-project-from-location", (_, location) => {
+		//remove everything after the last slash
+		let folderName = location.substring(0, location.lastIndexOf("\\"));
+		setProjectPath(folderName);
 		fs.readFile(location, (err, data) => {
 			if (err) {
 				console.log(err);
@@ -92,6 +113,5 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 		});
 	});
 }
-
 
 exports.SaveAndLoadProjects = SaveAndLoadProjects;

@@ -15,17 +15,35 @@
 export class ImageFilters {
 
 	//set canvas variable but as null
-	canvas: OffscreenCanvas = new OffscreenCanvas(640, 480);
+	canvas: OffscreenCanvas = new OffscreenCanvas(1920, 1080);
 	ctx: OffscreenCanvasRenderingContext2D = this.canvas.getContext("2d", {willReadFrequently: true})!;
 	imageData: ImageData | undefined;
 
 	constructor() { }
 
-	texture(srcImage: HTMLVideoElement | HTMLImageElement) {
+	texture(srcImage: HTMLVideoElement) {
+		let dimensions = this.videoDimensions(srcImage);
+		this.canvas.width = dimensions[0];
+		this.canvas.height = dimensions[1];
+
 		this.ctx?.drawImage(srcImage, 0, 0, this.canvas.width, this.canvas.height);
 		this.imageData = this.ctx?.getImageData(0, 0, this.canvas.width, this.canvas.height);
 
 		return this;
+	}
+
+	videoDimensions(video: HTMLVideoElement) {
+		const videoRatio = video.videoWidth / video.videoHeight;
+		let width = video.offsetWidth,
+		height = video.offsetHeight;
+
+		const videoElementRatio = width/height;
+		if(videoElementRatio > videoRatio) {
+			width = height * videoRatio;
+		} else {
+			height = width / videoRatio;
+		}
+		return [width, height];
 	}
 
 	setImageData(imageData: any) {

@@ -30,7 +30,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		private changeDetector: ChangeDetectorRef,
 		private pfService: ProjectFileService
 	) {
-		trackService.filtersChangedSubject.subscribe(() => {
+		trackService.filtersChangedSubject.subscribe((updateProject: boolean) => {
 			//Checks if a filter is being added not removed
 			this.addingFilter = this.filtersCount < this.filters.length;
 			this.filtersCount = this.filters.length;
@@ -38,7 +38,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 			let filters = this.trackService.getSelectedTrackFilters()!;
 
 			this.filters = filters ? filters : [];
-			this.changeFilters();
+			this.changeFilters(updateProject);
 		});
 	}
 
@@ -119,7 +119,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		this.draggedFilter = null;
 	}
 
-	changeFilters() {
+	changeFilters(updateProjectFile: boolean = true) {
 		// Gets a list of all the filters that are enabled
 		this.enabledFilters = this.filters.filter((filter: FilterInstance) => filter.enabled);
 
@@ -139,9 +139,11 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		this.changeDetector.detectChanges();
 
 		//Updates the project file object
-		this.pfService.updateTracks(this.trackService.getTracks());
-
-		window.api.emit("update-filters", this.trackService.getSelectedTrack());
+		if(updateProjectFile) {
+			this.pfService.updateTracks(this.trackService.getTracks());
+	
+			window.api.emit("update-filters", this.trackService.getSelectedTrack());
+		}
 	}
 
 	setEnabledFilters(filter: FilterInstance) {

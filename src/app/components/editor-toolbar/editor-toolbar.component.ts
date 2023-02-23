@@ -1,4 +1,4 @@
-import { Component, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, ViewChild } from "@angular/core";
 import { ConfirmationService, ConfirmEventType, MenuItem, PrimeIcons } from "primeng/api";
 import { Router } from "@angular/router";
 
@@ -10,7 +10,8 @@ import { ProjectFileService } from "src/app/services/project-file-service.servic
 @Component({
 	selector: "app-editor-toolbar",
 	templateUrl: "./editor-toolbar.component.html",
-	styleUrls: ["./editor-toolbar.component.scss"]
+	styleUrls: ["./editor-toolbar.component.scss"],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditorToollbarComponent {
 
@@ -207,11 +208,17 @@ export class EditorToollbarComponent {
 
 	projectName: string = "Untitled project";
 
+	isRecording: boolean = false;
+
+	isPlaying: boolean = false;
+
 	constructor(
 		private tracksService: TracksService,
 		private router: Router,
 		private pfService: ProjectFileService,
 		private confirmationService: ConfirmationService,
+		private ngZone: NgZone,
+		private changeDetector: ChangeDetectorRef,
 	) {
 		this.listenForEvents();
 	}
@@ -220,7 +227,13 @@ export class EditorToollbarComponent {
 		//Is triggered when a project is loaded
 		this.pfService.loadProjectNameSubject.subscribe((name: string) => {
 			this.projectName = name;
+			this.changeDetector.detectChanges();
 		});
+
+		window.api.on("update-play-video-button", (_:any, isPlaying: boolean) => this.ngZone.run(() => {
+			this.isPlaying = isPlaying;
+			this.changeDetector.detectChanges();
+		}));
 	}
 
 	createScreenCaptureTrack(event: any) {
@@ -229,5 +242,20 @@ export class EditorToollbarComponent {
 
 	updateProjectName() {
 		this.pfService.setProjectName(this.projectName);
+	}
+
+	toggleRecording() {
+		this.isRecording = !this.isRecording;
+
+		window.api.emit("toggle-recording-all", this.isRecording);
+	}
+
+	togglePlaying() {
+		this.isPlaying = !this.isPlaying;
+		window.api.emit("toggle-playing", this.isPlaying);
+	}
+
+	rewind() {
+		window.api.emit("rewind-to-start");
 	}
 }

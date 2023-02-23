@@ -61,7 +61,7 @@ export class ImportsPanelComponent {
 			//Update the clips array to trigger change detection
 			this.clips = [...this.clips];
 
-			this.pfService.updateClips(this.clips);
+			this.pfService.updateClips(this.clips);			
 
 			this.changeDetector.detectChanges();
 		}));
@@ -87,7 +87,6 @@ export class ImportsPanelComponent {
 			this.clips = [...this.clips];
 
 			this.pfService.updateClips(this.clips);
-
 			this.changeDetector.detectChanges();
 		});
 	}

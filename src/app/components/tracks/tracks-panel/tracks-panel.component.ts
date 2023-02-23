@@ -225,7 +225,10 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 		//Selects the hovering track
 		this.tracksService.setSelectedTrack(this.hoveringTrack!);
-		this.tracksService.filtersChangedSubject.next(null);
+		let draggedClip = this.cs.getDraggedClip();
+		let phantomClip = this.cs.getPhantomClip();
+
+		this.tracksService.filtersChangedSubject.next(!(draggedClip && phantomClip && draggedClip.startTime === phantomClip.startTime));
 
 		if(!this.cs.getDraggedClip() && !this.cs.getClipBeingResized()) {
 			return;

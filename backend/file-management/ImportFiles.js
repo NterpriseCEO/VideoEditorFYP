@@ -4,6 +4,7 @@ const path = require("path");
 const sharp = require("sharp");
 const { exec } = require("child_process");
 const { getVideoDurationInSeconds } = require("get-video-duration");
+const { getMainWindow } = require("../globals/Globals");
 
 function ImportFiles(window) {
 	this.mainWindow = window;
@@ -69,16 +70,6 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
 			if (stderr) {
 				console.log(`error?: ${stderr}`);
 			}
-			// console.log(`stdout: ${stdout}`);
-
-			// file = path.basename(file, ".mp4");
-			// let thumbnail = fs.readFileSync(`${file}.png`);
-			// //Compresses the png file
-			// sharp(thumbnail)
-			// 	.webp({ quality: 10 })
-			// 	.toFile(`${file}.png`)
-			// 	.then(() => {
-			// 		//Adds the thumbnail to the array
 			let dirname = __dirname.substring(0, __dirname.length-24);
 			let thumbnail = `${dirname}/${path.basename(file, ".mp4")}.png`;
 			thumbnails.push({
@@ -87,13 +78,22 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
 			});
 			//Moves to the next thumnail file
 			this.extractThumbnails(++counter, thumbnails);
-			// });
 		});
 	}else {
 		//Sends the thumbnails to the renderer process once all the thumbnails
 		//have been extracted
 		this.mainWindow.webContents.send("thumbnails", thumbnails);
 	}
+}
+
+exports.extractMetadataAndImportFile = function(file) {
+	getVideoDurationInSeconds(file).then((duration) => {
+		//get file name
+		let name = path.basename(file);
+		let _file = {name: name, location: file, duration: duration, totalDuration: duration};
+		getMainWindow().webContents.send("imported-files", [_file]);
+		getMainWindow().webContents.send("add-clip-to-track", _file);
+	});
 }
 
 exports.ImportFiles = ImportFiles;
