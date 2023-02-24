@@ -44,6 +44,11 @@
 			>
 			</div>
 			<div class = "absolute min-w-full h-full w-max">
+				<div
+					id = "timeline-indicator"
+					class = "absolute top-0 h-full"
+					[style.left.px] = "timelineIndicatorPosition"
+				></div>
 				<ng-container *ngFor = "let track of tracks">
 					<div
 						class = "flex"

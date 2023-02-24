@@ -178,14 +178,14 @@ export class EditorToollbarComponent {
 					label: "Undo",
 					icon: PrimeIcons.UNDO,
 					command: () => {
-						alert("Undoing");
+						this.pfService.undo();
 					}
 				},
 				{
 					label: "Redo",
 					icon: PrimeIcons.REFRESH,
 					command: () => {
-						alert("Redoing");
+						this.pfService.redo();
 					}
 				}
 			]
@@ -230,8 +230,9 @@ export class EditorToollbarComponent {
 			this.changeDetector.detectChanges();
 		});
 
-		window.api.on("update-play-video-button", (_:any, isPlaying: boolean) => this.ngZone.run(() => {
-			this.isPlaying = isPlaying;
+		window.api.on("update-play-video-button", (_:any, data: any) => this.ngZone.run(() => {
+			this.isPlaying = data.isPlaying;
+			this.tracksService.isPlayingSubject.next([data.isPlaying, data.isFinishedPlaying]);
 			this.changeDetector.detectChanges();
 		}));
 	}
@@ -252,10 +253,12 @@ export class EditorToollbarComponent {
 
 	togglePlaying() {
 		this.isPlaying = !this.isPlaying;
+		this.tracksService.isPlayingSubject.next([this.isPlaying, false]);
 		window.api.emit("toggle-playing", this.isPlaying);
 	}
 
 	rewind() {
 		window.api.emit("rewind-to-start");
+		this.tracksService.isPlayingSubject.next([false, true]);
 	}
 }

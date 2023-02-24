@@ -437,7 +437,7 @@
 			]
 		},
 		{
-			"function": "resizeBilinear",
+			"function": "resize",
 			"displayName": "Resize (bilinear)",
 			"category": "Miscellaneous",
 			"properties": [

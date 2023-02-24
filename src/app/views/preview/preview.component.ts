@@ -303,6 +303,7 @@ export class PreviewComponent implements AfterViewInit {
 					if(this.masterTime >= this.duration) {
 						this.videoPlaying = false;
 						this.masterTime = 0;
+						window.api.emit("update-play-video-button", {isPlaying: false, isFinishedPlaying: true});
 					}
 				}
 				this.changeDetector.markForCheck();
@@ -628,7 +629,7 @@ export class PreviewComponent implements AfterViewInit {
 		if(updateInMainEditor) {
 			//Sends the signal to update the play pause button in the main editor
 			//This is only done if the play/pause event was triggered in the preview
-			window.api.emit("update-play-video-button", this.videoPlaying);
+			window.api.emit("update-play-video-button", {isPlaying: this.videoPlaying, isFinishedPlaying: false});
 		}
 	}
 
