@@ -12,6 +12,7 @@ export class TracksService {
 	//Subject to add filter to the current track
 	public filtersChangedSubject = new Subject<boolean>();
 	public tracksSubject = new Subject<Track[]>;
+	public isPlayingSubject = new Subject<[boolean, boolean]>();
 
 	tracks: Track[] = [];
 
@@ -32,13 +33,14 @@ export class TracksService {
 		let interval;
 		this.pfService.loadTracksSubject.subscribe((tracks) => {
 			this.tracks = tracks;
+			this.tracksSubject.next(this.tracks);
+			this.filtersChangedSubject.next(false);
 			interval = setInterval(() => {
 				//Waits until the preview window is
 				//open to send the tracks to it
 				if(this.canSendTracks) {
 					window.api.emit("send-tracks", this.tracks);
 					this.selectedTrack = this.tracks[0];
-					this.tracksSubject.next(this.tracks);
 					this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 					clearInterval(interval);
 					interval = null;

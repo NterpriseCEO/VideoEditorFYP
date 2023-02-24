@@ -14,6 +14,11 @@ import { ProjectFileService } from "src/app/services/project-file-service.servic
 })
 export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
+	@ViewChild("tracksList") tracksList!: ElementRef;
+	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
+	@ViewChild("timeLines") timeLines!: ElementRef;
+	@ViewChild("timelineNumbers") timelineNumbers!: ElementRef;
+
 	tracks: Track[] = [];
 	tracksCount: number = 0;
 
@@ -26,19 +31,22 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 	draggingTimeout: any = null;
 
-	@ViewChild("tracksList") tracksList!: ElementRef;
-	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
-	@ViewChild("timeLines") timeLines!: ElementRef;
-	@ViewChild("timelineNumbers") timelineNumbers!: ElementRef;
+	timelineIndicatorPosition: number = 0;
+
+	timelineInterval: any = null;
 
 	constructor(
 		public tracksService: TracksService,
-		public changeDetector: ChangeDetectorRef,
+		private changeDetector: ChangeDetectorRef,
 		public cs: ClipService,
 		private pfService: ProjectFileService
 	) {
+		this.listenForEvents();
+	}
+
+	listenForEvents() {
 		//Subscribes to the addTrackSubject in the tracks service
-		tracksService.tracksSubject.subscribe((tracks: Track[]) => {
+		this.tracksService.tracksSubject.subscribe((tracks: Track[]) => {
 			//Checks if a track is being added not removed
 			this.addingTrack = this.tracksCount < tracks.length;
 			this.tracksCount = tracks.length;
@@ -49,9 +57,28 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 				this.moveTimeLines(true);
 			}
 
-			changeDetector.detectChanges();
+			this.changeDetector.detectChanges();
+		});
+
+		this.tracksService.isPlayingSubject.subscribe(state => {
+			//isPlaying or not
+			if(state[0]) {
+				this.timelineInterval = setInterval(() => {
+					this.timelineIndicatorPosition+=2;
+					this.changeDetector.detectChanges();
+				}, 200);
+			}else {
+				clearInterval(this.timelineInterval);
+			}
+
+			//isFInishedPLaying or not
+			if(state[1]) {
+				this.timelineIndicatorPosition = 0;
+				this.changeDetector.detectChanges();
+			}
 		});
 	}
+
 
 	ngAfterViewInit() {
 		//Scrolls the tracks details to the same position as the tracks list

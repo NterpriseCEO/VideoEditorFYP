@@ -8,9 +8,16 @@
 	background: repeating-linear-gradient(90deg, var(--surface-50), var(--surface-50), transparent 2px, transparent 50px);
 }
 
+#timeline-indicator {
+	width: 2px;
+	height: 100%;
+	background: red;
+	z-index: 10;
+}
+
 .divider {
 	height: 1px;
-	border-bottom: 1px solid var(--surface-50);
+	border-bottom: 1px solid var(--red);
 }
 
 .tracks-grid {

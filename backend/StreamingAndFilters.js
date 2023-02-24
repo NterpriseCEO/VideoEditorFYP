@@ -54,9 +54,9 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 		this.previewWindow.webContents.send("rewind-to-start");
 	});
 
-	ipcMain.on("update-play-video-button", (_, playing) => {
+	ipcMain.on("update-play-video-button", (_, data) => {
 		//Changes the state of the play button in the main window
-		this.window.webContents.send("update-play-video-button", playing);
+		this.window.webContents.send("update-play-video-button", data);
 	});
 }
 

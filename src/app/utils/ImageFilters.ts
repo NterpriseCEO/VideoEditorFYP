@@ -21,29 +21,16 @@ export class ImageFilters {
 
 	constructor() { }
 
-	texture(srcImage: HTMLVideoElement) {
-		let dimensions = this.videoDimensions(srcImage);
-		this.canvas.width = dimensions[0];
-		this.canvas.height = dimensions[1];
+	texture(srcImage: any) {
+		let w = srcImage?.videoWidth ?? srcImage.width;
+		let h = srcImage?.videoHeight ?? srcImage.height;
+		this.canvas.width = w;
+		this.canvas.height = h;
 
-		this.ctx?.drawImage(srcImage, 0, 0, this.canvas.width, this.canvas.height);
-		this.imageData = this.ctx?.getImageData(0, 0, this.canvas.width, this.canvas.height);
+		this.ctx?.drawImage(srcImage, 0, 0, w, h);
+		this.imageData = this.ctx?.getImageData(0, 0, w, h);
 
 		return this;
-	}
-
-	videoDimensions(video: HTMLVideoElement) {
-		const videoRatio = video.videoWidth / video.videoHeight;
-		let width = video.offsetWidth,
-		height = video.offsetHeight;
-
-		const videoElementRatio = width/height;
-		if(videoElementRatio > videoRatio) {
-			width = height * videoRatio;
-		} else {
-			height = width / videoRatio;
-		}
-		return [width, height];
 	}
 
 	setImageData(imageData: any) {
@@ -566,7 +553,7 @@ export class ImageFilters {
 			blur(tmpPixels, dstPixels, srcHeight, srcWidth, vRadius);
 		}
 
-		this.imageData = tmpImageData;//Maybe dstImageData?
+		this.imageData = dstImageData;
 
 		return this;
 	}
