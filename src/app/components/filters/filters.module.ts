@@ -14,11 +14,13 @@ import { InputNumberModule } from "primeng/inputnumber";
 
 import { FilterSelectorComponent } from "./filter-selector/filter-selector.component";
 import { FilterInstanceComponent } from "./filter-instance/filter-instance.component";
+import { LayerFilterComponent } from "./layer-filter/layer-filter.component";
 
 @NgModule({
 	declarations: [
 		FilterSelectorComponent,
-		FilterInstanceComponent
+		FilterInstanceComponent,
+		LayerFilterComponent
 	],
 	imports: [
 		BrowserModule,
@@ -34,6 +36,6 @@ import { FilterInstanceComponent } from "./filter-instance/filter-instance.compo
 		InplaceModule,
 		InputNumberModule
 	],
-	exports: [FilterSelectorComponent, FilterInstanceComponent],
+	exports: [FilterSelectorComponent, FilterInstanceComponent, LayerFilterComponent],
 })
 export class FiltersModule { }

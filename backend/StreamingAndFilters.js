@@ -37,6 +37,11 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 			this.previewWindow.webContents.send("update-filters", track);
 		}
 	});
+	ipcMain.on("update-layer-filter", (_, track) => {
+		if(this.previewWindow) {
+			this.previewWindow.webContents.send("update-layer-filter", track);
+		}
+	});
 
 	ipcMain.on("set-selected-clip-in-preview", (_, filePath) => {
 		//Sets the source of the video element in the preview window

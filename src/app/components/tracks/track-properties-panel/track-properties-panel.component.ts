@@ -1,5 +1,5 @@
 import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from "@angular/core";
-import { Filter, FilterInstance } from "src/app/utils/interfaces";
+import { Filter, FilterInstance, Track } from "src/app/utils/interfaces";
 import { TracksService } from "src/app/services/tracks.service";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
 
@@ -25,12 +25,20 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 	addingFilter: boolean = false;
 	filtersCount: number = 0;
 
+	layerFilter!: any;
+
+	selectedTrack: Track | null = null;
+
 	constructor(
 		private trackService: TracksService,
 		private changeDetector: ChangeDetectorRef,
 		private pfService: ProjectFileService
 	) {
-		trackService.filtersChangedSubject.subscribe((updateProject: boolean) => {
+		this.listenForEvents();
+	}
+
+	listenForEvents() {
+		this.trackService.filtersChangedSubject.subscribe((updateProject: boolean) => {
 			//Checks if a filter is being added not removed
 			this.addingFilter = this.filtersCount < this.filters.length;
 			this.filtersCount = this.filters.length;
@@ -39,6 +47,11 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 
 			this.filters = filters ? filters : [];
 			this.changeFilters(updateProject);
+		});
+
+		this.trackService.selectedTrackChangedSubject.subscribe(track => {
+			this.selectedTrack = JSON.parse(JSON.stringify(track));
+			this.changeDetector.detectChanges();
 		});
 	}
 
@@ -173,5 +186,10 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 	// Clamps a number between a max and min value
 	clamp(num: number, max: number, min: number = 0) {
 		return Math.min(Math.max(num, min), max)
+	}
+
+	updateLayerFilter(event: any) {
+		this.trackService.updateLayerFilter(event);
+		this.changeFilters();
 	}
 }

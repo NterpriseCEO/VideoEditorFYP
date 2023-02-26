@@ -1,0 +1,30 @@
+<div
+	class = "filter-panel h-full inline-block surface-card border-round"
+>
+	<div class = "flex flex-col h-full border-none border-botton-3 border-right-3 surface-border">
+		<div class = "left-drop relative h-full surface-section"></div>
+		<div class = "h-full flex-grow-0 flex flex-column">
+			<div class = "filter-header">
+				<p-toolbar class = "cursor-move">
+					<div class = "p-toolbar-group-left cursor-auto p-2">
+						Layer filter
+					</div>
+				</p-toolbar>
+			</div>
+			<div class = "flex-grow-1 p-2">
+				<div
+					class = "flex flex-wrap h-full justify-content-center align-items-center"
+				>
+					<p-dropdown
+						[options] = "layerFilters"
+						optionLabel = "name"
+						[(ngModel)] = "layerFilter"
+						(onChange) = "layerFilterChange.emit($event.value)"
+					>
+					</p-dropdown>
+				</div>
+			</div>
+		</div>
+		<div class = "right-drop relative h-full surface-section"></div>
+	</div>
+</div>

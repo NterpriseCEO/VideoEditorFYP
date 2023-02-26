@@ -12,6 +12,7 @@ export class TracksService {
 	//Subject to add filter to the current track
 	public filtersChangedSubject = new Subject<boolean>();
 	public tracksSubject = new Subject<Track[]>;
+	public selectedTrackChangedSubject = new Subject<Track | null>;
 	public isPlayingSubject = new Subject<[boolean, boolean]>();
 
 	tracks: Track[] = [];
@@ -41,6 +42,7 @@ export class TracksService {
 				if(this.canSendTracks) {
 					window.api.emit("send-tracks", this.tracks);
 					this.selectedTrack = this.tracks[0];
+					this.selectedTrackChangedSubject.next(this.selectedTrack);
 					this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 					clearInterval(interval);
 					interval = null;
@@ -162,13 +164,15 @@ export class TracksService {
 			colour: this.setTrackColour(),
 			type: type,
 			isVisible: true,
-			source: source,
+			source: source
 		};
 
 		// Adds the track to the array
 		this.tracks.push(track);
 		this.tracksSubject.next(this.tracks);
 		this.selectedTrack = track;
+
+		this.selectedTrackChangedSubject.next(this.selectedTrack);
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracks);
@@ -180,6 +184,7 @@ export class TracksService {
 
 	setSelectedTrack(track: Track) {
 		this.selectedTrack = track;
+		this.selectedTrackChangedSubject.next(this.selectedTrack);
 	}
 
 	getSelectedTrack(): Track | null {
@@ -201,6 +206,7 @@ export class TracksService {
 		this.tracks = this.tracks.filter(t => t.id !== trackID);
 		if(selectedID === trackID) {
 			this.selectedTrack = null;
+			this.selectedTrackChangedSubject.next(this.selectedTrack);
 
 			this.filtersChangedSubject.next(true);
 		}
@@ -223,5 +229,11 @@ export class TracksService {
 		this.pfService.updateTracks(this.tracks);
 		window.api.emit("send-tracks", this.tracks);
 		this._hack(JSON.parse(JSON.stringify(track)));
+	}
+
+	updateLayerFilter(layerFilter: any) {
+		this.selectedTrack!.layerFilter = layerFilter;
+		this.pfService.updateTracks(this.tracks);
+		window.api.emit("update-layer-filter", this.selectedTrack);
 	}
 }

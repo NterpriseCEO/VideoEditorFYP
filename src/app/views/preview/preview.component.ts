@@ -149,6 +149,11 @@ export class PreviewComponent implements AfterViewInit {
 			this.changeDetector.detectChanges();
 		}));
 
+		window.api.on("update-layer-filter", (_, track: Track) => this.ngZone.run(() => {
+			this.tracks.find(({id}) => id === track.id)!.layerFilter = track.layerFilter;
+			this.changeDetector.detectChanges();
+		}));
+
 		window.api.on("toggle-recording", (_, data) => this.ngZone.run(() => {
 			this.isRecording = data.isRecording;
 			if(this.isRecording) {
@@ -474,6 +479,7 @@ export class PreviewComponent implements AfterViewInit {
 			this.ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
 			let videos = this.videos.toArray();
+			let tracks = this.tracks;
 
 			//Loops through all the canvas elements and draws them to the final canvas
 			//Filter out all canvases in which the corresponding video is paused
@@ -489,6 +495,8 @@ export class PreviewComponent implements AfterViewInit {
 				//position is center of largest canvas
 				let x = (finalCanvas.width / 2) - (canvas.width / 2);
 				let y = (finalCanvas.height / 2) - (canvas.height / 2);
+
+				this.ctx.globalCompositeOperation = tracks[index].layerFilter?.function ?? "";
 
 				this.ctx.drawImage(canvas, x, y, canvas.width, canvas.height);
 			});
@@ -659,7 +667,7 @@ export class PreviewComponent implements AfterViewInit {
 					video.currentTime = time - clip.startTime;
 					this.masterTime = time;
 					// videos[i].nativeElement.play();
-					return
+					return;
 				}
 			});
 		});

@@ -43,6 +43,7 @@ export interface Track {
 	colour: string;
 	clips?: ClipInstance[];
 	filters?: FilterInstance[];
+	layerFilter?: any;
 	source?: any; // If screen capture, this is the source/ source id
 }
 

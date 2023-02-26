@@ -13,7 +13,6 @@ import { TracksService } from "src/app/services/tracks.service";
 })
 export class FilterSelectorComponent {
 
-
 	filters: SelectItemGroup[] = [];
 
 	selectedFilter: Filter | null = null;

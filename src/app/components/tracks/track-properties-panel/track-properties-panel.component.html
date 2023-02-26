@@ -1,24 +1,35 @@
-<div
-	#dropzone
-	class = "flex-grow-1 h-full overflow-auto overflow-y-hidden white-space-nowrap"
-	pDroppable = "dd"
-	(drop) = "reorderFilters($event)"
->
-	<div *ngIf = "!filters.length" class = "flex w-full h-full align-items-center justify-content-center select-none">
-		<h1>No Filters</h1>
+<div class = "flex w-full h-full">
+	<div>
+		<app-layer-filter
+			*ngIf = "selectedTrack"
+			[(layerFilter)] = "selectedTrack.layerFilter"
+			(layerFilterChange) = "updateLayerFilter($event)"
+		></app-layer-filter>
 	</div>
-	<app-filter
-		*ngFor = "let filter of filters; let i = index"
-		[filter] = "filter"
-		(filterChange) = "changeFilters()"
-		(onRemove) = "removeFilter(filter)"
-		(toggleFilter) = "setEnabledFilters(filter)"
-
-		pDraggable = "dd"
-		dragHandle = ".p-toolbar"
-		(onDragStart) = "dragStart($event, filter)"
-		(onDrag) = "drag($event)"
-		(onDragEnd) = "dragEnd()"
-	>
-	</app-filter>
+	<div class = "flex-grow-1 overflow-y-hidden">
+		<div
+			#dropzone
+			class = "flex-grow-1 h-full overflow-auto overflow-y-hidden white-space-nowrap"
+			pDroppable = "dd"
+			(drop) = "reorderFilters($event)"
+		>
+			<div *ngIf = "!filters.length" class = "flex w-full h-full align-items-center justify-content-center select-none">
+				<h1>No Filters</h1>
+			</div>
+			<app-filter
+				*ngFor = "let filter of filters; let i = index"
+				[filter] = "filter"
+				(filterChange) = "changeFilters()"
+				(onRemove) = "removeFilter(filter)"
+				(toggleFilter) = "setEnabledFilters(filter)"
+		
+				pDraggable = "dd"
+				dragHandle = ".p-toolbar"
+				(onDragStart) = "dragStart($event, filter)"
+				(onDrag) = "drag($event)"
+				(onDragEnd) = "dragEnd()"
+			>
+			</app-filter>
+		</div>
+	</div>
 </div>
