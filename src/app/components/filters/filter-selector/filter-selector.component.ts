@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { SelectItemGroup } from "primeng/api";
+import { TreeNode } from "primeng/api";
 import { FilterLibrary } from "src/app/utils/constants";
 import { Filter } from "src/app/utils/interfaces";
 import GLFX_Filters from "./filter-definitions/GLFX_Filters.json";
@@ -13,7 +13,7 @@ import { TracksService } from "src/app/services/tracks.service";
 })
 export class FilterSelectorComponent {
 
-	filters: SelectItemGroup[] = [];
+	filters: TreeNode[] = [];
 
 	selectedFilter: Filter | null = null;
 
@@ -31,13 +31,14 @@ export class FilterSelectorComponent {
 		let filterCategories = allFilters.map((filter) => filter.category);
 		//Filters out duplicate categories and maps them to the SelectItemGroup interface
 		//This adds all relevant filters to under their respective categories
-		let mappedFilters: SelectItemGroup[] = filterCategories.filter((category, index) => filterCategories.indexOf(category) === index)
+		let mappedFilters: TreeNode[] = filterCategories.filter((category, index) => filterCategories.indexOf(category) === index)
 			.map((category) => {
 			return {
 				label: category,
-				value: category,
+				data: category,
+				type: "category",
 				//Filters out all filters that don't match the category and maps the rest of them to the SelectItem array
-				items: allFilters.filter((f) => f.category === category).map((f) => {
+				children: allFilters.filter((f) => f.category === category).map((f) => {
 					return {
 						label: f.displayName,
 						value: f

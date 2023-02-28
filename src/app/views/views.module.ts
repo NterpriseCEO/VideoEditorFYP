@@ -26,6 +26,7 @@ import { StartupViewComponent } from "./startup-view/startup-view.component";
 import { SettingsViewComponent } from "./settings-view/settings-view.component";
 import { ExportsViewComponent } from "./exports-view/exports-view.component";
 import { PipesModule } from "../utils/pipes.module";
+import { ViewsRoutingModule } from "./views.routing.module";
 
 @NgModule({
 	declarations: [
@@ -39,6 +40,7 @@ import { PipesModule } from "../utils/pipes.module";
 	],
 	imports: [
 		BrowserModule,
+		ViewsRoutingModule,
 		MenubarModule,
 		SplitterModule,
 		FiltersModule,

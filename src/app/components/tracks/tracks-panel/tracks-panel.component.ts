@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, ViewChild } from "@angular/core";
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
 import { ClipInstance, Track } from "src/app/utils/interfaces";
 import { fromEvent } from "rxjs";
@@ -83,16 +83,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	ngAfterViewInit() {
 		//Scrolls the tracks details to the same position as the tracks list
 		setTimeout(() => {
-			this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.clientWidth + "px";
-
-			//Divide the width of the tracksList by 50 to get the number of seconds
-			let roundedWidth = Math.floor(this.tracksList.nativeElement.clientWidth / 50);
-			//Populates the numbers array with the number of seconds
-			this.numbers = [];
-			for(let i = 0; i < roundedWidth; i++) {
-				this.numbers.push(i);
-			}
-			this.changeDetector.detectChanges();
+			this.resizeTImeLines();
 		}, 0);
 		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
 			this.tracksDetails.nativeElement.scrollTop = event.target.scrollTop;
@@ -107,6 +98,12 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		});
 	}
 
+	//window resize event
+	@HostListener("window:resize", ["$event"])
+	onResize() {
+		this.renderTimeline();
+	}
+
 	ngAfterViewChecked() {
 		//Scrolls to the bottom when a track is added
 		if(this.addingTrack) {
@@ -119,6 +116,19 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 			this.changeDetector.detectChanges();
 		}
+	}
+
+	resizeTImeLines() {
+		this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.clientWidth + "px";
+
+		//Divide the width of the tracksList by 50 to get the number of seconds
+		let roundedWidth = Math.floor(this.tracksList.nativeElement.clientWidth / 50);
+		//Populates the numbers array with the number of seconds
+		this.numbers = [];
+		for(let i = 0; i < roundedWidth; i++) {
+			this.numbers.push(i);
+		}
+		this.changeDetector.detectChanges();
 	}
 
 	//Moves the timeLines element to the same position as the tracksList element
@@ -286,14 +296,17 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			return JSON.stringify(clip2) === JSON.stringify(this.cs.getDraggedClip());
 		});
 
+		if(clip.startTime < 0) {
+			clip.startTime = 0;
+		}
+
 		//Checks if the clip is being dragged on the same track
 		if(this.originTrack == this.hoveringTrack) {
 			//Replace the clip with the modified version of itself
-			tracks[index].clips![clipIndex!] = JSON.parse(JSON.stringify(clip));
+			tracks[index].clips![clipIndex!] = clip;
 			this.cs.setDraggedClip(null);
 			this.cs.setPhantomClip(null);
 		}else {
-
 			this.cs.resetDraggedClip();
 
 			if(this.originTrack?.type != this.hoveringTrack?.type) {
@@ -308,7 +321,11 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 			tracks[index].clips?.splice(clipIndex!, 1);
 
-			tracks[hoveringIndex].clips?.push(JSON.parse(JSON.stringify(clip)));
+			if(!tracks[hoveringIndex].clips) {
+				tracks[hoveringIndex].clips = [];
+			}
+
+			tracks[hoveringIndex].clips?.push(clip);
 
 			this.changeDetector.markForCheck();
 		}

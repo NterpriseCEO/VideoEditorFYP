@@ -62,9 +62,29 @@
 			</p-table>
 		</div>
 		<div class = "flex p-4 justify-content-center">
-			<button pButton icon = "pi pi-question" class = "p-button-lg mr-4" pTooltip = "Read the manual"></button>
-			<button pButton icon = "pi pi-discord" class = "p-button-lg mr-4" pTooltip = "Visit the W.A.V.E Foundation Discord server"></button>
-			<button pButton icon = "pi pi-image" class = "p-button-lg mr-4" pTooltip = "View community art"></button>
+			<button
+				pButton
+				icon = "pi pi-question"
+				class = "p-button-lg mr-4"
+				pTooltip = "Read the manual"
+			>
+			</button>
+			<button
+				pButton
+				icon = "pi pi-discord"
+				class = "p-button-lg mr-4"
+				pTooltip = "Visit the W.A.V.E Foundation Discord server"
+				(click) = "sayNoMessage()"
+			>
+			</button>
+			<button
+				pButton
+				icon = "pi pi-image"
+				class = "p-button-lg mr-4"
+				pTooltip = "View community art"
+				(click) = "sayNoMessage()"
+			>
+			</button>
 		</div>
 	</div>
 	<div class = "w-6 flex align-items-center">

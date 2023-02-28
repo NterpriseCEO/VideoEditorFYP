@@ -9,36 +9,47 @@
 <div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
 <div class = "flex w-full h-full overflow-hidden">
 	<div class = "w-6 h-full surface-card overflow-auto">
-		<div class = "p-2">
+		<div class = "flex p-4 w-full justify-content-between">
 			<button pButton label = "Export current project" (click) = "startExport()"></button>
+			<button pButton label = "Cancel export"></button>
+			<button pButton label = "Clear recent exports"></button>
 		</div>
-		<p-table [value] = "recentExports">
-			<ng-template pTemplate = "caption">
-				<div class = "flex align-items-center justify-content-between">
-					<span class = "text-4xl">Recent exports</span>
-				</div>
-			</ng-template>
-			<ng-template pTemplate = "header">
-				<tr>
-					<th class = "w-2">File</th>
-					<th class = "w-6">Path</th>
-					<th class = "w-2">date</th>
-				</tr>
-			</ng-template>
-			<ng-template pTemplate = "body" let-export>
-				<tr>
-					<td class = "w-3">{{export.file}}</td>
-					<td
-						class = "white-space-nowrap overflow-hidden text-overflow-ellipsis w-3"
-						style = "max-width:200px"
-						[pTooltip] = "export.location"
-					>
-						{{export.location}}
-					</td>
-					<td>{{export.date}}</td>
-				</tr>
-			</ng-template>
-		</p-table>
+		<div class = "p-2">
+			<p-table [value] = "recentExports">
+				<ng-template pTemplate = "caption">
+					<div class = "flex align-items-center justify-content-between">
+						<span class = "text-4xl p-0">Recent exports</span>
+					</div>
+				</ng-template>
+				<ng-template pTemplate = "header">
+					<tr>
+						<th class = "w-2">File</th>
+						<th class = "w-6">Path</th>
+						<th class = "w-2">date</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate = "body" let-export>
+					<tr>
+						<td class = "w-3">{{export.file}}</td>
+						<td
+							class = "white-space-nowrap overflow-hidden text-overflow-ellipsis w-3"
+							style = "max-width:200px"
+							[pTooltip] = "export.location"
+						>
+							{{export.location}}
+						</td>
+						<td>{{export.date}}</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate = "emptymessage">
+					<tr>
+						<td [attr.colspan] = "3" class = "text-center">
+							<h2>No recent exports!</h2>
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
 	</div>
 	<div class = "w-6 flex align-items-center">
 		<div class = "w-full">

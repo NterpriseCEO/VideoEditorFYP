@@ -203,6 +203,13 @@ export class EditorToollbarComponent {
 			command: () => {
 				this.router.navigate([{ outlets: { primary: ["mainview"], panelOutlet: ["exports"] } }]);
 			}
+		},
+		{
+			label: "Manual",
+			icon: PrimeIcons.QUESTION,
+			command: () => {
+				// this.router.navigate([{ outlets: { primary: ["mainview"], panelOutlet: ["exports"] } }]);
+			}
 		}
 	];
 

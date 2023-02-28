@@ -77,7 +77,7 @@
 								<p-tabPanel header = "Imports" class = "h-full">
 									<app-imports-panel class = "w-full"></app-imports-panel>
 								</p-tabPanel>
-								<p-tabPanel header = "Filters">
+								<p-tabPanel header = "Filters" class = "h-full flex-grow-1">
 									<app-filter-selector class = "w-full"></app-filter-selector>
 								</p-tabPanel>
 							</p-tabView>
@@ -89,7 +89,7 @@
 				</div>
 				<div class = "flex overflow-hidden w-full h-full" panel2>
 					<app-info-panel [(isVisible)] = "infoPanelIsVisible" class = "h-5px" [class.w-2] = "infoPanelIsVisible"></app-info-panel>
-					<app-track-properties-panel class = "w-full h-5px" [class.w-10] = "infoPanelIsVisible" *ngIf = "tracksPropertiesPanelIsVisible"></app-track-properties-panel>
+					<app-track-properties-panel class = "w-full h-5px" [class.w-10] = "infoPanelIsVisible" [class.hidden] = "!tracksPropertiesPanelIsVisible"></app-track-properties-panel>
 				</div>
 			</app-custom-splitter>
 		</div>

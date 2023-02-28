@@ -36,4 +36,8 @@ export class StartupViewComponent {
 		this.router.navigate(["/mainview"]);
 		window.api.emit("load-project-from-location", location);
 	}
+
+	sayNoMessage() {
+		alert("This doesn't exist yet!");
+	}
 }

@@ -173,6 +173,7 @@ export class TracksService {
 		this.selectedTrack = track;
 
 		this.selectedTrackChangedSubject.next(this.selectedTrack);
+		this.filtersChangedSubject.next(false);
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracks);
@@ -202,13 +203,20 @@ export class TracksService {
 
 	deleteTrack(trackID: number) {
 		let selectedID = this.selectedTrack?.id;
+		let trackIndex = this.tracks.findIndex(t => t.id === trackID);
 		//Deletes the track from the array by filtering out
 		this.tracks = this.tracks.filter(t => t.id !== trackID);
 		if(selectedID === trackID) {
-			this.selectedTrack = null;
-			this.selectedTrackChangedSubject.next(this.selectedTrack);
+			//The previous tracks is selected
+			//if the currently selected track is deleted
+			try {
+				this.selectedTrack = this.tracks[trackIndex - 1 ?? 0];
+			} catch (error) {
+				this.selectedTrack = null;
+			}
+			this.selectedTrackChangedSubject.next(this.selectedTrack ?? null);
 
-			this.filtersChangedSubject.next(true);
+			this.filtersChangedSubject.next(false);
 		}
 		this.tracksSubject.next(this.tracks);
 
