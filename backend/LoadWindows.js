@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, nativeImage } = require("electron");
 const path = require("path");
 const windowStateKeeper = require("electron-window-state");
+const url = require("url");
 
 const { StreamingAndFilters } = require("./StreamingAndFilters");
 const { Worker } = require("worker_threads");
@@ -23,6 +24,9 @@ function MainWindow() {
 	this.serve = this.args.some(val => val === "--localhost");
 
 	this.canExit = false;
+
+	this.image = "/icons/icons/icon.ico";
+	// this.image.setTemplateImage(true);
 }
 
 MainWindow.prototype.listenForEvents = function() {
@@ -90,6 +94,10 @@ MainWindow.prototype.listenForEvents = function() {
 		app.quit();
 	});
 
+	ipcMain.on("open-manual", () => {
+		this.openManual();
+	});
+
 	registerFileProtocol();
 }
 
@@ -108,11 +116,15 @@ MainWindow.prototype.createWindow = function() {
 		minHeight: 600,
 		x: mainWindowState.x,
 		y: mainWindowState.y,
+		icon: this.image,
 		webPreferences: {
 			contextIsolation: true,
 			preload: path.join(__dirname, "preload.js")
 		}
 	});
+
+	//set window icon here
+	// this.window.setIcon(this.image);
 
 	mainWindowState.manage(this.window);
 
@@ -125,6 +137,45 @@ MainWindow.prototype.createWindow = function() {
 
 	this.listenForEvents();
 };
+
+MainWindow.prototype.openManual = function() {
+	if(this.manualWindow) {
+		this.manualWindow.focus();
+		return;
+	}
+	this.manualWindow = new BrowserWindow({
+		titlebarStyle: "hidden",
+		width: 600,
+		height: 400,
+		minWidth: 600,
+		minHeight: 600,
+		x: 100,
+		y: 100,
+		icon: this.image,
+		webPreferences: {
+			contextIsolation: true,
+			preload: path.join(__dirname, "preload.js")
+		}
+	});
+
+	this.manualWindow.setMenu(null);
+	if(this.serve) {
+		//Development mode
+		this.manualWindow.loadURL("http://localhost:4200/manual");
+	}else {
+		//Production mode
+		this.manualWindow.loadURL(url.format({
+			pathname: path.join(__dirname, "../dist/video-editor/index.html"),
+			protocol: "file:",
+			slashes: true,
+			hash: "/manual"
+		}));
+	}
+
+	this.manualWindow.once("close", (e) => {
+		this.manualWindow = null;
+	});
+}
 
 MainWindow.prototype.loadStartView = function() {
 	if(this.serve) {
@@ -152,6 +203,7 @@ MainWindow.prototype.createPreviewWindow = function() {
 		minHeight: 600,
 		x: 100,
 		y: 100,
+		icon: this.image,
 		webPreferences: {
 			contextIsolation: true,
 			preload: path.join(__dirname, "preload.js")

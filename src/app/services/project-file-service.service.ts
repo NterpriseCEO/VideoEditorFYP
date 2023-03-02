@@ -79,9 +79,9 @@ export class ProjectFileService {
 						newFilter.enabled = filter.enabled;
 						newFilter.properties = filter.properties.map((prop, index) => {
 							const newProp = newFilter.properties[index];
-							newProp.value = filter.properties[index];
+							newProp.value = filter.properties[index].value;
 							return newProp;
-						});						
+						});
 					}
 					return newFilter;
 				});
@@ -158,7 +158,6 @@ export class ProjectFileService {
 		//if they haven't changed, don't update them
 		//This prevent the project from being marked as dirty
 		//when the user clicks on a track
-
 		if(JSON.stringify(this.tracks) === JSON.stringify(tracks)) {
 			return;
 		}

@@ -19,12 +19,12 @@
 			<app-filter
 				*ngFor = "let filter of filters; let i = index"
 				[filter] = "filter"
-				(filterChange) = "changeFilters()"
+				(filterChange) = "updateFilter(filter)"
 				(onRemove) = "removeFilter(filter)"
 				(toggleFilter) = "setEnabledFilters(filter)"
 		
 				pDraggable = "dd"
-				dragHandle = ".p-toolbar"
+				dragHandle = ".draggable"
 				(onDragStart) = "dragStart($event, filter)"
 				(onDrag) = "drag($event)"
 				(onDragEnd) = "dragEnd()"

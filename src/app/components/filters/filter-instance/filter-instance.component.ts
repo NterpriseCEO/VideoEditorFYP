@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from "@angular/core";
 import { MenuItem } from "primeng/api";
+import { debounceTime, Subject } from "rxjs";
 import { FilterInstance } from "src/app/utils/interfaces";
 
 @Component({
@@ -17,7 +18,11 @@ export class FilterInstanceComponent implements OnInit {
 
 	dropdownItems: MenuItem[] = [];
 
-	constructor() {}
+	modelChanged: Subject<[any, any]> = new Subject();
+
+	constructor() {
+		this.listenForEvents();
+	}
 
 	ngOnInit() {
 		this.dropdownItems = [
@@ -46,7 +51,22 @@ export class FilterInstanceComponent implements OnInit {
 		}
 		//Sets the initial value of the filter properties to their default values
 		this.filter.properties.forEach((property) => {
-			property.value = property.defaultValue;
+			property.value = property.value ?? property.defaultValue;
 		});
+	}
+
+	listenForEvents() {
+		this.modelChanged.pipe(debounceTime(400)).subscribe((data) => {
+			//Waits 200 milliseconds before applying the filter
+			//This prevents the project history from being spammed with filter changes
+			this.filter!.properties!.find(prop => prop.name == data[1].name)!.value = data[0];
+			this.filterChange.emit(this.filter);
+		});
+	}
+
+	debounceFilterChange(event: Event, property: any) {
+		//Debounces the filter change event
+		//This is done to prevent the filter from being applied multiple times
+		this.modelChanged.next([event, property]);
 	}
 }

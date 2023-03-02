@@ -138,14 +138,18 @@ export class PreviewComponent implements AfterViewInit {
 	listenForEvents() {
 		window.api.on("update-filters", (_, track: Track) => this.ngZone.run(() => {
 			//Maps the filters to an array of filter property values
-			this.tracks.find(({id}) => id === track.id)!.filters =
-				track!.filters?.filter(filter=> filter.enabled).map((filter: Filter, index: number) => {
-					return {
-						function: filter.function,
-						properties: filter.properties ? filter.properties.map(prop => isNaN(prop) ? (prop.value ?? prop.defaultValue) : prop) : [],
-						type: filter.type
-					}
-				}) as FilterInstance[];
+			let matchingTrack = this.tracks.find(({id}) => id === track.id);
+
+			if(!matchingTrack!.filters) {
+				matchingTrack!.filters = [];
+			}
+			matchingTrack!.filters = track!.filters?.filter(filter=> filter.enabled).map((filter: Filter, index: number) => {
+				return {
+					function: filter.function,
+					properties: filter.properties ? filter.properties.map(prop => isNaN(prop) ? (prop.value ?? prop.defaultValue) : prop) : [],
+					type: filter.type
+				}
+			}) as FilterInstance[];
 			this.changeDetector.detectChanges();
 		}));
 
@@ -180,13 +184,14 @@ export class PreviewComponent implements AfterViewInit {
 
 		window.api.on("tracks", (_, tracks: Track[]) => this.ngZone.run(() => {
 			//Gets all the new tracks
-			this.tracks = [...tracks];
+			this.tracks = [...tracks];			
 
 			this.rewindToStart();
 		}));
 
 		window.api.on("update-track-clips", (_, track: Track) => this.ngZone.run(() => {
-			this.tracks[track.id].clips = track.clips;
+			//find the track with the matching id
+			this.tracks.find(({id}) => id === track.id)!.clips = track.clips;
 
 			this.rewindToStart();
 		}));
@@ -206,13 +211,6 @@ export class PreviewComponent implements AfterViewInit {
 	}
 
 	startRecording(stream, addToTrack: boolean = false) {
-		// if(captureAudioTracks) {
-		// 	this.videos.toArray().forEach((video) => {
-		// 		console.log("Adding audio track");
-		// 		this.createAudioTrack(video.nativeElement);
-		// 	});
-		// }
-
 		this.socket.emit("start-recording", {recordToProjectFolder: true, addToTrack: addToTrack});
 		//Captures the canvas or video and sends it to the server as new data is available
 		this.mediaRecorder = new MediaRecorder(stream, this.recorderOptions);

@@ -37,6 +37,10 @@ export class StartupViewComponent {
 		window.api.emit("load-project-from-location", location);
 	}
 
+	openManual() {
+		window.api.emit("open-manual")
+	}
+
 	sayNoMessage() {
 		alert("This doesn't exist yet!");
 	}

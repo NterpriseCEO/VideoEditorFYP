@@ -60,6 +60,10 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			this.changeDetector.detectChanges();
 		});
 
+		this.tracksService.selectedTrackChangedSubject.subscribe((track: Track | null) => {
+			this.changeDetector.detectChanges();
+		});
+
 		this.tracksService.isPlayingSubject.subscribe(state => {
 			//isPlaying or not
 			if(state[0]) {
@@ -259,7 +263,6 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	}
 
 	completeDrag() {
-
 		//Selects the hovering track
 		this.tracksService.setSelectedTrack(this.hoveringTrack!);
 		let draggedClip = this.cs.getDraggedClip();
@@ -352,7 +355,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	}
 
 	setPhantomClip(event: MouseEvent, track: Track) {
-		this.hoveringTrack = track;
+		this.hoveringTrack = JSON.parse(JSON.stringify(track));
 		if(!this.cs.getCurrentClip() && !this.cs.isDraggingClip() && !this.cs.getDraggedClip()) {
 			return;
 		}
@@ -363,8 +366,9 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		
 		//Sets the phantom clip to the current clip or the dragged clip
 		let clip = JSON.parse(JSON.stringify(this.cs.getCurrentClip())) || JSON.parse(JSON.stringify(this.cs.getDraggedClip()));
-		
-		this.cs.setPhantomClip(Object.assign(clip, { in: 0, startTime: mousePositionSeconds }));
+		if(clip) {
+			this.cs.setPhantomClip(Object.assign(clip, { in: 0, startTime: mousePositionSeconds }));
+		}
 		this.changeDetector.detectChanges();
 	}
 
@@ -415,7 +419,9 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			window.api.emit("update-track-clips", this.hoveringTrack!);
 			this.renderTimeline();
 		}else {
-			this.cs.getPhantomClip()!.startTime = this.getMousePosition(event) - this.cs.getDraggedDistanceDiff();
+			if(this.cs.getPhantomClip()) {
+				this.cs.getPhantomClip()!.startTime = this.getMousePosition(event) - this.cs.getDraggedDistanceDiff();
+			}
 		}
 	}
 

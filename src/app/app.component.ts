@@ -3,6 +3,8 @@ import { ClipService } from "./services/clip.service";
 import { Router } from "@angular/router";
 import { ProjectFileService } from "./services/project-file-service.service";
 import { ConfirmationService, ConfirmEventType } from "primeng/api";
+import { Title } from "@angular/platform-browser";
+
 declare global {
 	interface Window {
 		api?: any;
@@ -31,14 +33,17 @@ export class AppComponent {
 		public router: Router,
 		private pfService: ProjectFileService,
 		private confirmationService: ConfirmationService,
-		private ngZone: NgZone
+		private ngZone: NgZone,
+		private titleService: Title
 	) {
+		this.titleService.setTitle("LiveFX");
 		this.listenForEvents();
 	}
 
 	listenForEvents() {
 		window.api.on("check-if-can-exit", () => this.ngZone.run(() => {
 			//If there are no unsaved changes, exit the app
+
 			if (!this.pfService.isProjectDirty()) {
 				window.api.emit("exit");
 			}
@@ -71,7 +76,10 @@ export class AppComponent {
 	}
 
 	isNotPopup() {
-		return this.router.url !== "/mainview" && this.router.url !== "/startup" && this.router.url !== "/preview";
+		return this.router.url !== "/mainview" &&
+			this.router.url !== "/startup" &&
+			this.router.url !== "/preview" &&
+			this.router.url !== "/manual";
 	}
 
 	cancelAdd() {

@@ -1,7 +1,7 @@
 <div class = "flex w-full h-full overflow-hidden">
-	<div class = "w-6 h-full surface-card flex flex-column">
+	<div class = "md:w-6 sm:w-12 h-full surface-card flex flex-column">
 		<div class = "flex justify-content-center w-full text-center">
-			<div class = "m-4">
+			<div class = "lg:m-4 mt-4">
 				<button
 					pButton
 					label = "New project"
@@ -19,7 +19,7 @@
 			</div>
 		</div>
 		<div class = "p-4 flex-grow-1 flex flex-column overflow-hidden">
-			<p-table [value] = "recentProjects">
+			<p-table [value] = "recentProjects" responsiveLayout = "scroll">
 				<ng-template pTemplate = "caption">
 					<div class = "flex align-items-center justify-content-between">
 						<span class = "text-4xl">Recent projects</span>
@@ -67,6 +67,7 @@
 				icon = "pi pi-question"
 				class = "p-button-lg mr-4"
 				pTooltip = "Read the manual"
+				(click) = "openManual()"
 			>
 			</button>
 			<button
@@ -87,7 +88,7 @@
 			</button>
 		</div>
 	</div>
-	<div class = "w-6 flex align-items-center">
+	<div class = "w-6 align-items-center md:flex sm:hidden">
 		<div class = "w-full">
 			<h1 id = "community-art" class = "text-center">Community art will go here...</h1>
 		</div>

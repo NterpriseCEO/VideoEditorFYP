@@ -34,6 +34,10 @@ export class TracksService {
 		let interval;
 		this.pfService.loadTracksSubject.subscribe((tracks) => {
 			this.tracks = tracks;
+
+			this.selectedTrack = this.tracks.find(track => track.id === this.selectedTrack?.id) ?? this.tracks[0];
+
+			this.selectedTrackChangedSubject.next(this.selectedTrack);
 			this.tracksSubject.next(this.tracks);
 			this.filtersChangedSubject.next(false);
 			interval = setInterval(() => {
@@ -41,8 +45,6 @@ export class TracksService {
 				//open to send the tracks to it
 				if(this.canSendTracks) {
 					window.api.emit("send-tracks", this.tracks);
-					this.selectedTrack = this.tracks[0];
-					this.selectedTrackChangedSubject.next(this.selectedTrack);
 					this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 					clearInterval(interval);
 					interval = null;
@@ -91,7 +93,7 @@ export class TracksService {
 		track.filters = track.filters?.map((filter: FilterInstance, index: number) => {
 			return {
 				function: filter.function,
-				properties: filter.properties ? filter.properties.map(prop => prop.value.value ?? prop.defaultValue) : [],
+				properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
 				type: filter.type,
 				enabled: filter.enabled
 			}
@@ -113,7 +115,7 @@ export class TracksService {
 		this.filtersChangedSubject.next(true);
 
 		//Updates the project file object
-		this.pfService.updateTracks(this.tracks);
+		// this.pfService.updateTracks(this.tracks);
 
 		//sends the updated filters to the preview window
 		window.api.emit("update-filters", this.selectedTrack);
@@ -122,10 +124,6 @@ export class TracksService {
 	removeFilter(filter: FilterInstance) {
 		//Removes the filter from the selected track
 		this.selectedTrack!.filters = this.selectedTrack!.filters!.filter((f) => f !== filter);
-		this.filtersChangedSubject.next(true);
-
-		//Updates the project file object
-		this.pfService.updateTracks(this.tracks);
 
 		window.api.emit("update-filters", this.selectedTrack);
 	}
@@ -184,7 +182,7 @@ export class TracksService {
 	}
 
 	setSelectedTrack(track: Track) {
-		this.selectedTrack = track;
+		this.selectedTrack = JSON.parse(JSON.stringify(track));
 		this.selectedTrackChangedSubject.next(this.selectedTrack);
 	}
 

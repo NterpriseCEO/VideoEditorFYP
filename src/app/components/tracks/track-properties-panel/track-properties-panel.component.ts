@@ -43,10 +43,11 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 			this.addingFilter = this.filtersCount < this.filters.length;
 			this.filtersCount = this.filters.length;
 
-			let filters = this.trackService.getSelectedTrackFilters()!;
-
-			this.filters = filters ? filters : [];
 			this.changeFilters(updateProject);
+		});
+
+		this.trackService.tracksSubject.subscribe(() => {
+			this.changeFilters(false);
 		});
 
 		this.trackService.selectedTrackChangedSubject.subscribe(track => {
@@ -121,7 +122,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 			this.filters.splice(dropIndex, 0, this.draggedFilter);
 			// Gets a list of all the filters that are enabled
 			this.enabledFilters = this.filters.filter(filter => filter.enabled);
-			this.draggedFilter = null;
+			this.draggedFilter = null;			
 
 			// Emit the new list of filters to the main process
 			this.changeFilters();
@@ -132,13 +133,21 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		this.draggedFilter = null;
 	}
 
+	updateFilter(filter: FilterInstance) {
+		this.trackService.getSelectedTrack()!.filters = this.filters;
+		this.changeFilters();
+	}
+
 	changeFilters(updateProjectFile: boolean = true) {
+		let filters = this.trackService.getSelectedTrackFilters()!;
+		this.filters = filters ? filters : [];
 		// Gets a list of all the filters that are enabled
 		this.enabledFilters = this.filters.filter((filter: FilterInstance) => filter.enabled);
-
 		if(!this.enabledFilters) {
 			return;
 		}
+
+		let filtersToChange = JSON.parse(JSON.stringify(this.enabledFilters));
 
 		// Map the filters from property definitions to property values only
 		this.enabledFilters = this.enabledFilters.map((filter: Filter, index: number) => {
@@ -149,10 +158,14 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 			}
 		}) as FilterInstance[];
 
+		this.enabledFilters = [...this.enabledFilters];
+
 		this.changeDetector.detectChanges();
 
 		//Updates the project file object
 		if(updateProjectFile) {
+			let tracks = this.trackService.getTracks();
+			tracks[tracks.findIndex(track => track.id === this.trackService.getSelectedTrack()!.id)].filters = this.filters;
 			this.pfService.updateTracks(this.trackService.getTracks());
 	
 			window.api.emit("update-filters", this.trackService.getSelectedTrack());

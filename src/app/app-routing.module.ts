@@ -6,6 +6,7 @@ import { MainViewComponent } from "./views/main-view/main-view.component";
 import { PreviewComponent } from "./views/preview/preview.component";
 import { SettingsViewComponent } from "./views/settings-view/settings-view.component";
 import { StartupViewComponent } from "./views/startup-view/startup-view.component";
+import { ManualViewComponent } from "./views/manual-view/manual-view.component";
 
 const routes: Routes = [
 	{ path: "startup", component: StartupViewComponent},
@@ -13,11 +14,12 @@ const routes: Routes = [
 	{ path: "mainview", component: MainViewComponent },
 	{ path: "preview", component: PreviewComponent },
 	{ path: "settings", component: SettingsViewComponent, outlet: "panelOutlet" },
-	{ path: "exports", component: ExportsViewComponent, outlet: "panelOutlet" }
+	{ path: "exports", component: ExportsViewComponent, outlet: "panelOutlet" },
+	{ path: "manual", component: ManualViewComponent}
 ];
 
 @NgModule({
-	imports: [RouterModule.forRoot(routes, { useHash: environment.production })],
+	imports: [RouterModule.forRoot(routes, { useHash: true })],
 	exports: [RouterModule]
 })
 export class AppRoutingModule { }

@@ -208,7 +208,7 @@ export class EditorToollbarComponent {
 			label: "Manual",
 			icon: PrimeIcons.QUESTION,
 			command: () => {
-				// this.router.navigate([{ outlets: { primary: ["mainview"], panelOutlet: ["exports"] } }]);
+				window.api.emit("open-manual");
 			}
 		}
 	];
