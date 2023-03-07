@@ -52,8 +52,5 @@ export class TrackDetailsComponent implements OnChanges {
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracksService.getTracks());
-
-		//Sends the tracks to the preview window
-		window.api.emit("send-tracks", this.tracksService.getTracks());
 	}
 }

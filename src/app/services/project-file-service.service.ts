@@ -205,7 +205,7 @@ export class ProjectFileService {
 	}
 
 	createBlankProject() {
-		this.project = {
+		let project = {
 			name: "Untitled Project",
 			dateCreated: new Date(),
 			lastModifiedDate: new Date(),
@@ -214,19 +214,26 @@ export class ProjectFileService {
 			tracks: []
 		};
 
-		this.name = this.project.name;
-		this.dateCreated = this.project.dateCreated;
-		this.lastModifiedDate = this.project.lastModifiedDate;
-		this.location = this.project.location;
-		this.clips = this.project.clips;
-		this.tracks = this.project.tracks;
+		window.api.emit("create-blank-project", this.project);
 
-		this.projectLoaded = false;
-		this.isDirty = false;
+		window.api.on("project-created", (_:any, location: string) => this.ngZone.run(() => {
+			this.project = project;
+			this.project.location = location;
+			this.location = this.project.location;
 
-		this.loadClipsSubject.next(this.clips);
-		this.loadTracksSubject.next(this.tracks);
-		this.loadProjectNameSubject.next(this.name);
+			this.name = this.project.name;
+			this.dateCreated = this.project.dateCreated;
+			this.lastModifiedDate = this.project.lastModifiedDate;
+			this.clips = this.project.clips;
+			this.tracks = this.project.tracks;
+
+			this.projectLoaded = true;
+			this.isDirty = true;
+
+			this.loadClipsSubject.next(this.clips);
+			this.loadTracksSubject.next(this.tracks);
+			this.loadProjectNameSubject.next(this.name);
+		}));
 	}
 
 	addProjectToHistory(project: Project) {

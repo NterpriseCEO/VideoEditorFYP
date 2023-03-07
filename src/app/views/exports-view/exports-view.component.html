@@ -9,11 +9,7 @@
 <div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
 <div class = "flex w-full h-full overflow-hidden">
 	<div class = "w-6 h-full surface-card overflow-auto">
-		<div class = "flex p-4 w-full justify-content-between">
-			<button pButton label = "Export current project" (click) = "startExport()"></button>
-			<button pButton label = "Cancel export"></button>
-			<button pButton label = "Clear recent exports"></button>
-		</div>
+		<p-menubar [model] = "items" [autoDisplay] = "false" styleClass = "w-full" class = "w-full"></p-menubar>
 		<div class = "p-2">
 			<p-table [value] = "recentExports">
 				<ng-template pTemplate = "caption">
@@ -30,13 +26,13 @@
 				</ng-template>
 				<ng-template pTemplate = "body" let-export>
 					<tr>
-						<td class = "w-3">{{export.file}}</td>
+						<td class = "w-3">{{export.name}}</td>
 						<td
 							class = "white-space-nowrap overflow-hidden text-overflow-ellipsis w-3"
 							style = "max-width:200px"
 							[pTooltip] = "export.location"
 						>
-							{{export.location}}
+							{{export.path}}
 						</td>
 						<td>{{export.date}}</td>
 					</tr>

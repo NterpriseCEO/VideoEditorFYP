@@ -55,4 +55,17 @@ exports.listenForVideoData = function(client) {
 			}
 		});
 	});
+
+	//Need to revisit this feature
+	ipcMain.on("cancel-recording", () => {
+		if(fileStream) {
+			fileStream.end();
+			fileStream = null;
+			couldOpenStream = false;
+			//Delete the file
+			if (fs.existsSync(exportPath)) {
+				fs.unlinkSync(exportPath);
+			}
+		}
+	});
 }

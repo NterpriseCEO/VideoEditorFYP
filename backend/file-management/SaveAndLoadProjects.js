@@ -8,12 +8,44 @@ function SaveAndLoadProjects(window) {
 }
 
 SaveAndLoadProjects.prototype.listenForEvents = function() {
+	ipcMain.on("create-blank-project", (_, project) => {
+		dialog.showSaveDialog(this.mainWindow, {
+			properties: ["saveFile"],
+			filters: [
+				{ name: "Video Live Set", extensions: ["vls"] }
+			]
+		}).then((result) => {
+			if(result.canceled) {
+				return;
+			}
+
+			//Gets the folder name from the file path
+			let split = result.filePath.split("\\");
+			let name = split.pop();
+			let folderName = name.substring(0, name.lastIndexOf("."));
+			project.location = split.join("\\")+"\\"+folderName+"\\"+name;
+
+			let projectFolder = split.join("\\")+"\\"+folderName+"\\";
+
+			//Creates a folder for the project
+			fs.mkdirSync(projectFolder);
+			setProjectPath(projectFolder);
+
+			//Saves the project to a file
+			fs.writeFile(project.location, JSON.stringify(project), (err) => {
+				if (err) {
+					console.log(err);
+				}
+				this.mainWindow.webContents.send("project-created", project.location);
+			});
+		});
+	});
 	ipcMain.on("save-project-as", (_, project) => {
 		dialog.showSaveDialog(this.mainWindow, {
 			properties: ["saveFile"],
 			filters: [
-				{ name: "Project File", extensions: ["vls"] },
-			],
+				{ name: "Video Live Set", extensions: ["vls"] },
+			]
 		}).then((result) => {
 			if (result.canceled) {
 				return;
@@ -26,7 +58,7 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 
 			let projectFolder = split.join("\\")+"\\"+folderName+"\\";
 
-			//create a folder for the project
+			//Creates a folder for the project
 			fs.mkdirSync(projectFolder);
 			setProjectPath(projectFolder);
 

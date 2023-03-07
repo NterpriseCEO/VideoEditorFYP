@@ -1,22 +1,7 @@
 <div class = "flex w-full h-full overflow-hidden">
 	<div class = "md:w-6 sm:w-12 h-full surface-card flex flex-column">
 		<div class = "flex justify-content-center w-full text-center">
-			<div class = "lg:m-4 mt-4">
-				<button
-					pButton
-					label = "New project"
-					class = "p-button-lg mr-4"
-					(click) = "openEditor()"
-				>
-				</button>
-				<button
-					pButton
-					label = "Open project"
-					class = "p-button-lg"
-					(click) = "openProject()"
-				>
-				</button>
-			</div>
+			<p-menubar [model] = "items" [autoDisplay] = "false" styleClass = "w-full" class = "w-full"></p-menubar>
 		</div>
 		<div class = "p-4 flex-grow-1 flex flex-column overflow-hidden">
 			<p-table [value] = "recentProjects" responsiveLayout = "scroll">
@@ -46,6 +31,7 @@
 							<button
 								pButton
 								label = "Open"
+								class = "p-button-outlined"
 								(click) = "openProjectFromLocation(project.location)"
 							>
 							</button>
@@ -89,7 +75,8 @@
 		</div>
 	</div>
 	<div class = "w-6 align-items-center md:flex sm:hidden">
-		<div class = "w-full">
+		<div class = "flex flex-column w-full justify-content-between">
+			<img src = "assets/icon.png" class = "w-4 align-self-center" alt = "The app icon">
 			<h1 id = "community-art" class = "text-center">Community art will go here...</h1>
 		</div>
 	</div>

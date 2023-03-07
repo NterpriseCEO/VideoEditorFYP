@@ -2,10 +2,30 @@
 	<div class = "w-2">
 		<p-menu [model] = "settingsPages" class = "w-full h-full" styleClass = "w-full h-full"></p-menu>
 	</div>
-	<div class = "flex-grow-1">
-		<h1 *ngIf = "activeSettingsPage == 0">General</h1>
-		<h1 *ngIf = "activeSettingsPage == 1">Audio</h1>
-		<h1 *ngIf = "activeSettingsPage == 2" >Video</h1>
-		<h1 *ngIf = "activeSettingsPage == 3">Keyboard shortcuts</h1>
+	<div class = "flex-grow-1 p-2 text-center" style = "font-family: var(--font-family);">
+		<div *ngIf = "activeSettingsPage == 0">
+			<h1>General</h1>
+			<p>
+				Settings coming soon
+			</p>
+		</div>
+		<div *ngIf = "activeSettingsPage == 1">
+			<h1>Audio</h1>
+			<p>
+				Settings coming soon
+			</p>
+		</div>
+		<div *ngIf = "activeSettingsPage == 2">
+			<h1>Video</h1>
+			<p>
+				Settings coming soon
+			</p>
+		</div>
+		<div *ngIf = "activeSettingsPage == 3">
+			<h1>Keyboard Shortcuts</h1>
+			<p>
+				Settings coming soon
+			</p>
+		</div>
 	</div>
 </div>

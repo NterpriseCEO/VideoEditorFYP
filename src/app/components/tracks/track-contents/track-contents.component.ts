@@ -7,8 +7,7 @@ import { ClipInstance, Track } from "src/app/utils/interfaces";
 @Component({
 	selector: "app-track-contents",
 	templateUrl: "./track-contents.component.html",
-	styleUrls: ["./track-contents.component.scss"],
-	changeDetection: ChangeDetectionStrategy.OnPush
+	styleUrls: ["./track-contents.component.scss"]
 })
 export class TrackContentsComponent implements OnChanges {
 

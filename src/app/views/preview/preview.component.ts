@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, NgZone, QueryList, ViewChild, ViewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, Renderer2, ViewChild } from "@angular/core";
 import { FilterLibrary, TrackType } from "../../utils/constants";
 import { ClipInstance, Filter, FilterInstance, Track } from "../../utils/interfaces";
 import { ImageFilters } from "src/app/utils/ImageFilters";
@@ -19,7 +19,10 @@ export class PreviewComponent implements AfterViewInit {
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
 	@ViewChild("previewVideo") previewVideo!: ElementRef;
-	@ViewChildren("videos") videos!: QueryList<ElementRef>;
+	@ViewChild("previewContainer") previewContainer!: ElementRef;
+	@ViewChild("canvasContainer") canvasContainer!: ElementRef;
+
+	videos: any[] = [];
 
 	mediaRecorder: any;
 
@@ -67,7 +70,8 @@ export class PreviewComponent implements AfterViewInit {
 
 	constructor(
 		private changeDetector: ChangeDetectorRef,
-		private ngZone: NgZone
+		private ngZone: NgZone,
+		private renderer: Renderer2
 	) {
 
 		this.videoPlayback();
@@ -101,38 +105,7 @@ export class PreviewComponent implements AfterViewInit {
 
 		this.initAudio();
 		this.finalRender();
-		this.videos.changes.subscribe((change: QueryList<ElementRef>) => {
-			//If the number of videos changes, regenerate the preview
-			//This ensures that the previous tracks aren't rerendered unnecessarily
 
-			if(this.videosLength == change.length) {
-				return;
-			}
-			this.timeAnimationFrames.forEach((frame) => {
-				window.cancelAnimationFrame(frame);
-			});
-
-			this.deleteCanvases();
-			this.initAudio();
-			//Remove all audio tracks from the stream if they
-			//were removed from the preview
-			//All new audio tracks will fail otherwise
-			this.stream.getAudioTracks().forEach((track) => {
-				track.stop();
-				this.stream.removeTrack(track);
-			});
-			this.videosLength = change.length;
-			change.forEach((video, index) => {
-				//Gets the video source from each video element
-				this.setSource(this.tracks[index], video.nativeElement, index+1);
-			});
-			//Stops all live streams to improve performance
-			this.lStream.forEach((stream) => {
-				stream.getTracks()[0].stop();
-			});
-			//Resets the live stream array
-			this.lStream = [];
-		});
 	}
 
 	listenForEvents() {
@@ -164,7 +137,7 @@ export class PreviewComponent implements AfterViewInit {
 				//Finds the track matching data.drack
 				let id = this.tracks.findIndex(track => track.id === data.track.id);
 
-				let video = this.videos.toArray()[id].nativeElement;
+				let video = this.videos[id];
 				this.startRecording(video.captureStream(), true);
 			}else {
 				this.mediaRecorder.stop();
@@ -184,9 +157,9 @@ export class PreviewComponent implements AfterViewInit {
 
 		window.api.on("tracks", (_, tracks: Track[]) => this.ngZone.run(() => {
 			//Gets all the new tracks
-			this.tracks = [...tracks];			
-
+			this.tracks = [...tracks];
 			this.rewindToStart();
+			this.generateVideos();
 		}));
 
 		window.api.on("update-track-clips", (_, track: Track) => this.ngZone.run(() => {
@@ -208,6 +181,51 @@ export class PreviewComponent implements AfterViewInit {
 		window.api.on("rewind-to-start", () => this.ngZone.run(() =>{
 			this.rewindToStart();
 		}));
+	}
+
+	generateVideos() {
+		this.timeAnimationFrames.forEach((frame) => {
+			window.cancelAnimationFrame(frame);
+		});
+
+		while(this.videos.length > 0) {
+			this.videos.pop();
+		}
+
+		document.querySelectorAll(".video").forEach((video) => {
+			this.renderer.removeChild(this.previewContainer.nativeElement, video);
+		});
+
+		this.deleteCanvases();
+		this.initAudio();
+		//Remove all audio tracks from the stream if they
+		//were removed from the preview
+		//All new audio tracks will fail otherwise
+		this.stream.getAudioTracks().forEach((track) => {
+			track.stop();
+			this.stream.removeTrack(track);
+		});
+		// this.videosLength = change.length;
+
+		//Stops all live streams to improve performance
+		this.lStream.forEach((stream) => {
+			stream.getTracks()[0].stop();
+		});
+		//Resets the live stream array
+		this.lStream = [];
+
+		this.tracks.filter(track => track.isVisible).forEach((track, index) => {
+			//create a video element for each track
+			let video = document.createElement("video");
+			video.id = "video" + index;
+			video.classList.add("video", "w-full", "flex-grow-1", "absolute", "h-full");
+			//append the video element after #previewVideo
+			this.renderer.appendChild(this.previewContainer.nativeElement, video);
+			this.videos.push(video);
+			this.setSource(this.tracks[index], video, index+1);
+		});
+
+		this.changeDetector.detectChanges();
 	}
 
 	startRecording(stream, addToTrack: boolean = false) {
@@ -237,12 +255,12 @@ export class PreviewComponent implements AfterViewInit {
 		this.currentClip = [];
 		this.calculateDuration();
 
-		this.videos.toArray().forEach((video, i) => {
+		this.videos.forEach((video, i) => {
 			//Pauses and rewinds all videos that are not live streams
-			if(!video.nativeElement.srcObject) {
-				video.nativeElement.pause();
+			if(!video.srcObject) {
+				video.pause();
 			}
-			video.nativeElement.currentTime = 0;
+			video.currentTime = 0;
 		});
 
 		this.changeDetector.detectChanges();
@@ -285,8 +303,8 @@ export class PreviewComponent implements AfterViewInit {
 
 			let video;
 
-			if(this.videos.toArray()[index]) {
-				video = this.videos.toArray()[index].nativeElement;
+			if(this.videos[index]) {
+				video = this.videos[index];
 			}
 
 			if(!track.isVisible) {
@@ -333,10 +351,12 @@ export class PreviewComponent implements AfterViewInit {
 
 	deleteCanvases() {
 		const nativeElement = this.replaceWithCanvas.nativeElement;
-		this.canvasElements = [];
 
 		//Removes all the canvas elements except the final render canvas
-		document.querySelectorAll(".non-final-canvas").forEach(canvas => canvas.remove());
+		document.querySelectorAll(".non-final-canvas").forEach((canvas) => {
+			this.renderer.removeChild(this.canvasContainer, canvas);
+		});
+		this.canvasElements = [];
 	}
 
 	drawCanvas(video: HTMLVideoElement, track: Track, index: number) {
@@ -470,19 +490,19 @@ export class PreviewComponent implements AfterViewInit {
 		this.ctx = finalCanvas.getContext("2d");
 
 		let step = async () => {
+			this.ctx.globalCompositeOperation = "source-over";
 			//Clears the canvas
 			this.ctx.clearRect(0, 0, finalCanvas.width, finalCanvas.height);
 			//Draws the background
 			this.ctx.fillStyle = "black";
 			this.ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-			let videos = this.videos.toArray();
 			let tracks = this.tracks;
 
 			//Loops through all the canvas elements and draws them to the final canvas
 			//Filter out all canvases in which the corresponding video is paused
 			this.canvasElements.forEach((canvas: HTMLCanvasElement, index: number) => {
-				if(videos[index] && videos[index].nativeElement.paused && this.videoPlaying) {
+				if(this.videos[index] && this.videos[index].paused && this.videoPlaying) {
 					return;
 				}
 
@@ -494,7 +514,8 @@ export class PreviewComponent implements AfterViewInit {
 				let x = (finalCanvas.width / 2) - (canvas.width / 2);
 				let y = (finalCanvas.height / 2) - (canvas.height / 2);
 
-				this.ctx.globalCompositeOperation = tracks[index].layerFilter?.function ?? "";
+				let func = tracks[index].layerFilter?.function;
+				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 
 				this.ctx.drawImage(canvas, x, y, canvas.width, canvas.height);
 			});
@@ -608,8 +629,8 @@ export class PreviewComponent implements AfterViewInit {
 		// this.videoNativeElement.paused ? this.videoNativeElement.play() : this.videoNativeElement.pause();
 		this.videoPlaying = !this.videoPlaying;
 
-		this.videos.toArray().forEach((video, i) => {
-			video.nativeElement.paused ? video.nativeElement.play() : video.nativeElement.pause();
+		this.videos.forEach((video, i) => {
+			video.paused ? video.play() : video.pause();
 		});
 
 		if(this.videoPlaying) {
@@ -646,17 +667,16 @@ export class PreviewComponent implements AfterViewInit {
 
 	getClipAtTime(time: number) {
 		//Gets all the clips that overlap a given time
-		let videos = this.videos.toArray();
 		this.tracks.forEach((track: Track, i) => {
 			if(!track.clips || !track.isVisible) {
 				return;
 			}
 			track.clips.forEach((clip: ClipInstance, j) => {
 				if(this.masterTime >= clip.startTime && time < clip.startTime + clip.duration) {
-					let video = videos[i].nativeElement;
+					let video = this.videos[i];
 					if(video.src != "local-resource://getMediaFile/"+clip.location) {
 						video.src = "local-resource://getMediaFile/"+clip.location;
-						this.changeDetector.detectChanges();
+						this.changeDetector.markForCheck();
 					}
 					//Sets the current clip to j if
 					//the clip is to be played
@@ -689,7 +709,6 @@ export class PreviewComponent implements AfterViewInit {
 		}
 
 		//convert this.startTime to seconds
-
 		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
 			if(video.src != "local-resource://getMediaFile/"+clip.location) {
 				if(track.type !== TrackType.VIDEO) {

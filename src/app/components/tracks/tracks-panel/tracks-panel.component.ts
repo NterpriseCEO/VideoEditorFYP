@@ -228,36 +228,39 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 				}
 				return;
 			}
+			let sTime = clip.startTime;
+			let eTime = clip.startTime + clip.duration;
+			let ncSTime = newClip.startTime;
+			let ncETime = newClip.startTime + newClip.duration;
 			//Checks if the current clip is inside the new clip completely
-			if(clip.startTime >= newClip.startTime && clip.startTime+clip.duration <= newClip.startTime + newClip.duration) {
+			if(sTime >= ncSTime && eTime <= ncETime) {
 				//remove this clip
-
 				track.clips = track?.clips?.filter((clip2: ClipInstance) => {
 					return clip2 !== clip;
 				});
 				return;
 			}
 			//Checks if the new clip is cutting off the end of the current clip
-			if(clip.startTime+clip.duration > newClip.startTime && clip.startTime+clip.duration < newClip.startTime + newClip.duration) {
-				clip.duration = newClip.startTime - clip.startTime;
-			}else if(newClip.startTime > clip.startTime && newClip.startTime+newClip.duration < clip.startTime+clip.duration) {
+			if(eTime > ncSTime && eTime < ncETime) {
+				clip.duration = ncSTime - sTime;
+			}else if(ncSTime > sTime && ncETime < eTime) {
 				//Checks if the new clip is inside the current clip
 				//Creates a new clip with the remaining duration
 				let newClip2 = JSON.parse(JSON.stringify(clip));
-				clip.duration = newClip.startTime - clip.startTime;
-				newClip2.startTime = newClip.startTime + newClip.duration;
+				clip.duration = ncSTime - sTime;
+				newClip2.startTime = ncETime;
 				newClip2.duration -= clip.duration+newClip.duration;
 				newClip2.in += clip.duration + newClip.duration;
 
 				//insert the clip after the current clip (clip)
 				track?.clips?.splice(track.clips.indexOf(clip)+1, 0, newClip2);
-			}else if(newClip.startTime+newClip.duration > clip.startTime && clip.startTime+clip.duration > newClip.startTime+newClip.duration) {
+			}else if(ncETime > sTime && eTime > ncETime) {
 				//Checks if the new clip is cutting off the start of the current clip
-				clip.duration = (clip.startTime+clip.duration) - (newClip.startTime+newClip.duration);
+				clip.duration = eTime - ncETime;
 				//Calulates the distance start of the current clip and the end of the new clip
 				//This is used to calculate the new in point of the current clip
-				clip.in += (newClip.startTime+newClip.duration) - clip.startTime;
-				clip.startTime = newClip.startTime + newClip.duration;
+				clip.in += ncETime - sTime;
+				clip.startTime = ncETime;
 			}
 		});
 	}
@@ -292,7 +295,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 		let clip: ClipInstance = JSON.parse(JSON.stringify(this.cs.getPhantomClip()));
 		let tracks: Track[] = this.tracksService.getTracks();
-		let index = tracks.findIndex(track => track.id === this.originTrack?.id);
+		let track = tracks.find(track => track.id === this.originTrack?.id);
 
 		//Find the index of the clip that matches currently dragged clip
 		let clipIndex = this.originTrack?.clips?.findIndex((clip2: ClipInstance) => {
@@ -306,7 +309,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		//Checks if the clip is being dragged on the same track
 		if(this.originTrack == this.hoveringTrack) {
 			//Replace the clip with the modified version of itself
-			tracks[index].clips![clipIndex!] = clip;
+			track!.clips?.splice(clipIndex!, 1);
+			this.insertClipAtPosition(track!, clip);
 			this.cs.setDraggedClip(null);
 			this.cs.setPhantomClip(null);
 		}else {
@@ -316,26 +320,24 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 				return;
 			}
 
-			//Remove the clip from the origin track
+			//Removes the clip from the origin track
+			track!.clips?.splice(clipIndex!, 1);
 
-			//Get index of track with the origin id and replace the clips array
-			//with the modified version of itself
-			let hoveringIndex = tracks.findIndex(track => track.id === this.hoveringTrack?.id);
+			track = tracks.find(track => track.id === this.hoveringTrack?.id);
 
-			tracks[index].clips?.splice(clipIndex!, 1);
-
-			if(!tracks[hoveringIndex].clips) {
-				tracks[hoveringIndex].clips = [];
+			if(!track!.clips) {
+				track!.clips = [];
 			}
 
-			tracks[hoveringIndex].clips?.push(clip);
+			this.insertClipAtPosition(track!, clip);
 
 			this.changeDetector.markForCheck();
 		}
 
 		this.renderTimeline();
 
-		this.checkIfClipOverlaps(this.hoveringTrack!, clip);
+		this.checkIfClipOverlaps(track!, clip);
+		this.changeDetector.markForCheck();
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracks);
@@ -351,7 +353,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	getMousePosition(event: MouseEvent) {
 		let mousePosition = event.clientX - this.tracksList.nativeElement.getBoundingClientRect().left + this.tracksList.nativeElement.scrollLeft;
 		//Converts the mouse position to seconds
-		return Math.floor(mousePosition / 10);
+		return mousePosition/10;
 	}
 
 	setPhantomClip(event: MouseEvent, track: Track) {
@@ -410,6 +412,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			//Recreates the clips array to trigger change detection
 			this.hoveringTrack!.clips = [...this.hoveringTrack?.clips!];
 			this.checkIfClipOverlaps(this.hoveringTrack!, clip);
+			this.changeDetector.markForCheck();
 
 			this.draggingTimeout = setTimeout(() => {
 				//Updates the project file object

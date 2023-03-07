@@ -5,37 +5,34 @@
 		<div class = "left-drop relative h-full surface-section"></div>
 		<div class = "h-full w-20rem flex-grow-0 flex flex-column">
 			<div class = "filter-header">
-				<p-toolbar class = "cursor-move" styleClass = "p-0">
-					<div class = "flex align-items-center w-full draggable">
-						<div
-							class = "flex-grow-1 cursor-auto overflow-hidden text-overflow-ellipsis pl-3"
-							[pTooltip] = "filter.displayName"
-							tooltipPosition = "top"
-						>
-							{{filter.displayName}}
-						</div>
-						<div class = "w-4">
-							<button
-								pButton
-								icon = "pi pi-ellipsis-v"
-								class = "p-button-text p-button-sm"
-								(click) = "menu.toggle($event)"
-								pTooltip = "Filter options"
-							>
-							</button>
-							<p-menu #menu [popup] = "true" [model] = "dropdownItems"></p-menu>
-							<button
-								pButton
-								[pTooltip] = "(filter.enabled ? 'Disable' : 'Enable')+ ' filter'"
-								class = "p-button-text p-button-sm"
-								(click) = "toggleFilter.emit()"
-								[icon] = "'pi pi-circle' + (filter.enabled ? '-fill' : '')"
-							>
-							</button>
-						</div>
+				<div class = "flex align-items-center border-y-1 p-0 surface-border header">
+					<div
+						class = "flex-grow-1 cursor-auto overflow-hidden text-overflow-ellipsis pl-3"
+						[pTooltip] = "filter.displayName"
+						tooltipPosition = "top"
+					>
+						{{filter.displayName}}
 					</div>
-					
-				</p-toolbar>
+					<div class = "w-4">
+						<button
+							pButton
+							icon = "pi pi-ellipsis-v"
+							class = "p-button-text p-button-sm"
+							(click) = "menu.toggle($event)"
+							pTooltip = "Filter options"
+						>
+						</button>
+						<p-menu #menu [popup] = "true" [model] = "dropdownItems"></p-menu>
+						<button
+							pButton
+							[pTooltip] = "(filter.enabled ? 'Disable' : 'Enable')+ ' filter'"
+							class = "p-button-text p-button-sm"
+							(click) = "toggleFilter.emit()"
+							[icon] = "'pi pi-circle' + (filter.enabled ? '-fill' : '')"
+						>
+						</button>
+					</div>
+				</div>
 			</div>
 			<div class = "flex-grow-1 p-2">
 				<div

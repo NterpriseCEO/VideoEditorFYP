@@ -3,10 +3,11 @@ import { io } from "socket.io-client";
 
 const fx = require("glfx-es6");
 
-import { ClipInstance, Filter, FilterInstance, FilterPropertyInstance, Track } from "src/app/utils/interfaces";
+import { Filter, FilterInstance, Track } from "src/app/utils/interfaces";
 import { TracksService } from "../../services/tracks.service";
 import { ImageFilters } from "src/app/utils/ImageFilters";
 import { FilterLibrary } from "src/app/utils/constants";
+import { MenuItem } from "primeng/api";
 
 @Component({
 	selector: "app-exports-view",
@@ -20,7 +21,7 @@ export class ExportsViewComponent implements AfterViewInit {
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
 	@ViewChildren("videos") videos!: QueryList<ElementRef>;
 
-	recentExports = [];
+	recentExports: any[] = [];
 
 	tracks: Track[] = [];
 	currentClip: number[] = [];
@@ -46,11 +47,31 @@ export class ExportsViewComponent implements AfterViewInit {
 
 	isRecording: boolean = false;
 
+	items: MenuItem[] = [
+		{
+			label: "Export",
+			command: () => {
+				this.startExport()
+			}
+		},
+		{
+			label: "Clear",
+			command: () => {
+				this.recentExports = [];
+				localStorage.setItem("recentExports", "[]");
+			}
+		}
+	]
+
 	constructor(
 		private tracksService: TracksService,
 		private changeDetector: ChangeDetectorRef,
 		private zone: NgZone
 	) {
+		let recents = localStorage.getItem("recentExports");
+		if(recents) {
+			this.recentExports = JSON.parse(recents);
+		}
 		this.listenForEvents();
 	}
 
@@ -75,6 +96,20 @@ export class ExportsViewComponent implements AfterViewInit {
 	listenForEvents() {
 		window.api.on("export-location-chosen", (_:any, path: string) => this.zone.run(() => {
 			this.initAudio();
+
+			//Reads recent-exports from localstorage
+			let recents = localStorage.getItem("recentExports");
+			const newExport = {
+				name: path.substring(path.lastIndexOf("\\") + 1),
+				path: path,
+				date: new Date()
+			};
+			//Adds the new export to recent exports
+			if(recents) {
+				this.recentExports = JSON.parse(recents);
+			}
+			this.recentExports.push(newExport);
+			localStorage.setItem("recentExports", JSON.stringify(this.recentExports));
 
 			//Gets all tracks and filters out invisible ones
 			this.tracks = [...JSON.parse(JSON.stringify(this.tracksService.getTracks()))];
@@ -111,6 +146,12 @@ export class ExportsViewComponent implements AfterViewInit {
 		window.api.emit("choose-export-location");
 	}
 
+	cancelExport() {
+		this.isRecording = false;
+		this.mediaRecorder.stop();
+		window.api.emit("cancel-recording");
+	}
+
 	initAudio() {
 		this.audioCtx = new AudioContext();
 		// This will be used to merge audio tracks from multiple videos
@@ -144,7 +185,7 @@ export class ExportsViewComponent implements AfterViewInit {
 	recordAndSendData() {
 		const recorderOptions = {
 			mimeType: "video/webm; codecs=vp9",
-			videoBitsPerSecond: 500000 // 0.2 Mbit/sec.
+			videoBitsPerSecond: 1000000 // 0.2 Mbit/sec.
 		};
 
 		//Captures the canvas and sends it to the server as new data is available
@@ -335,6 +376,7 @@ export class ExportsViewComponent implements AfterViewInit {
 		this.startTime = window.performance.now() / 1000;
 
 		let step = async () => {
+			this.ctx.globalCompositeOperation = "source-over";
 			this.updateTime();
 			//Clears the canvas
 			this.ctx.clearRect(0, 0, finalCanvas.width, finalCanvas.height);
@@ -358,6 +400,9 @@ export class ExportsViewComponent implements AfterViewInit {
 				//position is center of largest canvas
 				let x = (finalCanvas.width / 2) - (canvas.width / 2);
 				let y = (finalCanvas.height / 2) - (canvas.height / 2);
+
+				let func = this.tracks[index].layerFilter?.function;
+				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 
 				this.ctx.drawImage(canvas, x, y, canvas.width, canvas.height);
 			});

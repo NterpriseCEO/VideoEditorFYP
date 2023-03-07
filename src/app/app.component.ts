@@ -46,6 +46,7 @@ export class AppComponent {
 
 			if (!this.pfService.isProjectDirty()) {
 				window.api.emit("exit");
+				return;
 			}
 
 			this.confirmationService.confirm({

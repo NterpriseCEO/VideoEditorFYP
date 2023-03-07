@@ -12,12 +12,13 @@
 			[class.h-full] = "!isFullscreen"
 		>
 			<div
+				#previewContainer
 				class = "align-self-center flex-grow-1 flex justify-content-center relative"
 				[class.flex-column] = "!isFullscreen"
 				[class.w-full] = "!isFullscreen"
 			>
 				<div class = "flex-grow-1 w-full"></div>
-				<video
+				<!-- <video
 					#videos
 					*ngFor = "let track of getVisibleTracks()"
 					class = "w-full flex-grow-1 absolute"
@@ -25,7 +26,7 @@
 					[class.h-screen] = "isFullscreen"
 					[class.mt-6] = "isFullscreen"
 				>
-				</video>
+				</video> -->
 				<video
 					#previewVideo
 					class = "w-full flex-grow-1 absolute preview-video"
@@ -64,6 +65,7 @@
 			<div
 				class = "align-self-center flex-grow-1 flex justify-content-center relative w-full"
 				[class.flex-column] = "!isFullscreen"
+				#canvasContainer
 			>
 				<div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
 				<canvas #finalCanvas class = "final-canvas w-full absolute" width = "1920" height = "1080"></canvas>

@@ -65,7 +65,7 @@
 						>
 						</app-track-contents>
 						<app-clip
-							*ngIf = "cs.phantomClip && hoveringTrack === track"
+							*ngIf = "cs.phantomClip && hoveringTrack?.id === track.id"
 							[clip] = "cs.phantomClip"
 							[colour] = "track.colour"
 							class = "absolute opacity-50 pointer-events-none"

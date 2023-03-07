@@ -239,6 +239,10 @@ export class TracksService {
 
 	updateLayerFilter(layerFilter: any) {
 		this.selectedTrack!.layerFilter = layerFilter;
+		//Finds the track that matches the id of the selected track
+		let track = this.tracks.find(t => t.id === this.selectedTrack!.id);
+		//Updates the layer filter of the track
+		track!.layerFilter = layerFilter;
 		this.pfService.updateTracks(this.tracks);
 		window.api.emit("update-layer-filter", this.selectedTrack);
 	}
