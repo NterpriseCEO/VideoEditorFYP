@@ -9,7 +9,7 @@
 		[style.width.px] = "clip.duration*10"
 		[style.left.px] = "clip.startTime*10"
 		[colour] = "colour"
-		(click) = "selectClip(clip, $event)"
+		(click) = "selectClip($event, clip)"
 		[class.border-2] = "selectedClip === clip"
 		(mousedown) = "dragStart(clip, $event)"
 	>

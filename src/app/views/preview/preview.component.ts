@@ -1,8 +1,11 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, Renderer2, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, Renderer2, ViewChild } from "@angular/core";
+import { io } from "socket.io-client";
+import { fromEvent, Observable, Subscription } from "rxjs";
+import { Title } from "@angular/platform-browser";
+
 import { FilterLibrary, TrackType } from "../../utils/constants";
 import { ClipInstance, Filter, FilterInstance, Track } from "../../utils/interfaces";
 import { ImageFilters } from "src/app/utils/ImageFilters";
-import { io } from "socket.io-client";
 // import * as GPU from "../../utils/gpu.js";
 // const GPU = require("../../utils/gpu.js");
 
@@ -14,13 +17,14 @@ const fx = require("glfx-es6");
 	styleUrls: ["./preview.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreviewComponent implements AfterViewInit {
+export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
 	@ViewChild("previewVideo") previewVideo!: ElementRef;
 	@ViewChild("previewContainer") previewContainer!: ElementRef;
 	@ViewChild("canvasContainer") canvasContainer!: ElementRef;
+	@ViewChild("scaler") scaler!: ElementRef;
 
 	videos: any[] = [];
 
@@ -31,7 +35,9 @@ export class PreviewComponent implements AfterViewInit {
 	videosLength: number = 0;
 
 	tracks: Track[] = [];
+	selectedTrackIndex: number = -1;
 	currentClip: number[] = [];
+	selectedClipIndex: number = -1;
 
 	//Testing
 	fps: number = 0;
@@ -61,18 +67,32 @@ export class PreviewComponent implements AfterViewInit {
 
 	socket: any;
 
-	previewSrc: string = "";
+	previewSrc: string | null = null;
+	previewStream: any = null;
+
+	scalerWidth: number = 0;
+	scalerHeight: number = 0;
+	scalerRatio: number = 0;
+	isScaling: boolean = false;
+
+	updateHistoryTimeout: any;
 
 	recorderOptions: any = {
 		mimeType: "video/webm;codecs=vp9",
 		videoBitsPerSecond: 500000
 	};
 
+	resizeObservable!: Observable<Event>
+	resizeSubscription!: Subscription
+
 	constructor(
 		private changeDetector: ChangeDetectorRef,
 		private ngZone: NgZone,
-		private renderer: Renderer2
+		private renderer: Renderer2,
+		private titleService: Title
 	) {
+
+		this.titleService.setTitle("GraphX - Preview");
 
 		this.videoPlayback();
 
@@ -93,6 +113,16 @@ export class PreviewComponent implements AfterViewInit {
 	}
 
 	ngAfterViewInit() {
+		//Window resize event
+		this.resizeObservable = fromEvent(window, 'resize')
+		this.resizeSubscription = this.resizeObservable.subscribe( event => {
+			let track = this.tracks[this.selectedTrackIndex];
+			if(track) {
+				this.isScaling = true;
+				this.calculateScalerSize(track);
+				this.isScaling = false;
+			}
+		})
 		//Gets the localhost server port.
 		//Used to send live video data to the server
 		window.api.emit("get-server-port");
@@ -105,7 +135,85 @@ export class PreviewComponent implements AfterViewInit {
 
 		this.initAudio();
 		this.finalRender();
+		
+		new ResizeObserver((mutations) => {
+			let dimensions = mutations[0].contentRect;
+			let track = this.tracks[this.selectedTrackIndex];
 
+			if(!this.isScaling) {
+				clearTimeout(this.updateHistoryTimeout);
+				
+				//Calculates the ratio in size between the canvas container and the actual output dimensions
+				let canvasContainerToCanvasRatio = 1920 / this.canvasContainer.nativeElement.clientWidth;
+				this.scalerWidth = this.canvasContainer.nativeElement.clientWidth/canvasContainerToCanvasRatio;
+				this.scalerHeight = (dimensions.width / this.scalerRatio);
+				let selectedClip;
+				
+				try {
+					selectedClip = track.clips![this.selectedClipIndex];
+
+					selectedClip.width = dimensions.width*canvasContainerToCanvasRatio;
+					selectedClip.height = this.scalerHeight*canvasContainerToCanvasRatio;
+				}catch(e) {
+					track.width = dimensions.width*canvasContainerToCanvasRatio;
+					track.height = this.scalerHeight*canvasContainerToCanvasRatio;
+				}
+				this.scaler.nativeElement.style.height = this.scalerHeight + "px";
+
+				this.updateHistoryTimeout = setTimeout(() => {
+					window.api.emit("update-track-in-history", track);
+					clearTimeout(this.updateHistoryTimeout);
+				}, 1000);
+
+				this.changeDetector.detectChanges();
+			}
+		}).observe(this.scaler.nativeElement);
+
+		this.previewVideo.nativeElement.onloadeddata = () => {
+			let track = this.tracks![this.selectedTrackIndex];
+			this.previewVideo.nativeElement.startTime = 0;
+			this.isScaling = true;
+
+			this.calculateScalerSize(track);
+
+			try {
+				let selectedClip = track.clips![this.selectedClipIndex];
+				selectedClip.width = selectedClip.width ?? this.previewVideo.nativeElement.videoWidth;
+				selectedClip.height = selectedClip.height ?? this.previewVideo.nativeElement.videoHeight;
+			}catch(e) {
+				//Tries to set the width and height of the track if there is no clip selected
+				track.width = track.width ?? this.previewVideo.nativeElement.videoWidth;
+				track.height = track.height ?? this.previewVideo.nativeElement.videoHeight;
+			}
+
+			this.isScaling = false;
+			this.changeDetector.detectChanges();
+		}
+	}
+
+	ngOnDestroy() {
+		this.resizeSubscription.unsubscribe();
+	}
+
+	calculateScalerSize(track: Track) {
+		let canvasContainerToCanvasRatio;
+		try {
+			let selectedClip = track.clips![this.selectedClipIndex];
+			canvasContainerToCanvasRatio = 1920 / (selectedClip?.width ?? this.canvasElements[this.selectedTrackIndex].width);
+			console.log(canvasContainerToCanvasRatio);
+			
+		}catch(e) {
+			canvasContainerToCanvasRatio = 1920 / (track.width ?? this.canvasElements[this.selectedTrackIndex].width);
+			console.log(canvasContainerToCanvasRatio);
+		}
+
+		this.scalerWidth = this.canvasContainer.nativeElement.clientWidth/canvasContainerToCanvasRatio;
+		//Calultes width to height ratio of the preview video
+		this.scalerRatio = this.previewVideo.nativeElement.videoWidth / this.previewVideo.nativeElement.videoHeight;
+		this.scaler.nativeElement.style.width = this.scalerWidth + "px";
+		this.scalerHeight = this.scalerWidth/this.scalerRatio;
+		
+		this.scaler.nativeElement.style.height = this.scalerHeight + "px";
 	}
 
 	listenForEvents() {
@@ -134,7 +242,7 @@ export class PreviewComponent implements AfterViewInit {
 		window.api.on("toggle-recording", (_, data) => this.ngZone.run(() => {
 			this.isRecording = data.isRecording;
 			if(this.isRecording) {
-				//Finds the track matching data.drack
+				//Finds the track matching data.track
 				let id = this.tracks.findIndex(track => track.id === data.track.id);
 
 				let video = this.videos[id];
@@ -169,10 +277,15 @@ export class PreviewComponent implements AfterViewInit {
 			this.rewindToStart();
 		}));
 
-		window.api.on("set-selected-clip-in-preview", (_, filePath) => this.ngZone.run(() => {
-			this.previewSrc = "local-resource://getMediaFile/"+filePath;
-			this.previewVideo.nativeElement.startTime = 0;
-			this.changeDetector.detectChanges();
+		window.api.on("set-selected-clip-in-preview", (_, data) => this.ngZone.run(() => {
+			let track = this.tracks![data.trackIndex];
+			//Checks if the selected clip / track is the same as the one that is already selected
+			if((this.selectedTrackIndex === data.trackIndex && this.selectedClipIndex === data.clipIndex)) {
+				return;
+			}
+			this.setPreviewSource("local-resource://getMediaFile/"+data.location, track);
+			this.selectedTrackIndex = data.trackIndex;
+			this.selectedClipIndex = data.clipIndex;
 		}));
 
 		window.api.on("toggle-playing", () => this.ngZone.run(() => {
@@ -390,8 +503,6 @@ export class PreviewComponent implements AfterViewInit {
 		let elapsedTime = 0;
 
 		//Applies certain classes to the canvas
-		canvas.classList.add("w-full");
-		canvas.classList.add("h-full");
 		canvas.classList.add("absolute");
 		canvas.classList.add("opacity-0");
 		canvas.classList.add("non-final-canvas");
@@ -409,6 +520,9 @@ export class PreviewComponent implements AfterViewInit {
 			if(!texture) {
 				texture = canvas.texture(video);
 			}
+
+			canvas.width = video.videoWidth;
+			canvas.height = video.videoHeight;
 
 			if(!ifTexture) {
 				ifTexture = imageFilters.texture(video);
@@ -509,21 +623,85 @@ export class PreviewComponent implements AfterViewInit {
 				if(canvas.width === 0 || canvas.height === 0) {
 					return;
 				}
+
+				let track = tracks[index];
+				let clip;
+				try {
+					clip = track?.clips![this.currentClip[index]];
+				}catch(e) {}
+
+				let width = (clip?.width ?? track.width) ?? canvas.width;
+				let height = (clip?.height ?? track.height) ?? canvas.height;
+
 				//Loops through all canvases and centers them on the final canvas
 				//position is center of largest canvas
-				let x = (finalCanvas.width / 2) - (canvas.width / 2);
-				let y = (finalCanvas.height / 2) - (canvas.height / 2);
+				let x = (finalCanvas.width / 2) - (width / 2);
+				let y = (finalCanvas.height / 2) - (height / 2);
 
-				let func = tracks[index].layerFilter?.function;
+				let func = track.layerFilter?.function;
 				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 
-				this.ctx.drawImage(canvas, x, y, canvas.width, canvas.height);
+				this.ctx.drawImage(canvas, x, y, width, height);
 			});
 			window.requestAnimationFrame(step);
 		}
 
 		window.requestAnimationFrame(step);
 		this.stream = finalCanvas.captureStream();
+	}
+
+	setPreviewSource(videoSource: string, track: Track) {
+		let type = track.type;
+		let source = track?.source;
+
+		let previewVideo = this.previewVideo.nativeElement;
+
+		if(type === TrackType.WEBCAM) {
+			//Accesses the webcam
+			navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+			.then(stream => {
+				//The video preview element src
+				this.previewStream = stream;
+				this.previewSrc = null;
+				this.changeDetector.markForCheck();
+				previewVideo.onloadedmetadata = () => {
+					previewVideo.play();
+				}
+			});
+		}else if (type === TrackType.SCREEN_CAPTURE) {
+			//Gets the list of desktop capture options
+			window.api.emit("get-stream");
+			window.api.on("stream", (_: any, stream: any[]) => this.ngZone.run(() => {
+				//Initiates the desktop capture and plays it
+				navigator.mediaDevices.getUserMedia({
+					// audio: true,
+					//Doesn't work with audio: Terminating renderer for bad IPC message, reason 263
+					//Need to look into this later
+					video: {
+						mandatory: {
+							chromeMediaSource: "desktop",
+							chromeMediaSourceId: stream.find(({id}) => id === source.sourceId).id, //The id of the desktop capture
+							minWidth: 1280,
+							maxWidth: 1920,
+							minHeight: 720,
+							maxHeight: 1080,
+						}
+					} as MediaTrackConstraints,
+				}).then((stream) => {
+					//The video preview element src
+					this.previewStream = stream;
+					this.previewSrc = null;
+					this.changeDetector.markForCheck();
+					previewVideo.onloadedmetadata = () => {
+						previewVideo.play();
+					}
+				});
+			}));
+		}else if(type === TrackType.VIDEO) {
+			this.previewSrc = videoSource;
+			this.previewStream = null;
+			this.changeDetector.markForCheck();
+		}
 	}
 
 	setSource(track: Track, video: HTMLVideoElement, index: number) {
@@ -563,9 +741,9 @@ export class PreviewComponent implements AfterViewInit {
 							chromeMediaSource: "desktop",
 							chromeMediaSourceId: stream.find(({id}) => id === source.sourceId).id, //The id of the desktop capture
 							minWidth: 1280,
-							maxWidth: 1280,
+							maxWidth: 1920,
 							minHeight: 720,
-							maxHeight: 720,
+							maxHeight: 1080,
 						}
 					} as MediaTrackConstraints,
 				}).then((stream) => {

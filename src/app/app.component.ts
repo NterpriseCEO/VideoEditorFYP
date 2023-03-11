@@ -36,7 +36,7 @@ export class AppComponent {
 		private ngZone: NgZone,
 		private titleService: Title
 	) {
-		this.titleService.setTitle("LiveFX");
+		this.titleService.setTitle("GraphX");
 		this.listenForEvents();
 	}
 

@@ -428,6 +428,12 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		}
 	}
 
+	selectTrack(track: Track, index: number) {
+		if(!track.clips || !track.clips.length) {
+			window.api.emit("set-selected-clip-in-preview", {location: null, trackIndex: index, clipIndex: 0});
+		}
+	}
+
 	renderTimeline() {
 		setTimeout(() => {
 			let longestTrackWidth = 0;

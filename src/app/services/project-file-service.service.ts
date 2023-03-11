@@ -1,11 +1,12 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
+import { Title } from "@angular/platform-browser";
+import { MessageService } from "primeng/api";
 
 import { Clip, Filter, Project, Track } from "../utils/interfaces";
 import GLFX_Filters from "../components/filters/filter-selector/filter-definitions/GLFX_Filters.json";
 import ImageFilters from "../components/filters/filter-selector/filter-definitions/ImageFilters.json";
 import { FilterLibrary } from "../utils/constants";
-import { MessageService } from "primeng/api";
 
 @Injectable({
 	providedIn: "root"
@@ -45,7 +46,8 @@ export class ProjectFileService {
 
 	constructor(
 		private messageService: MessageService,
-		private ngZone: NgZone
+		private ngZone: NgZone,
+		private titleService: Title
 	) {
 		GLFX_Filters.filters = GLFX_Filters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX}));
 
@@ -66,6 +68,8 @@ export class ProjectFileService {
 			this.lastModifiedDate = project.lastModifiedDate;
 			this.location = project.location;
 			this.clips = JSON.parse(JSON.stringify(project.clips));
+
+			this.titleService.setTitle(`GraphX - ${this.location}`);
 
 			//Loops through the tracks and filters merges the filter properties
 			//from the project with the filter properties from the list of all filters
@@ -123,6 +127,18 @@ export class ProjectFileService {
 		window.api.on("video-sucessfully-exported", () => this.ngZone.run(() => {
 			this.messageService.add({severity:"success", summary:"Video successfully exported!"});
 		}));
+
+		window.api.on("update-track-in-history", (_: any, track: Track) => {
+			this.project.tracks = this.project.tracks.map(t => {
+				if (t.id === track.id) {
+					t = track;
+				}
+				return t;
+			});
+			this.tracks = this.project.tracks;
+			this.loadTracksSubject.next(JSON.parse(JSON.stringify(this.tracks)));
+			this.isDirty = true;
+		});
 	}
 
 	addProjectToRecentProjects() {

@@ -45,6 +45,8 @@ export interface Track {
 	filters?: FilterInstance[];
 	layerFilter?: any;
 	source?: any; // If screen capture, this is the source/ source id
+	width?: number;
+	height?: number;
 }
 
 export interface Clip {
@@ -59,6 +61,8 @@ export interface Clip {
 export interface ClipInstance extends Clip {
 	in: number;
 	startTime: number;
+	width?: number;
+	height?: number;
 }
 
 export interface Project {

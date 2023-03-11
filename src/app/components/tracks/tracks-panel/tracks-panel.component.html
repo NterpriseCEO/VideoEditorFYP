@@ -32,7 +32,6 @@
 		<div
 			class = "overflow-auto flex-grow-1 h-full relative tracks-list"
 			#tracksList
-			(click) = "cs.unSelectClip()"
 			(mouseup) = "completeDrag()"
 			(mousemove) = "onDrag($event)"
 		>
@@ -49,17 +48,19 @@
 					class = "absolute top-0 h-full"
 					[style.left.px] = "timelineIndicatorPosition"
 				></div>
-				<ng-container *ngFor = "let track of tracks">
+				<ng-container *ngFor = "let track of tracks; let i = index">
 					<div
 						class = "flex"
 						(mousedown) = "originTrack = track"
 						(mousemove) = "setPhantomClip($event, track)"
 						(mouseleave) = "cs.phantomClip = null"
 						(mouseup) = "addClip(track, $event)"
+						(click) = "selectTrack(track, i)"
 						[class.selected-track] = "tracksService.getSelectedTrack()?.id === track.id"
 					>
 						<app-track-contents
 							[clips] = "track.clips ?? []"
+							[trackIndex] = "i"
 							[colour] = "track.colour"
 							class = "track-contents flex-grow-0 flex-shrink-0"
 						>

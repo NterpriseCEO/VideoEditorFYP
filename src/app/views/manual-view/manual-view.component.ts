@@ -9,6 +9,6 @@ import { Title } from "@angular/platform-browser";
 export class ManualViewComponent {
 
 	constructor(private titleService: Title) {
-		this.titleService.setTitle("LiveFX Manual");
+		this.titleService.setTitle("GraphX Manual");
 	}
 }

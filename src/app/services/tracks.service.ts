@@ -62,7 +62,7 @@ export class TracksService {
 		window.api.on("preview-exited", () => this.ngZone.run(() => {
 			this.canSendTracks = false;
 		}));
-		
+
 		window.api.on("add-clip-to-track", (_, clip) => this.ngZone.run(() => {
 			//find the end time of the last clip in the currently recording track
 			let lastClipEndTime = 0;

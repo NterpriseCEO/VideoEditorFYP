@@ -33,3 +33,21 @@
 video:not(.preview-video) {
 	visibility: hidden;
 }
+
+.clip-scaler {
+	border-color: var(--red-500);
+	overflow: hidden;
+	resize: horizontal;
+}
+
+.scaler-handle {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border-radius: 0;
+	border-top-left-radius: 100% !important;
+	background-color: var(--red-500);
+	right: 0;
+	bottom: 0;
+	cursor: nw-resize;
+}

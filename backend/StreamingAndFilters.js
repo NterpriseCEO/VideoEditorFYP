@@ -63,6 +63,10 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 		//Changes the state of the play button in the main window
 		this.window.webContents.send("update-play-video-button", data);
 	});
+
+	ipcMain.on("update-track-in-history", (_, track) => {
+		this.window.webContents.send("update-track-in-history", track);
+	});
 }
 
 module.exports.StreamingAndFilters = StreamingAndFilters;

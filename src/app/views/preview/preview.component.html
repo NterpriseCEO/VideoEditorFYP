@@ -18,15 +18,6 @@
 				[class.w-full] = "!isFullscreen"
 			>
 				<div class = "flex-grow-1 w-full"></div>
-				<!-- <video
-					#videos
-					*ngFor = "let track of getVisibleTracks()"
-					class = "w-full flex-grow-1 absolute"
-					[class.h-full] = "!isFullscreen"
-					[class.h-screen] = "isFullscreen"
-					[class.mt-6] = "isFullscreen"
-				>
-				</video> -->
 				<video
 					#previewVideo
 					class = "w-full flex-grow-1 absolute preview-video"
@@ -34,6 +25,7 @@
 					[class.h-screen] = "isFullscreen"
 					[class.mt-6] = "isFullscreen"
 					[src] = "previewSrc | sanitiseUrl"
+					[srcObject] = "previewStream"
 				>
 				</video>
 				<h1
@@ -75,6 +67,13 @@
 				>
 					This project has no visible tracks
 				</h1>
+				<div
+					#scaler
+					class = "clip-scaler absolute z-5 border-2 border-ground align-self-center"
+					[class.hidden] = "selectedClipIndex === -1 && selectedTrackIndex === -1"
+				>
+					<div class = "scaler-handle pointer-events-none"></div>
+				</div>
 			</div>
 			<div>
 				<p-slider

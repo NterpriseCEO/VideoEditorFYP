@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges,OnInit } from "@angular/core";
 import { ClipService } from "src/app/services/clip.service";
 import { KeyboardEventsService } from "src/app/services/keyboard-events.service";
 import { TracksService } from "src/app/services/tracks.service";
@@ -9,9 +9,10 @@ import { ClipInstance, Track } from "src/app/utils/interfaces";
 	templateUrl: "./track-contents.component.html",
 	styleUrls: ["./track-contents.component.scss"]
 })
-export class TrackContentsComponent implements OnChanges {
+export class TrackContentsComponent implements OnChanges, OnInit {
 
 	@Input() clips!: ClipInstance[];
+	@Input() trackIndex!: number;
 	@Input() colour!: string;
 
 	trackWidth: number = 0;
@@ -25,7 +26,9 @@ export class TrackContentsComponent implements OnChanges {
 		private keys: KeyboardEventsService,
 		public cs: ClipService,
 		public tracksService: TracksService
-	) {
+	) {}
+
+	ngOnInit() {
 		this.keys.keypress("keyup.delete").subscribe(() => {
 			//Deletes the selected clip
 			if(this.selectedClip) {
@@ -38,10 +41,8 @@ export class TrackContentsComponent implements OnChanges {
 			}
 		});
 
-		cs.clipSelectionUpdateSubject.subscribe((clip: ClipInstance | null) => {
+		this.cs.clipSelectionUpdateSubject.subscribe((clip: ClipInstance | null) => {
 			this.selectedClip = clip;
-
-			window.api.emit("set-selected-clip-in-preview", clip?.location)
 
 			this.changeDetector.detectChanges();
 		});
@@ -59,10 +60,16 @@ export class TrackContentsComponent implements OnChanges {
 		}
 	}
 
-	selectClip(clip: ClipInstance, event: Event) {
+	selectClip(event: Event, clip?: ClipInstance) {
 		//Prevents the track from being selected when a clip is clicked
 		event.stopPropagation();
-		this.cs.selectClip(clip);
+		let index = 0;
+		if(clip) {
+			this.cs.selectClip(clip);
+			//Find the index of the clip in the clips array
+			index = this.clips.indexOf(clip);
+		}
+		window.api.emit("set-selected-clip-in-preview", {location: clip?.location, trackIndex: this.trackIndex, clipIndex: index});
 	}
 
 	dragStart(clip: ClipInstance, event: MouseEvent) {
@@ -88,7 +95,6 @@ export class TrackContentsComponent implements OnChanges {
 			//and not the position of the mouse
 			this.cs.setDraggedDistanceDiff(Math.floor(x/10) - clipStart);
 		}else if((event.target as HTMLElement).classList.contains("resize-handle")) {
-
 			this.cs.setClipBeingResized(clip);
 			this.cs.setClipElementBeingResized((event.target as HTMLElement).parentElement);
 		}
