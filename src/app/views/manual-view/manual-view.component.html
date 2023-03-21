@@ -1,0 +1,39 @@
+<div class = "w-full h-full flex">
+	<div class = "w-18rem flex-shrink-0">
+		<p-menu [model] = "manualPages" class = "w-full h-full" styleClass = "w-full h-full"></p-menu>
+	</div>
+	<div class = "flex flex-column flex-grow-1 h-full overflow-hidden" style = "font-family: var(--font-family);">
+		<div class = "border-0 border-bottom-1 surface-border">
+			<h2 class = "text-center">{{ manualPages[activeManualPage].label }}</h2>
+		</div>
+		<div class = "flex flex-grow-1 overflow-auto">
+			<div class = "flex-grow-1 p-4 h-full overflow-auto">
+				<div *ngIf = "activeManualPage == 0">
+					<app-creating-files-manual></app-creating-files-manual>
+				</div>
+				<div *ngIf = "activeManualPage == 1">
+					<app-navigating-the-main-screen-manual></app-navigating-the-main-screen-manual>
+				</div>
+				<div *ngIf = "activeManualPage == 2">
+					<app-navigating-video-preview></app-navigating-video-preview>
+				</div>
+				<div *ngIf = "activeManualPage == 3">
+					<app-adding-tracks-manual></app-adding-tracks-manual>
+				</div>
+				<div *ngIf = "activeManualPage == 4">
+					<app-importing-clips></app-importing-clips>
+				</div>
+				<div *ngIf = "activeManualPage == 5">
+					<app-modifying-tracks></app-modifying-tracks>
+				</div>
+				<div *ngIf = "activeManualPage == 6">
+					<app-working-with-filters></app-working-with-filters>
+				</div>
+				<div *ngIf = "activeManualPage == 7">
+					<app-project-exporter></app-project-exporter>
+				</div>
+				<!-- <router-outlet name = "manualOutlet"></router-outlet> -->
+			</div>
+		</div>
+	</div>
+</div>

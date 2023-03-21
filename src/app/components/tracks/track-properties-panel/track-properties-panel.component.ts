@@ -142,7 +142,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		let filters = this.trackService.getSelectedTrackFilters()!;
 		this.filters = filters ? filters : [];
 		// Gets a list of all the filters that are enabled
-		this.enabledFilters = this.filters.filter((filter: FilterInstance) => filter.enabled);
+		this.enabledFilters = JSON.parse(JSON.stringify(this.filters.filter((filter: FilterInstance) => filter.enabled)));
 		if(!this.enabledFilters) {
 			return;
 		}
@@ -167,7 +167,6 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 			let tracks = this.trackService.getTracks();
 			tracks[tracks.findIndex(track => track.id === this.trackService.getSelectedTrack()!.id)].filters = this.filters;
 			this.pfService.updateTracks(this.trackService.getTracks());
-	
 			window.api.emit("update-filters", this.trackService.getSelectedTrack());
 		}
 	}

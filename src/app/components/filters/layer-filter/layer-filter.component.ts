@@ -8,6 +8,7 @@ import { Component, EventEmitter, Input, Output } from "@angular/core";
 export class LayerFilterComponent {
 
 	@Input() layerFilter: any;
+	@Input() trackID!: number;
 	@Output() layerFilterChange = new EventEmitter<string>();
 
 	layerFilters: any[] = [

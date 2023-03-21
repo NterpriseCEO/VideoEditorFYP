@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { ClipService } from "src/app/services/clip.service";
 import { KeyboardEventsService } from "src/app/services/keyboard-events.service";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
 
@@ -15,8 +16,16 @@ export class MainViewComponent {
 	infoPanelIsVisible = true;
 	previewWindowIsVisible = true;
 
-	constructor(private keys: KeyboardEventsService, private pfService: ProjectFileService) {
-		//Reads the each panel"s visibility from local storage
+	fileX: number = 0;
+	fileY: number = 0;
+	showFileRepresentation: boolean = false;
+
+	constructor(
+		private keys: KeyboardEventsService,
+		private pfService: ProjectFileService,
+		private cs: ClipService
+	) {
+		//Reads the each panel's visibility from local storage
 		let insertPanelVisible = localStorage.getItem("insertPanelVisible");
 		let tracksPanelIsVisible = localStorage.getItem("tracksPanelIsVisible");
 		let tracksPropertiesPanelIsVisible = localStorage.getItem("tracksPropertiesPanelIsVisible");
@@ -66,5 +75,21 @@ export class MainViewComponent {
 			window.api.emit("open-preview-window");
 		}
 		this.previewWindowIsVisible = true;
+	}
+
+	moveFileRepresentation(event: any) {
+		this.fileX = event.x;
+		this.fileY = event.y;
+	}
+
+	startAdd() {
+		this.showFileRepresentation = this.cs.getIsAddingClip();
+	}
+
+	cancelAdd() {
+		//Sets the current clip to null
+		//This will stop the clip from being addable to the timeline
+		this.cs.setCurrentClip(null);
+		this.showFileRepresentation = false;
 	}
 }

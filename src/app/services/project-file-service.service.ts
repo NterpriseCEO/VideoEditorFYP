@@ -74,23 +74,23 @@ export class ProjectFileService {
 			//Loops through the tracks and filters merges the filter properties
 			//from the project with the filter properties from the list of all filters
 			//This is necessary because the project file only stores filter property values
-			project.tracks.map(track => {
-				track.filters = track.filters?.map(filter => {
-					//get the filter by name from the list of all filters and assign it to the track
-					const newFilter = this.allFilters.find(f => f.displayName === filter.displayName);
+			// project.tracks.map(track => {
+			// 	track.filters = track.filters?.map(filter => {
+			// 		//get the filter by name from the list of all filters and assign it to the track
+			// 		const newFilter = this.allFilters.find(f => f.displayName === filter.displayName);
 
-					if (newFilter) {
-						newFilter.enabled = filter.enabled;
-						newFilter.properties = filter.properties.map((prop, index) => {
-							const newProp = newFilter.properties[index];
-							newProp.value = filter.properties[index].value;
-							return newProp;
-						});
-					}
-					return newFilter;
-				});
-				return track;
-			});
+			// 		if (newFilter) {
+			// 			newFilter.enabled = filter.enabled;
+			// 			newFilter.properties = filter.properties.map((prop, index) => {
+			// 				const newProp = newFilter.properties[index];
+			// 				newProp.value = filter.properties[index].value;
+			// 				return newProp;
+			// 			});
+			// 		}
+			// 		return newFilter;
+			// 	});
+			// 	return track;
+			// });
 
 			this.tracks = JSON.parse(JSON.stringify(project.tracks));
 
@@ -131,7 +131,12 @@ export class ProjectFileService {
 		window.api.on("update-track-in-history", (_: any, track: Track) => {
 			this.project.tracks = this.project.tracks.map(t => {
 				if (t.id === track.id) {
-					t = track;
+					if(track.width && track.height) {
+						t.width = track.width;
+						t.height = track.height;
+					}else {
+						t.clips = track.clips;
+					}
 				}
 				return t;
 			});
@@ -177,7 +182,7 @@ export class ProjectFileService {
 		if(JSON.stringify(this.tracks) === JSON.stringify(tracks)) {
 			return;
 		}
-		
+
 		this.tracks = JSON.parse(JSON.stringify(tracks));
 		this.project.tracks = JSON.parse(JSON.stringify(tracks));
 
@@ -230,12 +235,14 @@ export class ProjectFileService {
 			tracks: []
 		};
 
-		window.api.emit("create-blank-project", this.project);
+		window.api.emit("create-blank-project", project);
 
 		window.api.on("project-created", (_:any, location: string) => this.ngZone.run(() => {
 			this.project = project;
 			this.project.location = location;
 			this.location = this.project.location;
+
+			this.titleService.setTitle("GraphX - " + this.location);
 
 			this.name = this.project.name;
 			this.dateCreated = this.project.dateCreated;
@@ -244,7 +251,9 @@ export class ProjectFileService {
 			this.tracks = this.project.tracks;
 
 			this.projectLoaded = true;
-			this.isDirty = true;
+			this.isDirty = false;
+
+			this.addProjectToRecentProjects();
 
 			this.loadClipsSubject.next(this.clips);
 			this.loadTracksSubject.next(this.tracks);
@@ -291,7 +300,6 @@ export class ProjectFileService {
 
 		this.loadClipsSubject.next(this.project.clips);
 		this.clips = JSON.parse(JSON.stringify(this.project.clips));
-
 		this.loadTracksSubject.next(this.project.tracks);
 		this.tracks = JSON.parse(JSON.stringify(this.project.tracks));
 	}

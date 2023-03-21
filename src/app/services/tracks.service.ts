@@ -27,10 +27,10 @@ export class TracksService {
 		private pfService: ProjectFileService,
 		private ngZone: NgZone,
 	) {
-		this.listenForTracks();
+		this.listenForEvents();
 	}
 
-	listenForTracks() {
+	listenForEvents() {
 		let interval;
 		this.pfService.loadTracksSubject.subscribe((tracks) => {
 			this.tracks = tracks;
@@ -93,6 +93,8 @@ export class TracksService {
 		track.filters = track.filters?.map((filter: FilterInstance, index: number) => {
 			return {
 				function: filter.function,
+				category: filter.category,
+				displayName: filter.displayName,
 				properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
 				type: filter.type,
 				enabled: filter.enabled
@@ -113,9 +115,6 @@ export class TracksService {
 		//Lets the track properties panel know that a filter has been added
 		this.selectedTrack!.filters.push(instance);
 		this.filtersChangedSubject.next(true);
-
-		//Updates the project file object
-		// this.pfService.updateTracks(this.tracks);
 
 		//sends the updated filters to the preview window
 		window.api.emit("update-filters", this.selectedTrack);
@@ -197,6 +196,18 @@ export class TracksService {
 	setTrackColour() {
 		//Generates a random hex colour
 		return "#"+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, "0");
+	}
+
+	setTrackSource(trackID: number, source: any) {
+		//Sets the source of the track with the given id
+		let track = this.tracks.find(t => t.id === trackID);
+		if (track) {
+			track.source = source;
+			this.tracksSubject.next(this.tracks);
+			window.api.emit("send-tracks", this.tracks);
+			this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
+			this.pfService.updateTracks(this.tracks);
+		}
 	}
 
 	deleteTrack(trackID: number) {

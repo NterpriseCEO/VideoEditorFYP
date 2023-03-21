@@ -39,7 +39,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		public tracksService: TracksService,
 		private changeDetector: ChangeDetectorRef,
 		public cs: ClipService,
-		private pfService: ProjectFileService
+		public pfService: ProjectFileService
 	) {
 		this.listenForEvents();
 	}
@@ -271,7 +271,9 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		let draggedClip = this.cs.getDraggedClip();
 		let phantomClip = this.cs.getPhantomClip();
 
-		this.tracksService.filtersChangedSubject.next(!(draggedClip && phantomClip && draggedClip.startTime === phantomClip.startTime));
+		let updateProject = !!draggedClip && !!phantomClip && draggedClip?.startTime !== phantomClip?.startTime;
+
+		this.tracksService.filtersChangedSubject.next(updateProject);
 
 		if(!this.cs.getDraggedClip() && !this.cs.getClipBeingResized()) {
 			return;
@@ -365,7 +367,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			return;
 		}
 		let mousePositionSeconds = this.getMousePosition(event);
-		
+
 		//Sets the phantom clip to the current clip or the dragged clip
 		let clip = JSON.parse(JSON.stringify(this.cs.getCurrentClip())) || JSON.parse(JSON.stringify(this.cs.getDraggedClip()));
 		if(clip) {

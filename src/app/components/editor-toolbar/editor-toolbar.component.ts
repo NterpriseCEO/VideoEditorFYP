@@ -266,6 +266,7 @@ export class EditorToollbarComponent {
 
 	rewind() {
 		window.api.emit("rewind-to-start");
+		this.isPlaying = false;
 		this.tracksService.isPlayingSubject.next([false, true]);
 	}
 }

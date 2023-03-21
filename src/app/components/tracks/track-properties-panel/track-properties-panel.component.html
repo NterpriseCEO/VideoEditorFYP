@@ -2,6 +2,7 @@
 	<div>
 		<app-layer-filter
 			*ngIf = "selectedTrack"
+			[trackID] = "selectedTrack.id"
 			[(layerFilter)] = "selectedTrack.layerFilter"
 			(layerFilterChange) = "updateLayerFilter($event)"
 		></app-layer-filter>

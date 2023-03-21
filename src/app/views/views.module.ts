@@ -27,6 +27,8 @@ import { SettingsViewComponent } from "./settings-view/settings-view.component";
 import { ExportsViewComponent } from "./exports-view/exports-view.component";
 import { PipesModule } from "../utils/pipes.module";
 import { ViewsRoutingModule } from "./views.routing.module";
+import { ManualViewComponent } from "./manual-view/manual-view.component";
+import { ManualViewsModule } from "./manual-view/manual-views/manual-views.module";
 
 @NgModule({
 	declarations: [
@@ -36,12 +38,13 @@ import { ViewsRoutingModule } from "./views.routing.module";
 		InfoPanelComponent,
 		StartupViewComponent,
 		SettingsViewComponent,
-		ExportsViewComponent
+		ExportsViewComponent,
+		ManualViewComponent
 	],
 	imports: [
 		BrowserModule,
-		ViewsRoutingModule,
 		MenubarModule,
+		ManualViewsModule,
 		SplitterModule,
 		FiltersModule,
 		TracksModule,

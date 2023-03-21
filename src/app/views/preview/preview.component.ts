@@ -82,8 +82,10 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		videoBitsPerSecond: 500000
 	};
 
-	resizeObservable!: Observable<Event>
-	resizeSubscription!: Subscription
+	resizeObservable!: Observable<Event>;
+	resizeSubscription!: Subscription;
+
+	isMouseDown: boolean = false;
 
 	constructor(
 		private changeDetector: ChangeDetectorRef,
@@ -114,7 +116,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 	ngAfterViewInit() {
 		//Window resize event
-		this.resizeObservable = fromEvent(window, 'resize')
+		this.resizeObservable = fromEvent(window, "resize")
 		this.resizeSubscription = this.resizeObservable.subscribe( event => {
 			let track = this.tracks[this.selectedTrackIndex];
 			if(track) {
@@ -155,15 +157,21 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 					selectedClip.width = dimensions.width*canvasContainerToCanvasRatio;
 					selectedClip.height = this.scalerHeight*canvasContainerToCanvasRatio;
 				}catch(e) {
-					track.width = dimensions.width*canvasContainerToCanvasRatio;
-					track.height = this.scalerHeight*canvasContainerToCanvasRatio;
+					if(track) {
+						track.width = dimensions.width*canvasContainerToCanvasRatio;
+						track.height = this.scalerHeight*canvasContainerToCanvasRatio;
+					}
 				}
 				this.scaler.nativeElement.style.height = this.scalerHeight + "px";
 
-				this.updateHistoryTimeout = setTimeout(() => {
-					window.api.emit("update-track-in-history", track);
+				if(this.isMouseDown) {
+					this.updateHistoryTimeout = setTimeout(() => {
+						window.api.emit("update-track-in-history", track);
+						clearTimeout(this.updateHistoryTimeout);
+					}, 500);
+				}else {
 					clearTimeout(this.updateHistoryTimeout);
-				}, 1000);
+				}
 
 				this.changeDetector.detectChanges();
 			}
@@ -200,11 +208,9 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		try {
 			let selectedClip = track.clips![this.selectedClipIndex];
 			canvasContainerToCanvasRatio = 1920 / (selectedClip?.width ?? this.canvasElements[this.selectedTrackIndex].width);
-			console.log(canvasContainerToCanvasRatio);
 			
 		}catch(e) {
 			canvasContainerToCanvasRatio = 1920 / (track.width ?? this.canvasElements[this.selectedTrackIndex].width);
-			console.log(canvasContainerToCanvasRatio);
 		}
 
 		this.scalerWidth = this.canvasContainer.nativeElement.clientWidth/canvasContainerToCanvasRatio;
@@ -265,7 +271,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 		window.api.on("tracks", (_, tracks: Track[]) => this.ngZone.run(() => {
 			//Gets all the new tracks
-			this.tracks = [...tracks];
+			this.tracks = [...tracks.filter(track => track.isVisible)];
 			this.rewindToStart();
 			this.generateVideos();
 		}));
@@ -327,15 +333,15 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		//Resets the live stream array
 		this.lStream = [];
 
-		this.tracks.filter(track => track.isVisible).forEach((track, index) => {
+		this.tracks.forEach((track, index) => {
 			//create a video element for each track
 			let video = document.createElement("video");
 			video.id = "video" + index;
-			video.classList.add("video", "w-full", "flex-grow-1", "absolute", "h-full");
+			video.classList.add("video", "w-full", "flex-grow-1", "absolute", "h-full", "opacity-0");
 			//append the video element after #previewVideo
 			this.renderer.appendChild(this.previewContainer.nativeElement, video);
 			this.videos.push(video);
-			this.setSource(this.tracks[index], video, index+1);
+			this.setSource(track, video, index+1);
 		});
 
 		this.changeDetector.detectChanges();
@@ -384,7 +390,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 	}
 
 	calculateDuration() {
-		//find the duration from start to the end of the last clip
+		//Find the duration from start to the end of the last clip
 		this.tracks.forEach(track => {
 			//gets the duration of the last clip
 			if(!track.clips) {
@@ -503,9 +509,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		let elapsedTime = 0;
 
 		//Applies certain classes to the canvas
-		canvas.classList.add("absolute");
-		canvas.classList.add("opacity-0");
-		canvas.classList.add("non-final-canvas");
+		canvas.classList.add("absolute", "opacity-0", "non-final-canvas");
 
 		let step = async () => {
 			// console.time("draw");
@@ -630,15 +634,15 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 					clip = track?.clips![this.currentClip[index]];
 				}catch(e) {}
 
-				let width = (clip?.width ?? track.width) ?? canvas.width;
-				let height = (clip?.height ?? track.height) ?? canvas.height;
+				let width = (clip?.width ?? track?.width) ?? canvas.width;
+				let height = (clip?.height ?? track?.height) ?? canvas.height;
 
 				//Loops through all canvases and centers them on the final canvas
 				//position is center of largest canvas
 				let x = (finalCanvas.width / 2) - (width / 2);
 				let y = (finalCanvas.height / 2) - (height / 2);
 
-				let func = track.layerFilter?.function;
+				let func = track?.layerFilter?.function;
 				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 
 				this.ctx.drawImage(canvas, x, y, width, height);
@@ -691,10 +695,10 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 					//The video preview element src
 					this.previewStream = stream;
 					this.previewSrc = null;
-					this.changeDetector.markForCheck();
 					previewVideo.onloadedmetadata = () => {
 						previewVideo.play();
 					}
+					this.changeDetector.markForCheck();
 				});
 			}));
 		}else if(type === TrackType.VIDEO) {
@@ -713,6 +717,10 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 			window.cancelAnimationFrame(frame);
 		});
 
+		if(type !== TrackType.VIDEO) {
+			video.muted = true;
+		}
+
 		//Checks if the source is a video, webcam or desktop capture
 		if(type === TrackType.WEBCAM) {
 			//accesses the webcam
@@ -725,7 +733,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 				this.lStream.push(stream);
 
-				this.playPreview(video, track, index);
+				this.initPreview(video, track, index);
 			});
 		}else if (type === TrackType.SCREEN_CAPTURE) {
 			//Gets the list of desktop capture options
@@ -751,17 +759,17 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 					video.srcObject = stream;
 					this.lStream.push(stream);
 
-					this.playPreview(video, track, index);
+					this.initPreview(video, track, index);
 				});
 			}));
 		}else if(type === TrackType.VIDEO) {
 			this.changeDetector.markForCheck();
-			this.playPreview(video, track, index);
+			this.initPreview(video, track, index);
 		}
 	}
 
 	//This starts playing the preview so that the canvas can be drawn
-	playPreview(video: HTMLVideoElement, track: Track, index: number) {
+	initPreview(video: HTMLVideoElement, track: Track, index: number) {
 		this.changeDetector.detectChanges();
 
 		if(track.type !== TrackType.VIDEO) {

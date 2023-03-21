@@ -34,11 +34,10 @@ export class ImportsPanelComponent {
 			{label: "Z-A", value: "!name"}
         ];
 
-		this.listenForFileImports();
-		this.listenForClipLoading();
+		this.listenForEvents();
 	}
 
-	listenForFileImports() {
+	listenForEvents() {
 		window.api.on("imported-files", (_:any, files: any[]) => this.ngZone.run(() => {
 			//Checks if the clips array has any items matching the names
 			//of the files being imported
@@ -89,9 +88,7 @@ export class ImportsPanelComponent {
 			this.pfService.updateClips(this.clips);
 			this.changeDetector.detectChanges();
 		});
-	}
 
-	listenForClipLoading() {
 		this.pfService.loadClipsSubject.subscribe((clips: Clip[]) => {
 			this.clips = [...clips];
 			this.changeDetector.detectChanges();

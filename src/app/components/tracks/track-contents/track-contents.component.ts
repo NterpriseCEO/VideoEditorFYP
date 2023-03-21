@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges,OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges,OnInit, Output } from "@angular/core";
 import { ClipService } from "src/app/services/clip.service";
 import { KeyboardEventsService } from "src/app/services/keyboard-events.service";
 import { TracksService } from "src/app/services/tracks.service";
@@ -14,6 +14,8 @@ export class TrackContentsComponent implements OnChanges, OnInit {
 	@Input() clips!: ClipInstance[];
 	@Input() trackIndex!: number;
 	@Input() colour!: string;
+
+	@Output() clipDeleted = new EventEmitter<null>();
 
 	trackWidth: number = 0;
 
@@ -38,6 +40,8 @@ export class TrackContentsComponent implements OnChanges, OnInit {
 				this.clips.splice(this.clips.indexOf(this.selectedClip), 1);
 				this.selectedClip = null;
 				this.changeDetector.detectChanges();
+
+				this.clipDeleted.emit();
 			}
 		});
 
@@ -88,7 +92,7 @@ export class TrackContentsComponent implements OnChanges, OnInit {
 			}
 			
 			//Gets the distance between the mouse and the start of the clip
-			let x = event.clientX - parentNode.getBoundingClientRect().left;
+			let x = (event.clientX - parentNode.getBoundingClientRect().left) + parentNode.scrollLeft;
 			let clipStart = this.cs.getPhantomClip()!.startTime;
 			//Calculates the difference between the mouse and the start of the clip
 			//This ensures that the clip start is relative to its current position

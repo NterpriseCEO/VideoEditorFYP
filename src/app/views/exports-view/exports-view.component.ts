@@ -386,6 +386,8 @@ export class ExportsViewComponent implements AfterViewInit {
 
 			let videos = this.videos.toArray();
 
+			let tracks = this.tracks;
+
 			//Loops through all the canvas elements and draws them to the final canvas
 			//Filter out all canvases in which the corresponding video is paused
 			this.canvasElements.forEach((canvas: HTMLCanvasElement, index: number) => {
@@ -396,15 +398,25 @@ export class ExportsViewComponent implements AfterViewInit {
 				if(canvas.width === 0 || canvas.height === 0) {
 					return;
 				}
+
+				let track = tracks[index];
+				let clip;
+				try {
+					clip = track?.clips![this.currentClip[index]];
+				}catch(e) {}
+
+				let width = (clip?.width ?? track?.width) ?? canvas.width;
+				let height = (clip?.height ?? track?.height) ?? canvas.height;
+
 				//Loops through all canvases and centers them on the final canvas
 				//position is center of largest canvas
-				let x = (finalCanvas.width / 2) - (canvas.width / 2);
-				let y = (finalCanvas.height / 2) - (canvas.height / 2);
+				let x = (finalCanvas.width / 2) - (width / 2);
+				let y = (finalCanvas.height / 2) - (height / 2);
 
-				let func = this.tracks[index].layerFilter?.function;
+				let func = this.tracks[index]?.layerFilter?.function;
 				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 
-				this.ctx.drawImage(canvas, x, y, canvas.width, canvas.height);
+				this.ctx.drawImage(canvas, x, y, width, height);
 			});
 			window.requestAnimationFrame(step);
 		}

@@ -7,6 +7,8 @@ import { PreviewComponent } from "./views/preview/preview.component";
 import { SettingsViewComponent } from "./views/settings-view/settings-view.component";
 import { StartupViewComponent } from "./views/startup-view/startup-view.component";
 import { ManualViewComponent } from "./views/manual-view/manual-view.component";
+import { CreatingFilesManualComponent } from "./views/manual-view/manual-views/creating-files-manual/creating-files-manual.component";
+import { AddingTracksManualComponent } from "./views/manual-view/manual-views/adding-tracks-manual/adding-tracks-manual.component";
 
 const routes: Routes = [
 	{ path: "startup", component: StartupViewComponent},
@@ -15,11 +17,13 @@ const routes: Routes = [
 	{ path: "preview", component: PreviewComponent },
 	{ path: "settings", component: SettingsViewComponent, outlet: "panelOutlet" },
 	{ path: "exports", component: ExportsViewComponent, outlet: "panelOutlet" },
-	{ path: "manual", component: ManualViewComponent}
+	{ path: "manual", component: ManualViewComponent},
+	{ path: "creating-files", component: CreatingFilesManualComponent, outlet: "manualOutlet" },
+	{ path: "adding-tracks", component: AddingTracksManualComponent, outlet: "manualOutlet" }
 ];
 
 @NgModule({
-	imports: [RouterModule.forRoot(routes, { useHash: true })],
+	imports: [RouterModule.forRoot(routes, { useHash: false })],
 	exports: [RouterModule]
 })
 export class AppRoutingModule { }

@@ -10,14 +10,6 @@ let currentFrame = null,
 	outputNumber = 0,
 	isRecording = false;
 
-let ffbinaries = require("ffbinaries");
-
-//Downloads ffmpeg and ffprobe binaries for the current platform
-// if they are not already downloaded
-ffbinaries.downloadBinaries(() => {
-	console.log("Downloaded all binaries for current platform.");
-});
-
 //Deletes outputX.mp4 if it exists
 if(fs.existsSync(`./output${outputNumber}.mp4`)) {
 	fs.unlinkSync(`./output${outputNumber}.mp4`);

@@ -64,19 +64,6 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 
 			//Loops through the tracks and filters and
 			//reduces the filter properties to just their values
-			if(project.tracks) {
-				project.tracks.forEach((track) => {
-					if(!track.filters) {
-						return;
-					}
-					track.filters.map((filter) => {
-						filter.properties = filter.properties.map((property) => {
-							return property.value;
-						});
-						return filter;
-					});
-				});
-			}
 
 			//Saves the project to a file
 			fs.writeFile(project.location, JSON.stringify(project), (err) => {

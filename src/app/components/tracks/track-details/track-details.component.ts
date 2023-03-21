@@ -47,6 +47,10 @@ export class TrackDetailsComponent implements OnChanges {
 		this.sourceSelector.showDialog();
 	}
 
+	updateSource(event: Event) {
+		this.tracksService.setTrackSource(this.track.id, event);
+	}
+
 	toggleVisibility() {
 		this.tracksService.toggleTrackVisibility(this.track);
 

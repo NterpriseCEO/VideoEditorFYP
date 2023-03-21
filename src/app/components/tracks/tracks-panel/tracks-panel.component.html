@@ -60,6 +60,7 @@
 					>
 						<app-track-contents
 							[clips] = "track.clips ?? []"
+							(clipDeleted) = "pfService.updateTracks(tracks)"
 							[trackIndex] = "i"
 							[colour] = "track.colour"
 							class = "track-contents flex-grow-0 flex-shrink-0"

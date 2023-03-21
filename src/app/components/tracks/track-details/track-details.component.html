@@ -1,4 +1,4 @@
-<app-source-selector #sourceSelector></app-source-selector>
+<app-source-selector #sourceSelector (sourceSelected) = "updateSource($event)"></app-source-selector>
 <div class = "flex track-controls">
 	<div class = "flex-shrink-0 w-6" [ngStyle] = "{backgroundColor: track.colour, color: titleColour }">
 		<div class = "h-full flex flex-column flex-grow-1 flex flex-column justify-content-center align-items-center">

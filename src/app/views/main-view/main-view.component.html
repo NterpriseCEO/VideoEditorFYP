@@ -1,4 +1,19 @@
-<div class = "flex flex-column w-full h-full overflow-hidden">
+<div
+	class = "flex flex-column w-full h-full overflow-hidden"
+	(mousedown) = "startAdd()"
+	(mousemove) = "moveFileRepresentation($event)"
+	(mouseup) = "cancelAdd()"
+>
+	<div
+		*ngIf = "showFileRepresentation"
+		class = "absolute w-7rem h-6rem p-1 surface-ground shadow-4 z-5 pointer-events-none"
+		[style.top.px] = "fileY"
+		[style.left.px] = "fileX"
+	>
+		<div class = "reel-edge w-full"></div>
+		<div class = "reel-middle w-full my-1"></div>
+		<div class = "reel-edge w-full"></div>
+	</div>
 	<div class = "flex-grow-0">
 		<app-editor-toolbar></app-editor-toolbar>
 	</div>

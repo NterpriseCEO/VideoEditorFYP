@@ -24,12 +24,7 @@ export class AppComponent {
 
 	title = "VideoEditor";
 
-	fileX: number = 0;
-	fileY: number = 0;
-	showFileRepresentation: boolean = false;
-
 	constructor(
-		private cs: ClipService,
 		public router: Router,
 		private pfService: ProjectFileService,
 		private confirmationService: ConfirmationService,
@@ -67,26 +62,10 @@ export class AppComponent {
 		}));
 	}
 
-	moveFileRepresentation(event: any) {
-		this.fileX = event.x;
-		this.fileY = event.y;
-	}
-
-	startAdd() {
-		this.showFileRepresentation = this.cs.getIsAddingClip();
-	}
-
 	isNotPopup() {
 		return this.router.url !== "/mainview" &&
 			this.router.url !== "/startup" &&
 			this.router.url !== "/preview" &&
-			this.router.url !== "/manual";
-	}
-
-	cancelAdd() {
-		//Sets the current clip to null
-		//This will stop the clip from being addable to the timeline
-		this.cs.setCurrentClip(null);
-		this.showFileRepresentation = false;
+			!this.router.url.startsWith("/manual");
 	}
 }
