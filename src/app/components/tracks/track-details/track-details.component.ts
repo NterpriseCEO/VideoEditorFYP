@@ -39,7 +39,7 @@ export class TrackDetailsComponent implements OnChanges {
 
 	ngOnChanges(changes: SimpleChanges) {
 		if(changes["track"]) {
-			this.titleColour = getHexBrightness(changes["track"].currentValue.colour) > 100 ? "black" : "white";
+			this.titleColour = getHexBrightness(changes["track"].currentValue?.colour) > 100 ? "black" : "white";
 		}
 	}
 

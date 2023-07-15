@@ -239,7 +239,12 @@ export class EditorToollbarComponent {
 
 		window.api.on("update-play-video-button", (_:any, data: any) => this.ngZone.run(() => {
 			this.isPlaying = data.isPlaying;
-			this.tracksService.isPlayingSubject.next([data.isPlaying, data.isFinishedPlaying]);
+			this.tracksService.previewStateSubject.next({
+				isPlaying: data.isPlaying,
+				isFinishedPlaying: data.isFinishedPlaying,
+				currentTime: data?.currentTime
+			});
+			console.log("update-play-video-button", data);
 			this.changeDetector.detectChanges();
 		}));
 	}
@@ -260,13 +265,19 @@ export class EditorToollbarComponent {
 
 	togglePlaying() {
 		this.isPlaying = !this.isPlaying;
-		this.tracksService.isPlayingSubject.next([this.isPlaying, false]);
+		this.tracksService.previewStateSubject.next({
+			isPlaying: this.isPlaying,
+			isFinishedPlaying: false
+		});
 		window.api.emit("toggle-playing", this.isPlaying);
 	}
 
 	rewind() {
 		window.api.emit("rewind-to-start");
 		this.isPlaying = false;
-		this.tracksService.isPlayingSubject.next([false, true]);
+		this.tracksService.previewStateSubject.next({
+			isPlaying: false,
+			isFinishedPlaying: true
+		});
 	}
 }

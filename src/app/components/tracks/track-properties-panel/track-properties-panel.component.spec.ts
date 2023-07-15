@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule } from "@angular/forms";
+import { MessageService } from "primeng/api";
 
 import { TrackPropertiesPanelComponent } from "./track-properties-panel.component";
 
@@ -14,6 +15,9 @@ describe("TrackPropertiesPanelComponent", () => {
 			],
 			imports: [
 				FormsModule
+			],
+			providers: [
+				MessageService
 			]
 		})
 			.compileComponents();

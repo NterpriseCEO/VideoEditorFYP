@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { VideoPreviewComponent } from "src/app/components/video-preview/video-preview.component";
+import { SanitiseUrlPipe } from "src/app/utils/sanitise-url";
 
 import { PreviewComponent } from "./preview.component";
 
@@ -11,7 +11,7 @@ describe("PreviewComponent", () => {
 		await TestBed.configureTestingModule({
 			declarations: [
 				PreviewComponent,
-				VideoPreviewComponent
+				SanitiseUrlPipe
 			]
 		})
 			.compileComponents();

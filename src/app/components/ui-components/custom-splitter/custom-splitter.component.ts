@@ -22,6 +22,7 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 
 	@Input() stateKey: string = "";
 	@Input() horizontal: boolean = false;
+	@Input() disabled: boolean = false;
 
 	constructor() { }
 
@@ -48,7 +49,7 @@ export class CustomSplitterComponent implements AfterViewInit, OnChanges {
 		//Prevents the gutter from being dragged when
 		//the mouse click started outside the gutter
 		//but the mouse then later hovers over the gutter
-		if(!this.isDraggingGutter(event)) {
+		if(!this.isDraggingGutter(event) || this.disabled) {
 			return;
 		}
 		this.isDragging = true;

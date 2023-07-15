@@ -25,7 +25,7 @@ function MainWindow() {
 
 	this.canExit = false;
 
-	this.image = "/icons/icons/icon.ico";
+	this.image = path.join(__dirname, "/icons/icon.ico");
 	// this.image.setTemplateImage(true);
 }
 
@@ -49,13 +49,17 @@ MainWindow.prototype.listenForEvents = function() {
 	});*/
 
 	ipcMain.on("toggle-recording", (_, data) => {
-		// worker.postMessage({type: "toggle-recording", contents: isRecording});
-		this.previewWindow.webContents.send("toggle-recording", data);
+		if(this.previewWindow) {
+			// worker.postMessage({type: "toggle-recording", contents: isRecording});
+			this.previewWindow.webContents.send("toggle-recording", data);
+		}
 	});
 
 	ipcMain.on("toggle-recording-all", () => {
-		//Toggles the recording of all tracks
-		this.previewWindow.webContents.send("toggle-recording-all");
+		if(this.previewWindow) {
+			//Toggles the recording of all tracks
+			this.previewWindow.webContents.send("toggle-recording-all");
+		}
 	});
 
 	app.on("window-all-closed", () => {
@@ -233,6 +237,7 @@ MainWindow.prototype.createPreviewWindow = function() {
 		this.previewWindow = null;
 		this.streamingAndFilters.setWindows(this.window, this.previewWindow);
 		this.window.webContents.send("preview-exited");
+		this.window.webContents.send("update-play-video-button", {isPlaying: false, isFinishedPlaying: true});
 	});
 	
 	//Tells the main window that the preview window has loaded

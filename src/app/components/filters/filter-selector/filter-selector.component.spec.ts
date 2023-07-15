@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { MessageService } from "primeng/api";
 
 import { FilterSelectorComponent } from "./filter-selector.component";
 
@@ -8,7 +9,10 @@ describe("FilterSelectorComponent", () => {
 
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
-			declarations: [FilterSelectorComponent]
+			declarations: [FilterSelectorComponent],
+			providers: [
+				MessageService
+			]
 		})
 			.compileComponents();
 

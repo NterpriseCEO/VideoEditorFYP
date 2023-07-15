@@ -36,7 +36,13 @@
 				</h1>
 			</div>
 			<div class = "w-full">
-				<div style = "height: 0.286rem;"></div>
+				<div>
+					<p-slider
+						[(ngModel)] = "previewVideo.currentTime"
+						[max] = "duration"
+						[step] = "0.01"
+					></p-slider>
+				</div>
 				<div class = "w-full surface-50">
 					<button
 						pButton
@@ -80,7 +86,7 @@
 					[(ngModel)] = "masterTime"
 					[max] = "duration"
 					[step] = "0.01"
-					(onChange) = "seekVideo($event)"
+					(ngModelChange) = "seekVideo($event)"
 				></p-slider>
 			</div>
 			<div class = "w-full surface-50 flex flex-row justify-content-between">

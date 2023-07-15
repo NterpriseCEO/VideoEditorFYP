@@ -18,7 +18,7 @@ exports.listenForVideoData = function(client) {
 		//Delete webm if it exists before opening a new stream
 		addToTrack = options?.addToTrack ?? false;
 
-		exportPath = (options?.recordToProjectFolder ?? false) ? `${getProjectPath()}\\${date}.webm` : getExportPath();
+		exportPath = (options?.recordToProjectFolder ?? false) ? `${getProjectPath()}\\${date}_n.webm` : getExportPath();
 
 		if (fs.existsSync(exportPath)) {
 			fs.unlinkSync(exportPath);
@@ -38,9 +38,15 @@ exports.listenForVideoData = function(client) {
 		fileStream = null;
 		couldOpenStream = false;
 
-		let newFile = exportPath.substring(0, exportPath.lastIndexOf(".")) + "_n.webm";
+		let newFile = exportPath.substring(0, exportPath.lastIndexOf("_n")) + ".webm";
 		//Creates a copy of the file. This adds the correct metadata to the file
 		exec(`ffmpeg -i ${exportPath} -vcodec copy -acodec copy ${newFile}`, (error, stdout, stderr) => {
+			if (error) {
+				console.log(error);
+			}
+			if (stderr) {
+				console.log(stderr);
+			}
 			//Delete the origin file
 			fs.unlink(exportPath, (error) => {
 				if (error) {

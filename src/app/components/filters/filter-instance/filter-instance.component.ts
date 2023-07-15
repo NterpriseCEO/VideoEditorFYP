@@ -29,7 +29,7 @@ export class FilterInstanceComponent implements OnInit {
 			{
 				label: "Reset",
 				icon: "pi pi-refresh",
-				disabled: !this.filter.properties,
+				disabled: !this.filter?.properties,
 				command: () => {
 					//Sets the value of the filter properties to their default values
 					//This is done to reset the filter

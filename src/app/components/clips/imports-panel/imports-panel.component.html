@@ -1,4 +1,4 @@
-<div class = "p-2">
+<div class = "p-2 h-full">
 	<p-dataView
 		#dv
 		[value] = "clips"
@@ -38,7 +38,12 @@
 					(mousedown) = "cs.setCurrentClip(clip)"
 				>
 					<div class = "flex flex-column align-items-center">
-						<img [src] = "clip.thumbnail | sanitiseUrl" class = "w-full" ondragstart = "return false">
+						<img
+							[src] = "clip.thumbnail | sanitiseUrl"
+							(error)="clip.thumbnail = brokenImage"
+							class = "w-full h-4rem"
+							ondragstart = "return false"
+						>
 						<span class = "w-full">{{clip.name}}</span>
 					</div>
 				</div>

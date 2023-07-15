@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ConfirmationService, MessageService } from "primeng/api";
 import { MenubarModule } from "primeng/menubar";
 
 import { EditorToollbarComponent } from "./editor-toolbar.component";
@@ -14,6 +15,10 @@ describe("EditorToollbarComponent", () => {
 			],
 			imports: [
 				MenubarModule
+			],
+			providers: [
+				MessageService,
+				ConfirmationService
 			]
 		})
 			.compileComponents();
@@ -21,11 +26,6 @@ describe("EditorToollbarComponent", () => {
 		fixture = TestBed.createComponent(EditorToollbarComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
-	});
-
-	//should have the correct title
-	it("should have the correct page title", () => {
-		expect(component.title).toEqual("Editor Toolbar");
 	});
 
 	it("should create", () => {

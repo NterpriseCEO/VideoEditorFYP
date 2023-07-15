@@ -20,4 +20,9 @@ describe('StartupViewComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+  // it("should show message when table is empty", () => {
+  //   const app = fixture.debugElement.componentInstance;
+  //   const h2 = fixture.debugElement.nativeElement.querySelector('h2');
+  //   expect(h2.textContent).toContain("No recently opened projects.");
+  // });
 });

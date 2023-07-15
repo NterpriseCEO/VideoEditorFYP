@@ -6,6 +6,7 @@ import { TracksPanelComponent } from "./tracks-panel.component";
 import { MockBuilder, MockRender, ngMocks } from "ng-mocks";
 import { AppModule } from "src/app/app.module";
 import { Menubar } from "primeng/menubar";
+import { MessageService } from "primeng/api";
 
 describe("TracksPanelComponent", () => {
 	let component: TracksPanelComponent;
@@ -15,6 +16,9 @@ describe("TracksPanelComponent", () => {
 		await TestBed.configureTestingModule({
 			declarations: [
 				TracksPanelComponent
+			],
+			providers: [
+				MessageService
 			]
 		})
 			.compileComponents();

@@ -23,6 +23,8 @@ export class ImportsPanelComponent {
 
 	clips: Clip[] = []
 
+	brokenImage: string = "assets/clip-icon.png";
+
 	constructor(
 		public cs: ClipService,
 		private ngZone: NgZone,
@@ -49,7 +51,8 @@ export class ImportsPanelComponent {
 				if (!this.clips.find(({name}) => name === n)) {
 					this.clips.push({
 						name: n,
-						location: file.name,
+						location: file.location,
+						thumbnail: "local-resource://getMediaFile/" + file.thumbnail,
 						duration: file.duration,
 						totalDuration: file.duration,
 						type: TrackType.VIDEO
@@ -64,30 +67,6 @@ export class ImportsPanelComponent {
 
 			this.changeDetector.detectChanges();
 		}));
-
-		window.api.on("thumbnails", (_:any, thumbnails: any[]) => {
-			//Adds the thumbnail data to the clips array
-			thumbnails.forEach((thumbnail: any, index: number) => {
-				//find the clip matching thumbnail.associatedFile
-				//and set the thumbnail property to the thumbnail data
-
-				thumbnail.associatedFile = thumbnail.associatedFile.replace(/\\/g, "/");
-
-				//Reformat the the clip name to convert backslashes to forward slashes
-				this.clips = this.clips.map((clip: Clip) => {
-					clip.location = clip.location.replace(/\\/g, "/");
-					return clip;
-				});
-
-				//Finds the clip matching the thumbnail.associatedFile and sets the thumbnail
-				this.clips.find(({location}) => location == thumbnail.associatedFile)!
-					.thumbnail = "local-resource://getMediaFile/" + thumbnail.thumbnail;
-			});
-			this.clips = [...this.clips];
-
-			this.pfService.updateClips(this.clips);
-			this.changeDetector.detectChanges();
-		});
 
 		this.pfService.loadClipsSubject.subscribe((clips: Clip[]) => {
 			this.clips = [...clips];

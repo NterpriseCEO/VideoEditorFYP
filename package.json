@@ -8,6 +8,7 @@
     "build": "ng build --base-href ./",
     "build-start": "ng build --base-href ./ && electron .",
     "start-dev": "ng build --base-href ./ && electron . --localhost",
+    "start-dev-no-build": "electron . --localhost",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "package": "electron-forge package",
@@ -16,7 +17,7 @@
   "description": "Video Editor",
   "author": {
     "name": "Alex",
-    "email": ""
+    "email": "mail@mail.com"
   },
   "private": true,
   "dependencies": {

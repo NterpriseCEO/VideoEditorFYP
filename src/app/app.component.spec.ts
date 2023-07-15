@@ -2,11 +2,13 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { BrowserAnimationsModule, NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
+import { ConfirmationService, MessageService } from "primeng/api";
 import { AppComponent } from "./app.component";
 
 window.api = {
   emit: () => {},
   on: () => {},
+  once: () => {},
 }
 
 describe("AppComponent", () => {
@@ -19,6 +21,10 @@ describe("AppComponent", () => {
       declarations: [
         AppComponent
       ],
+      providers: [
+        MessageService,
+        ConfirmationService
+      ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
   });
@@ -29,11 +35,12 @@ describe("AppComponent", () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title "VideoEditor"`, () => {
+  //Unit test for title
+  it("should have as title 'GraphX", () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual("VideoEditor");
-  });
+    const app = fixture.debugElement.componentInstance;
+    expect(app.title).toEqual('GraphX');
+	});
 
   // it("should render title", () => {
   //   const fixture = TestBed.createComponent(AppComponent);

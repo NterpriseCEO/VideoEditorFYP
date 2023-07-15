@@ -4,7 +4,7 @@ const path = require("path");
 const sharp = require("sharp");
 const { exec } = require("child_process");
 const { getVideoDurationInSeconds } = require("get-video-duration");
-const { getMainWindow } = require("../globals/Globals");
+const { getMainWindow, getProjectPath } = require("../globals/Globals");
 
 function ImportFiles(window) {
 	this.mainWindow = window;
@@ -48,21 +48,30 @@ ImportFiles.prototype.extractMetadata = function(counter, files) {
 		let file = this.files[counter];
 		//Gets the duration of the video file and continues to the next file
 		getVideoDurationInSeconds(file).then((duration) => {
-			files[counter] = {name: file, duration: duration};
+			files[counter] = {name: file, duration: duration, location: this.files[counter]};
+			this.extractMetadata(++counter, files);
+		}).catch((err) => {
+			//Need to figure out how to handle files that don't have duration
+			console.log(err);
+			files[counter] = {name: file, duration: 0};
 			this.extractMetadata(++counter, files);
 		});
 	}else {
 		//Sends the files to the renderer process
-		this.mainWindow.webContents.send("imported-files", files);
-		this.extractThumbnails(0);
+		this.extractThumbnails(0, [], files);
 	}
 }
 
-ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
+ImportFiles.prototype.extractThumbnails = function(counter, thumbnails, files) {
 	if(this.files[counter]) {
 		let file = this.files[counter];
+		let png = `${path.basename(this.files[counter], ".mp4")}.png`;
+		//Remove the dash from the beginning of the file name if it exists
+		if(png.charAt(0) === "-") {
+			png = png.substring(1);
+		}
 		//Extracts the first frame of the video file and converts it to a a png
-		exec(`ffmpeg -i "${file}" -vf "scale=iw*sar:ih,setsar=1" -vframes 1 "${path.basename(file, ".mp4")}.png"`, (error, stdout, stderr) => {
+		exec(`ffmpeg -i "${file}" -vf "scale=iw*sar:ih,setsar=1" -vframes 1 "${png}"`, (error, stdout, stderr) => {
 			if (error) {
 				console.log(`error: ${error.message}`);
 				return;
@@ -70,25 +79,33 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails = []) {
 			if (stderr) {
 				console.log(`error?: ${stderr}`);
 			}
-			let dirname = __dirname.substring(0, __dirname.length-24);
-			let thumbnail = `${dirname}/${path.basename(file, ".mp4")}.png`;
-			thumbnails.push({
-				thumbnail: thumbnail,
-				associatedFile: file,
-			});
+			const dirname = __dirname.substring(0, __dirname.length-24);
+			const thumbnail = `${dirname}\\${png}`;
+			const path = `${getProjectPath()}\\project-data\\thumbnails\\`;
+
+			if(!fs.existsSync(path)) {
+				fs.mkdirSync(path, { recursive: true });
+			}
+
+			//Moves the thumbnail to project_path/project-data/thumbnails
+			const newPath = path + png;
+			fs.renameSync(thumbnail, newPath);
+
+			files[counter].thumbnail = newPath;
+
 			//Moves to the next thumnail file
-			this.extractThumbnails(++counter, thumbnails);
+			this.extractThumbnails(++counter, thumbnails, files);
 		});
 	}else {
-		//Sends the thumbnails to the renderer process once all the thumbnails
+		//Sends the files to the renderer process once all the thumbnails
 		//have been extracted
-		this.mainWindow.webContents.send("thumbnails", thumbnails);
+		this.mainWindow.webContents.send("imported-files", files);
 	}
 }
 
 exports.extractMetadataAndImportFile = function(file) {
 	getVideoDurationInSeconds(file).then((duration) => {
-		//get file name
+		//The file name
 		let name = path.basename(file);
 		let _file = {name: name, location: file, duration: duration, totalDuration: duration};
 		getMainWindow().webContents.send("imported-files", [_file]);

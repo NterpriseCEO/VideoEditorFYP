@@ -51,7 +51,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		});
 
 		this.trackService.selectedTrackChangedSubject.subscribe(track => {
-			this.selectedTrack = JSON.parse(JSON.stringify(track));
+			this.selectedTrack = track;
 			this.changeDetector.detectChanges();
 		});
 	}

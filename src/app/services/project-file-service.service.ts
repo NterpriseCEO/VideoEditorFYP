@@ -71,6 +71,8 @@ export class ProjectFileService {
 
 			this.titleService.setTitle(`GraphX - ${this.location}`);
 
+			//check if the clips need to be relinked
+
 			//Loops through the tracks and filters merges the filter properties
 			//from the project with the filter properties from the list of all filters
 			//This is necessary because the project file only stores filter property values
@@ -99,8 +101,8 @@ export class ProjectFileService {
 
 			//Tells other components that the project has been loaded
 			//and that they should load these clips and tracks
-			this.loadClipsSubject.next(JSON.parse(JSON.stringify(project.clips)));
-			this.loadTracksSubject.next(JSON.parse(JSON.stringify(project.tracks)));
+			this.loadClipsSubject.next(project.clips);
+			this.loadTracksSubject.next(project.tracks);
 			this.loadProjectNameSubject.next(project.name);
 
 			this.projectHistory = [];
@@ -141,7 +143,7 @@ export class ProjectFileService {
 				return t;
 			});
 			this.tracks = this.project.tracks;
-			this.loadTracksSubject.next(JSON.parse(JSON.stringify(this.tracks)));
+			this.loadTracksSubject.next(this.tracks);
 			this.isDirty = true;
 		});
 	}
@@ -152,7 +154,7 @@ export class ProjectFileService {
 			let recentProjectsArray = JSON.parse(recentProjects);
 			//Checks if the project is already in the list
 			let projectExists = recentProjectsArray.find((project: any) => 
-				project.location === this.location && project.name === this.name
+				project.location === this.location
 			);
 
 			if(!projectExists) {
@@ -162,6 +164,15 @@ export class ProjectFileService {
 					recentProjectsArray.shift();
 				}
 				recentProjectsArray.push({name: this.name, location: this.location});
+				localStorage.setItem("recentProjects", JSON.stringify(recentProjectsArray));
+			}else {
+				//Changes the name of the project in the list
+				recentProjectsArray = recentProjectsArray.map((project: any) => {
+					if(project.location === this.location) {
+						project.name = this.name;
+					}
+					return project;
+				});
 				localStorage.setItem("recentProjects", JSON.stringify(recentProjectsArray));
 			}
 		}else {

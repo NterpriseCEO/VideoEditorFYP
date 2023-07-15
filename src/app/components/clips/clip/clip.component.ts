@@ -14,6 +14,8 @@ export class ClipComponent implements OnChanges {
 
 	titleColour: string = "white";
 
+	brokenImage: string = "assets/clip-icon.png";
+
 	constructor() { }
 
 	ngOnChanges(changes: SimpleChanges): void {

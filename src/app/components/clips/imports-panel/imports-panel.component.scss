@@ -18,3 +18,7 @@
 .file:hover {
 	background-color: var(--surface-d);
 }
+
+img {
+	object-fit: cover;
+}

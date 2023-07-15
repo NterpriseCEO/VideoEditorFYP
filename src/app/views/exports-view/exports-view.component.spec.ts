@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MessageService } from 'primeng/api';
 
 import { ExportsViewComponent } from './exports-view.component';
 
@@ -8,7 +9,10 @@ describe('ExportsViewComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ExportsViewComponent ]
+      declarations: [ ExportsViewComponent ],
+      providers: [
+        MessageService
+      ]
     })
     .compileComponents();
 

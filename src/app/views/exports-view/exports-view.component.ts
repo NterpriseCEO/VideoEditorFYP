@@ -1,4 +1,4 @@
-import { Component, ElementRef, QueryList, ViewChild, ViewChildren, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, NgZone } from "@angular/core";
+import { Component, ElementRef, QueryList, ViewChild, ViewChildren, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, NgZone, Renderer2 } from "@angular/core";
 import { io } from "socket.io-client";
 
 const fx = require("glfx-es6");
@@ -19,6 +19,7 @@ export class ExportsViewComponent implements AfterViewInit {
 
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
+	@ViewChild("canvasContainer") canvasContainer!: ElementRef;
 	@ViewChildren("videos") videos!: QueryList<ElementRef>;
 
 	recentExports: any[] = [];
@@ -66,6 +67,7 @@ export class ExportsViewComponent implements AfterViewInit {
 	constructor(
 		private tracksService: TracksService,
 		private changeDetector: ChangeDetectorRef,
+		private renderer: Renderer2,
 		private zone: NgZone
 	) {
 		let recents = localStorage.getItem("recentExports");
@@ -88,7 +90,7 @@ export class ExportsViewComponent implements AfterViewInit {
 			this.recordAndSendData();
 
 			changes.forEach((video: ElementRef, index: number) => {
-				this.drawCanvas(video.nativeElement, this.tracks[index], index+1);
+				this.drawCanvas(video.nativeElement, this.tracks[index], index);
 			});
 		});
 	}
@@ -197,7 +199,7 @@ export class ExportsViewComponent implements AfterViewInit {
 				this.socket.emit("recording-data", event.data);
 			}
 		};
-		
+
 		this.mediaRecorder.start(100); // 1000 - the number of milliseconds to record into each Blob
 	}
 
@@ -216,7 +218,7 @@ export class ExportsViewComponent implements AfterViewInit {
 		}
 
 		//Checks if the master time is within the clip's start and end time
-		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
+		if(this.masterTime >= clip.startTime && this.masterTime <= clip.startTime + clip.duration) {
 			if(video.src != "local-resource://getMediaFile/"+clip.location) {
 				video.src = "local-resource://getMediaFile/"+clip.location;
 				this.changeDetector.detectChanges();
@@ -252,7 +254,10 @@ export class ExportsViewComponent implements AfterViewInit {
 		//Checks if the canvas has already been created
 		try {
 			canvas = fx.canvas();
-			this.canvasElements.push(canvas);
+			if(this.canvasElements[index]) {
+				this.renderer.removeChild(this.canvasContainer, this.canvasElements[index]);
+			}
+			this.canvasElements[index] = canvas;
 		} catch (e) {
 			console.log(e);
 			return;
@@ -276,11 +281,7 @@ export class ExportsViewComponent implements AfterViewInit {
 		let elapsedTime = 0;
 
 		//Applies certain classes to the canvas
-		canvas.classList.add("w-full");
-		canvas.classList.add("h-full");
-		canvas.classList.add("absolute");
-		canvas.classList.add("opacity-0");
-		canvas.classList.add("non-final-canvas");
+		canvas.classList.add("w-full", "h-full", "absolute", "opacity-0", "non-final-canvas");
 
 		let step = async () => {
 			// console.time("draw");
@@ -327,7 +328,7 @@ export class ExportsViewComponent implements AfterViewInit {
 				let length = 0;
 
 				if(track.filters) {
-					track.filters!.length - 1
+					length = track.filters!.length - 1
 				}
 
 				//Applies the filters to the canvas

@@ -14,6 +14,15 @@ describe("FilterComponent", () => {
 
     fixture = TestBed.createComponent(FilterInstanceComponent);
     component = fixture.componentInstance;
+    component.filter = {
+      function: "test",
+      category: "Test category",
+      displayName: "Test filter",
+      properties: [],
+      type: 0,
+      enabled: true,
+      index: 0
+    };
     fixture.detectChanges();
   });
 

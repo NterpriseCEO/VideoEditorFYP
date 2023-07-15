@@ -85,10 +85,13 @@
 						[horizontal] = "true"
 						[panelSizes] = "insertPanelVisible ? [20, 80] : [0, 100]"
 						stateKey = "verticalSplitter"
-						*ngIf = "insertPanelVisible || tracksPanelIsVisible"
+						[disabled] = "!(insertPanelVisible && tracksPanelIsVisible)"
 					>
 						<div class = "h-full" panel1>
-							<p-tabView class = "w-full h-full" styleClass = "h-full flex flex-column overflow-hidden" *ngIf = "insertPanelVisible">
+							<p-tabView
+								class = "w-full h-full"
+								styleClass = "h-full flex flex-column overflow-hidden"
+							>
 								<p-tabPanel header = "Imports" class = "h-full">
 									<app-imports-panel class = "w-full"></app-imports-panel>
 								</p-tabPanel>

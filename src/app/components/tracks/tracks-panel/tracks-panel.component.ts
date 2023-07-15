@@ -32,6 +32,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 	draggingTimeout: any = null;
 
 	timelineIndicatorPosition: number = 0;
+	playStartTime: number = 0;
+	isPlaying: boolean = false;
 
 	timelineInterval: any = null;
 
@@ -64,30 +66,58 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 			this.changeDetector.detectChanges();
 		});
 
-		this.tracksService.isPlayingSubject.subscribe(state => {
-			//isPlaying or not
-			if(state[0]) {
-				this.timelineInterval = setInterval(() => {
-					this.timelineIndicatorPosition+=2;
-					this.changeDetector.detectChanges();
-				}, 200);
+		this.tracksService.previewStateSubject.subscribe(state => {
+			if(state?.isPlaying) {
+				this.playStartTime = Date.now();
+				this.moveTimeLineIndicator();
+				this.isPlaying = true;
 			}else {
 				clearInterval(this.timelineInterval);
+				this.isPlaying = false;
 			}
 
 			//isFInishedPLaying or not
-			if(state[1]) {
+			if(state?.isFinishedPlaying) {
 				this.timelineIndicatorPosition = 0;
+				this.changeDetector.detectChanges();
+				this.isPlaying = false;
+			}
+
+			if(state?.currentTime) {
+				this.timelineIndicatorPosition = state.currentTime*10;
 				this.changeDetector.detectChanges();
 			}
 		});
+		//Listens for the window visibility change event
+		//so that it's position can be updated when the window is visible
+		document.addEventListener("visibilitychange", () => {
+			clearInterval(this.timelineInterval);
+			if(!document.hidden && this.isPlaying) {
+				this.setTimlineIndicatorPosition();
+				this.moveTimeLineIndicator();
+			}
+		}, false);
 	}
 
+	setTimlineIndicatorPosition() {
+		let currentTime = Date.now()-this.playStartTime;
+		//Rounds to the nearest 200ms
+		this.timelineIndicatorPosition = Math.floor(currentTime / 100);
+
+		this.changeDetector.detectChanges();
+	}
+
+	moveTimeLineIndicator() {
+		this.timelineInterval = setInterval(() => {
+			this.timelineIndicatorPosition+=2;
+			this.changeDetector.detectChanges();
+		}, 200);
+	}
 
 	ngAfterViewInit() {
 		//Scrolls the tracks details to the same position as the tracks list
 		setTimeout(() => {
-			this.resizeTImeLines();
+			this.resizeTimeLines();
 		}, 0);
 		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
 			this.tracksDetails.nativeElement.scrollTop = event.target.scrollTop;
@@ -122,7 +152,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		}
 	}
 
-	resizeTImeLines() {
+	resizeTimeLines() {
 		this.timeLines.nativeElement.style.width = this.tracksList.nativeElement.clientWidth + "px";
 
 		//Divide the width of the tracksList by 50 to get the number of seconds
@@ -171,9 +201,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		let mousePositionSeconds = this.getMousePosition(event);
 		
 		let newClip = JSON.parse(JSON.stringify(Object.assign(this.cs.getCurrentClip(), { in: 0, startTime: mousePositionSeconds })));
-
 		
-		this.checkIfClipOverlaps(track, newClip);		
+		this.checkIfClipOverlaps(track, newClip);
 		this.insertClipAtPosition(track, newClip);
 
 		this.changeDetector.markForCheck();
@@ -299,7 +328,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		let tracks: Track[] = this.tracksService.getTracks();
 		let track = tracks.find(track => track.id === this.originTrack?.id);
 
-		//Find the index of the clip that matches currently dragged clip
+		//Finds the index of the clip that matches currently dragged clip
 		let clipIndex = this.originTrack?.clips?.findIndex((clip2: ClipInstance) => {
 			return JSON.stringify(clip2) === JSON.stringify(this.cs.getDraggedClip());
 		});
@@ -369,7 +398,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 		let mousePositionSeconds = this.getMousePosition(event);
 
 		//Sets the phantom clip to the current clip or the dragged clip
-		let clip = JSON.parse(JSON.stringify(this.cs.getCurrentClip())) || JSON.parse(JSON.stringify(this.cs.getDraggedClip()));
+		let clip = JSON.parse(JSON.stringify(this.cs.getCurrentClip() || this.cs.getDraggedClip()));
 		if(clip) {
 			this.cs.setPhantomClip(Object.assign(clip, { in: 0, startTime: mousePositionSeconds }));
 		}
@@ -407,7 +436,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 				//Sets the point where the clip starts
 				//The start point of the clip itself,
 				//not start point of the clip in the timeline
-				clip.in+= this.getMousePosition(event) - clip!.startTime;
+				clip.in += this.getMousePosition(event) - clip!.startTime;
 
 				clip!.startTime = this.getMousePosition(event);
 			}
@@ -432,8 +461,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit {
 
 	selectTrack(track: Track, index: number) {
 		if(!track.clips || !track.clips.length) {
-			window.api.emit("set-selected-clip-in-preview", {location: null, trackIndex: index, clipIndex: 0});
 		}
+		window.api.emit("set-selected-clip-in-preview", {location: null, trackIndex: index, clipIndex: null});
 	}
 
 	renderTimeline() {

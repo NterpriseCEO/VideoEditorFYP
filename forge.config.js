@@ -1,6 +1,6 @@
 module.exports = {
 	packagerConfig: {
-		icon: "./backend/icons/icons/icon",
+		icon: "/backend/icons/icon",
 		// ignore: [
 		// 	// "^\\/public$",
 		// 	// "^\\/src$",

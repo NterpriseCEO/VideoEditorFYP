@@ -13,7 +13,7 @@ export class TracksService {
 	public filtersChangedSubject = new Subject<boolean>();
 	public tracksSubject = new Subject<Track[]>;
 	public selectedTrackChangedSubject = new Subject<Track | null>;
-	public isPlayingSubject = new Subject<[boolean, boolean]>();
+	public previewStateSubject = new Subject<{isPlaying: boolean, isFinishedPlaying: boolean, currentTime?: number}>();
 
 	tracks: Track[] = [];
 
@@ -45,7 +45,7 @@ export class TracksService {
 				//open to send the tracks to it
 				if(this.canSendTracks) {
 					window.api.emit("send-tracks", this.tracks);
-					this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
+					// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 					clearInterval(interval);
 					interval = null;
 				}
@@ -177,7 +177,7 @@ export class TracksService {
 
 		//Sends the tracks to the preview window
 		window.api.emit("send-tracks", this.tracks);
-		this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
+		// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 	}
 
 	setSelectedTrack(track: Track) {
@@ -205,7 +205,7 @@ export class TracksService {
 			track.source = source;
 			this.tracksSubject.next(this.tracks);
 			window.api.emit("send-tracks", this.tracks);
-			this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
+			// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 			this.pfService.updateTracks(this.tracks);
 		}
 	}
@@ -233,7 +233,7 @@ export class TracksService {
 		this.pfService.updateTracks(this.tracks);
 
 		window.api.emit("send-tracks", this.tracks);
-		this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
+		// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 	}
 
 	setCurrentlyRecordingTrack(track: Track) {
@@ -245,7 +245,7 @@ export class TracksService {
 		this.tracksSubject.next(this.tracks);
 		this.pfService.updateTracks(this.tracks);
 		window.api.emit("send-tracks", this.tracks);
-		this._hack(JSON.parse(JSON.stringify(track)));
+		// this._hack(JSON.parse(JSON.stringify(track)));
 	}
 
 	updateLayerFilter(layerFilter: any) {

@@ -1,7 +1,7 @@
 <video
 	#videos
 	*ngFor = "let track of tracks"
-	class = "w-full flex-grow-1 absolute h-full"
+	class = "w-full flex-grow-1 absolute h-full hidden"
 	muted
 	controls
 >
@@ -48,7 +48,7 @@
 		</div>
 	</div>
 	<div class = "w-6 flex align-items-center">
-		<div class = "w-full">
+		<div class = "w-full" #canvasContainer>
 			<canvas
 				#finalCanvas
 				class = "final-canvas w-full"

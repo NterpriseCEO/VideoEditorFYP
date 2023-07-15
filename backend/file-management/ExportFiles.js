@@ -14,10 +14,13 @@ exports.listenForExportEvents = function(window) {
 			if (result.canceled) {
 				return;
 			}
-	
-			setExportPath(result.filePath);
 
 			window.webContents.send("export-location-chosen", result.filePath);
+
+			//Replaces the file name with filename_n.webm
+			result.filePath = result.filePath.substring(0, result.filePath.lastIndexOf(".")) + "_n.webm";
+	
+			setExportPath(result.filePath);			
 
 		}).catch((err) => {
 			console.log(err);

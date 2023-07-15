@@ -43,8 +43,8 @@ export class ImageFilters {
 
 	convolutionFilter(srcImageData, matrixX, matrixY, matrix, divisor?, bias?, preserveAlpha?, clamp?, color?, alpha?) {
 		let pixels = srcImageData.data,
-			srcWidth = srcImageData.width ?? 640,
-			srcHeight = srcImageData.height ?? 480,
+			srcWidth = srcImageData.width ?? 1920,
+			srcHeight = srcImageData.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -133,7 +133,7 @@ export class ImageFilters {
 	}
 
 	clone(srcImageData) {
-		return this.copy(srcImageData, this.ctx.createImageData(srcImageData.width ?? 640, srcImageData.height ?? 480));
+		return this.copy(srcImageData, this.ctx.createImageData(srcImageData.width ?? 1920, srcImageData.height ?? 1080));
 	}
 
 	copy(srcImageData, dstImageData) {
@@ -383,8 +383,8 @@ export class ImageFilters {
 
 		// });
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx?.createImageData(srcWidth , srcHeight),
 			dstPixels = dstImageData?.data;
@@ -413,8 +413,8 @@ export class ImageFilters {
 
 	blendAdd(blendImageData: ImageData) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx?.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data,
@@ -441,8 +441,8 @@ export class ImageFilters {
 
 	blendSubtract(blendImageData, dx, dy) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data,
@@ -540,8 +540,8 @@ export class ImageFilters {
 		};
 
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx?.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data,
 			tmpImageData = this.ctx?.createImageData(srcWidth, srcHeight),
@@ -666,7 +666,7 @@ export class ImageFilters {
 			505, 497, 489, 482, 475, 468, 461, 454, 447, 441, 435, 428, 422, 417, 411, 405,
 			399, 394, 389, 383, 378, 373, 368, 364, 359, 354, 350, 345, 341, 337, 332, 328,
 			324, 320, 316, 312, 309, 305, 301, 298, 294, 291, 287, 284, 281, 278, 274, 271,
-			268, 265, 262, 259, 257, 507, 501, 496, 491, 485, 480, 475, 470, 465, 460, 456,
+			268, 265, 262, 259, 257, 507, 501, 496, 491, 485, 1080, 475, 470, 465, 460, 456,
 			451, 446, 442, 437, 433, 428, 424, 420, 416, 412, 408, 404, 400, 396, 392, 388,
 			385, 381, 377, 374, 370, 367, 363, 360, 357, 354, 350, 347, 344, 341, 338, 335,
 			332, 329, 326, 323, 320, 318, 315, 312, 310, 307, 304, 302, 299, 297, 294, 292,
@@ -692,8 +692,8 @@ export class ImageFilters {
 			24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24];
 
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.clone(this.imageData),
 			dstPixels = dstImageData.data;
 
@@ -914,8 +914,8 @@ export class ImageFilters {
 	 */
 	brightness(brightness) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -936,8 +936,8 @@ export class ImageFilters {
 	 */
 	brightnessContrastGimp(brightness, contrast) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data,
@@ -992,8 +992,8 @@ export class ImageFilters {
 	 */
 	brightnessContrastPhotoshop(brightness, contrast) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -1050,8 +1050,8 @@ export class ImageFilters {
 
 	colorMatrixFilter(matrix) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
@@ -1129,8 +1129,8 @@ export class ImageFilters {
 
 	crop(x, y, width, height) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(width, height),
 			dstPixels = dstImageData.data;
 
@@ -1168,8 +1168,8 @@ export class ImageFilters {
 	 */
 	desaturate() {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx?.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData?.data;
@@ -1200,8 +1200,8 @@ export class ImageFilters {
 	 */
 	displacementMapFilter(mapImageData, mapX, mapY, componentX, componentY, scaleX, scaleY, mode) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			// dstImageData = this.utils.createImageData(srcWidth, srcHeight),
 			dstImageData = this.clone(this.imageData),
 			dstPixels = dstImageData.data;
@@ -1272,8 +1272,8 @@ export class ImageFilters {
 	 * @param levels 2 <= n <= 255
 	 */
 	dither(levels) {
-		let srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+		let srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.clone(this.imageData),
 			dstPixels = dstImageData.data;
 
@@ -1431,8 +1431,8 @@ export class ImageFilters {
 
 	flip(vertical) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
@@ -1467,8 +1467,8 @@ export class ImageFilters {
 
 	gamma(gamma) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -1484,8 +1484,8 @@ export class ImageFilters {
 
 	grayscale() {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
@@ -1513,8 +1513,8 @@ export class ImageFilters {
 	 */
 	HSLAdjustment(hueDelta, satDelta, lightness) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
@@ -1579,8 +1579,8 @@ export class ImageFilters {
 
 	invert() {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -1595,8 +1595,8 @@ export class ImageFilters {
 
 	mosaic(blockSize) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -1674,8 +1674,8 @@ export class ImageFilters {
 	 */
 	oil(range, levels) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -1760,8 +1760,8 @@ export class ImageFilters {
 
 	opacityFilter(opacity) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
@@ -1787,8 +1787,8 @@ export class ImageFilters {
 	 */
 	posterize(levels) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
@@ -1828,8 +1828,8 @@ export class ImageFilters {
 	 */
 	rescale(scale) {
 		var pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -1848,8 +1848,8 @@ export class ImageFilters {
 	 */
 	resizeNearestNeighbor(width, height) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(width, height),
 			dstPixels = dstImageData.data;
 
@@ -1886,8 +1886,8 @@ export class ImageFilters {
 	 */
 	resize(width, height) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(width, height),
 			dstPixels = dstImageData.data;
 
@@ -1910,8 +1910,8 @@ export class ImageFilters {
 
 	sepia() {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			srcLength = pixels?.length ?? 0,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
@@ -1954,8 +1954,8 @@ export class ImageFilters {
 
 	solarize() {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -1970,8 +1970,8 @@ export class ImageFilters {
 
 	transpose() {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcHeight, srcWidth),
 			dstPixels = dstImageData.data;
 
@@ -2007,8 +2007,8 @@ export class ImageFilters {
 	 */
 	twirl(centerX, centerY, radius, angle, edge, smooth) {
 		let pixels = this.imageData?.data,
-			srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+			srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
@@ -2080,8 +2080,8 @@ export class ImageFilters {
 	 * to fix that we probably need two contexts
 	 */
 	resizeBuiltin(width, height) {
-		let srcWidth = this.imageData?.width ?? 640,
-			srcHeight = this.imageData?.height ?? 480,
+		let srcWidth = this.imageData?.width ?? 1920,
+			srcHeight = this.imageData?.height ?? 1080,
 			dstImageData;
 
 		this.canvas.width = Math.max(srcWidth, width);
