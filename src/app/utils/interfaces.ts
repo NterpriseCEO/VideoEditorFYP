@@ -56,6 +56,7 @@ export interface Clip {
 	duration: number;
 	type?: TrackType;
 	thumbnail?: string;
+	needsRelinking?: boolean;
 }
 
 export interface ClipInstance extends Clip {

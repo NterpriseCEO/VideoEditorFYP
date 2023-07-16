@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { Title } from "@angular/platform-browser";
 import { MessageService } from "primeng/api";
 
-import { Clip, Filter, Project, Track } from "../utils/interfaces";
+import { Clip, ClipInstance, Filter, Project, Track } from "../utils/interfaces";
 import GLFX_Filters from "../components/filters/filter-selector/filter-definitions/GLFX_Filters.json";
 import ImageFilters from "../components/filters/filter-selector/filter-definitions/ImageFilters.json";
 import { FilterLibrary } from "../utils/constants";
@@ -62,54 +62,7 @@ export class ProjectFileService {
 
 	listenForEvents() {
 		window.api.on("project-loaded", (_: any, project: Project) => {
-			this.project = JSON.parse(JSON.stringify(project));
-			this.name = project.name;
-			this.dateCreated = project.dateCreated;
-			this.lastModifiedDate = project.lastModifiedDate;
-			this.location = project.location;
-			this.clips = JSON.parse(JSON.stringify(project.clips));
-
-			this.titleService.setTitle(`GraphX - ${this.location}`);
-
-			//check if the clips need to be relinked
-
-			//Loops through the tracks and filters merges the filter properties
-			//from the project with the filter properties from the list of all filters
-			//This is necessary because the project file only stores filter property values
-			// project.tracks.map(track => {
-			// 	track.filters = track.filters?.map(filter => {
-			// 		//get the filter by name from the list of all filters and assign it to the track
-			// 		const newFilter = this.allFilters.find(f => f.displayName === filter.displayName);
-
-			// 		if (newFilter) {
-			// 			newFilter.enabled = filter.enabled;
-			// 			newFilter.properties = filter.properties.map((prop, index) => {
-			// 				const newProp = newFilter.properties[index];
-			// 				newProp.value = filter.properties[index].value;
-			// 				return newProp;
-			// 			});
-			// 		}
-			// 		return newFilter;
-			// 	});
-			// 	return track;
-			// });
-
-			this.tracks = JSON.parse(JSON.stringify(project.tracks));
-
-			this.projectLoaded = true;
-			this.isDirty = false;
-
-			//Tells other components that the project has been loaded
-			//and that they should load these clips and tracks
-			this.loadClipsSubject.next(project.clips);
-			this.loadTracksSubject.next(project.tracks);
-			this.loadProjectNameSubject.next(project.name);
-
-			this.projectHistory = [];
-			this.historyIndex = 0;
-			this.projectHistory.push(JSON.parse(JSON.stringify(this.project)));
-
-			this.addProjectToRecentProjects();
+			this.intitaliseProject(project);
 		});
 
 		window.api.on("project-saved", (_: any, project: Project) => this.ngZone.run(() => {
@@ -146,6 +99,52 @@ export class ProjectFileService {
 			this.loadTracksSubject.next(this.tracks);
 			this.isDirty = true;
 		});
+	}
+
+	checkIfClipsExists() {
+		const lisOfClips = this.clips.map(clip => clip.location);
+		window.api.emit("check-if-clips-need-relinking", lisOfClips);
+		window.api.on("clips-that=need-relinking", (_: any, clips: boolean[]) => {
+			this.clips = this.project.clips = this.clips.map((clip, index) => {
+				clip.needsRelinking = !clips[index];
+				return clip;
+			});
+			this.loadClipsSubject.next(this.project.clips);
+		});
+
+		setTimeout(() => {
+			console.log(this.clips);
+		}, 2000);
+	}
+
+	intitaliseProject(project: Project) {
+		this.project = JSON.parse(JSON.stringify(project));
+		this.name = project.name;
+		this.dateCreated = project.dateCreated;
+		this.lastModifiedDate = project.lastModifiedDate;
+		this.location = project.location;
+		this.clips = JSON.parse(JSON.stringify(project.clips));
+
+		this.titleService.setTitle(`GraphX - ${this.location}`);
+
+		//Loops through the clips and check if they need to be relinked
+		this.checkIfClipsExists();
+
+		this.tracks = JSON.parse(JSON.stringify(project.tracks));
+
+		this.projectLoaded = true;
+		this.isDirty = false;
+
+		//Tells other components that the project has been loaded
+		//and that they should load these clips and tracks
+		this.loadTracksSubject.next(project.tracks);
+		this.loadProjectNameSubject.next(project.name);
+
+		this.projectHistory = [];
+		this.historyIndex = 0;
+		this.projectHistory.push(JSON.parse(JSON.stringify(this.project)));
+
+		this.addProjectToRecentProjects();
 	}
 
 	addProjectToRecentProjects() {
@@ -325,6 +324,57 @@ export class ProjectFileService {
 		//undoes a project change
 		this.projectHistory.forEach(project => {
 			project.name = name;
+		});
+	}
+
+	relinkClip(clip: Clip) {
+		if(!clip.needsRelinking) {
+			return;
+		}
+
+		const currentLocation = clip.location;
+
+		window.api.emit("relink-clip", currentLocation);
+
+		window.api.on("relinked-clip-data", (_: any, newClipData: any) => {
+			this.clips = this.clips.map((c: Clip) => {
+				if(c.location === currentLocation) {
+					c.needsRelinking = false;
+					c.totalDuration = newClipData.duration;
+					c.duration = newClipData.duration;
+					c.location = newClipData.path;
+					c.name = newClipData.name;
+				}
+				return c;
+			});
+			this.project.clips = this.clips;
+			this.loadClipsSubject.next(this.clips);
+
+			//loop through all tracks and update the clips
+			this.tracks = this.tracks.map(track => {
+				if(!track.clips) {
+					return track;
+				}
+				track.clips = track.clips.map((c: ClipInstance) => {
+					if(c.location === currentLocation) {
+						console.log("relinking clip", c);
+						c.needsRelinking = false;
+						c.location = newClipData.path;
+
+						c.totalDuration = newClipData.duration;
+						//Checks if the clip's old duration/in time is within the bounds of the new clip
+						c.duration = c.duration > c.totalDuration ? c.totalDuration : c.duration;
+						c.in = c.in > c.duration ? c.duration : c.in;
+						c.name = newClipData.name;
+					}
+					return c;
+				});
+				console.log(track);
+				return track;
+			});
+			this.isDirty = true;
+			this.project.tracks = this.tracks;
+			this.loadTracksSubject.next(this.tracks);
 		});
 	}
 }

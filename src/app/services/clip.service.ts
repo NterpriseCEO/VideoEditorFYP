@@ -53,7 +53,6 @@ export class ClipService {
 		return this.currentlySelectedClip;
 	}
 
-
 	setDraggedClip(clip: ClipInstance | null) {
 		this.currentlyDraggedClip = clip;
 	}

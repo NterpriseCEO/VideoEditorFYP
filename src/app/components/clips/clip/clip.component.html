@@ -14,7 +14,7 @@
 		<div style = "width: 99px" class = "h-full surface-ground border-right-2 border-50">
 			<img
 				[src] = "clip.thumbnail | sanitiseUrl"
-				(error)="clip.thumbnail = brokenImage"
+				(error) = "clip.thumbnail = brokenImage"
 				class = "thumbnail w-full h-full flex-grow-0"
 				ondragstart = "return false"
 			>

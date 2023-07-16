@@ -7,7 +7,7 @@ exports.registerFileProtocol = function() {
 		try {
 			return callback(decodeURIComponent(url));
 		}
-		catch (error) {
+		catch(error) {
 			console.error(error)
 			return callback(404)
 		}

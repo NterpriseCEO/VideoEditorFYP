@@ -13,31 +13,73 @@ function ImportFiles(window) {
 
 ImportFiles.prototype.listenForEvents = function() {
 	ipcMain.on("import-files", (_, files) => {
-		//Electron code to import files
-		dialog.showOpenDialog(this.mainWindow, {
-			properties: ["openFile", "multiSelections"],
-			filters: [
-				{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm"] },
-			],
-		}).then((result) => {
-			if (result.canceled) {
-				return;
+		this.importFiles();
+	});
+
+	ipcMain.on("check-if-clips-need-relinking", (_, clips) => {
+		this.mainWindow.webContents.send("clips-that=need-relinking", clips.map(clip => fs.existsSync(clip)));
+	});
+
+	ipcMain.on("relink-clip", (_, file) => {
+		this.relinkClip(file);
+	});
+}
+
+ImportFiles.prototype.importFiles = function() {
+	//Electron code to import files
+	dialog.showOpenDialog(this.mainWindow, {
+		properties: ["openFile", "multiSelections"],
+		filters: [
+			{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm"] },
+		],
+	}).then((result) => {
+		if (result.canceled) {
+			return;
+		}
+		this.files = result.filePaths;
+
+		//Deletes all the thumbnails that are already in the folder
+		//that have the same name as the video file
+		this.files.forEach((file) => {
+			if (fs.existsSync(`${path.basename(file, ".mp4")}.png`)) {
+				//Deletes the thumbnail
+				fs.rmSync(`${path.basename(file, ".mp4")}.png`);
 			}
-			this.files = result.filePaths;
+		});
 
-			//Deletes all the thumbnails that are already in the folder
-			//that have the same name as the video file
-			this.files.forEach((file) => {
-				if (fs.existsSync(`${path.basename(file, ".mp4")}.png`)) {
-					//Deletes the thumbnail
-					fs.rmSync(`${path.basename(file, ".mp4")}.png`);
-				}
+		//Extracts the time metadata from the video files
+		this.extractMetadata(0, [...this.files]);
+	}).catch((err) => {
+		console.log(err);
+	});
+}
+
+ImportFiles.prototype.relinkClip = function(file) {
+	//Ask user to choose a new file
+	dialog.showOpenDialog(this.mainWindow, {
+		properties: ["openFile"],
+		title: "Relink Clip previous located at: " + file,
+		filters: [
+			{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm"] },
+		],
+	}).then((result) => {
+		if (result.canceled) {
+			return;
+		}
+		const file = result.filePaths[0];
+		getVideoDurationInSeconds(file).then((duration) => {
+			this.mainWindow.webContents.send("relinked-clip-data", {
+				path: result.filePaths[0],
+				name: path.basename(result.filePaths[0]),
+				duration: duration,
 			});
-
-			//Extracts the time metadata from the video files
-			this.extractMetadata(0, [...this.files]);
 		}).catch((err) => {
 			console.log(err);
+			this.mainWindow.webContents.send("relinked-clip-data", {
+				path: result.filePaths[0],
+				name: path.basename(result.filePaths[0]),
+				duration: 0,
+			});
 		});
 	});
 }
@@ -72,7 +114,7 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails, files) {
 		}
 		//Extracts the first frame of the video file and converts it to a a png
 		exec(`ffmpeg -i "${file}" -vf "scale=iw*sar:ih,setsar=1" -vframes 1 "${png}"`, (error, stdout, stderr) => {
-			if (error) {
+			if(error) {
 				console.log(`error: ${error.message}`);
 				return;
 			}

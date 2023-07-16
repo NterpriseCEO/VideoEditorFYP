@@ -99,4 +99,8 @@ export class ImportsPanelComponent {
 	importFiles() {
 		window.api.emit("import-files");
 	}
+
+	relinkClip(Clip: Clip) {
+		this.pfService.relinkClip(Clip);
+	}
 }

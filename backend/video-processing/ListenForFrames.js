@@ -73,7 +73,7 @@ function processFrames(frameNumber) {
 		mergeFrames("temp", () => {
 			//merge output.mp4 and temp.mp4
 			exec(`(echo file 'output${outputNumber}.mp4' & echo file 'temp.mp4' )>list.txt && ffmpeg -safe 0 -f concat -y -i list.txt -c copy output${++outputNumber}.mp4`, (error, stdout, stderr) => {
-				if (error) {
+				if(error) {
 					console.log(`error: ${error.message}`);
 					return;
 				}
@@ -94,7 +94,7 @@ function mergeFrames(name, callback, range) {
 
 	//ffmpeg yes to overwrite, framerate 30, input files = frame%d.png, encoding stuff??, output  = {{name}}.mp4
 	exec(`ffmpeg -y -framerate 30 -i frame%d.png -frames:v ${range} -c:v libx264 -pix_fmt yuv420p ${name}.mp4`, (error, stdout, stderr) => {
-		if (error) {
+		if(error) {
 			console.log(`error: ${error.message}`);
 			return;
 		}

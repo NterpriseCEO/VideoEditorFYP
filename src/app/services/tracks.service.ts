@@ -88,8 +88,8 @@ export class TracksService {
 	}
 
 	_hack(track: Track) {
-		//This is a hack to fix the bug where the webcam stream is not shown in the preview window
-		//A better solution would be to fix the bug itself and not plaster over it with a hack
+		//This was a hack to fix the bug where the webcam stream is not shown in the preview window
+		//I'm leaving it here in case it happens again and I want a quick fix
 		track.filters = track.filters?.map((filter: FilterInstance, index: number) => {
 			return {
 				function: filter.function,
@@ -220,7 +220,7 @@ export class TracksService {
 			//if the currently selected track is deleted
 			try {
 				this.selectedTrack = this.tracks[trackIndex - 1 ?? 0];
-			} catch (error) {
+			}catch(error) {
 				this.selectedTrack = null;
 			}
 			this.selectedTrackChangedSubject.next(this.selectedTrack ?? null);

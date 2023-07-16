@@ -309,14 +309,6 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		let tracks = JSON.parse(JSON.stringify(this.tracks));
 		let previousTracks = JSON.parse(JSON.stringify(this.previousTracks));
 
-		//Removes the id property from each track
-		tracks.forEach((track) => {
-			track.id = 0
-		});
-		previousTracks.forEach((track) => {
-			track.id = 0
-		});
-
 		//Finds all tracks in previousTracks that are not in tracks
 		let removedTracks = previousTracks.filter((track) => !tracks.some(t => deepCompare(t, track)));
 
@@ -341,15 +333,14 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		});
 
 		this.tracks.forEach((track) => {
-			//Checkd if the track is in the previousTracks array
-
+			//Checks if the track is in the previousTracks array
 			if(this.previousTracks.filter(t => deepCompare(t, track)).length === 1) {
 				index++;
 				return;
 			}
 
 			let video = document.createElement("video");
-			video.id = "video" + index;
+			video.id = "video-" + index;
 			video.classList.add("video", "w-full", "flex-grow-1", "absolute", "h-full", "opacity-0");
 			//Appends the video element after #previewVideo
 			this.renderer.appendChild(this.previewContainer.nativeElement, video);
@@ -360,7 +351,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 				this.videos.splice(index, 0, video);
 				for (let i = index + 1; i < this.videos.length; i++) {
 					if(this.videos[i]) {
-						this.videos[i].id = "video" + i;
+						this.videos[i].id = "video-" + i;
 					}
 				}
 			}else {
@@ -523,11 +514,9 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 			if(this.canvasElements[index]) {
 				this.canvasElements.splice(index, 0, canvas);
-				// this.renderer.removeChild(this.canvasContainer, this.canvasElements[index]);
 			}else {
 				this.canvasElements[index] = canvas;
 			}
-			// console.log(this.canvasElements[index], canvas, index);
 		} catch(e) {
 			console.log(e);
 			return;
