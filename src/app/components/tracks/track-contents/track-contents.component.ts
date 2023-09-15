@@ -76,6 +76,14 @@ export class TrackContentsComponent implements OnChanges, OnInit {
 		window.api.emit("set-selected-clip-in-preview", {location: clip?.location, trackIndex: this.trackIndex, clipIndex: index});
 	}
 
+	getMousePosition(event: MouseEvent, parentNode: HTMLElement) {
+		let mousePosition = event.clientX - parentNode.getBoundingClientRect().left + parentNode.scrollLeft - 200;
+		mousePosition = Math.round(mousePosition / 10) * 10;
+
+		//Converts the mouse position to seconds
+		return mousePosition / 10;
+	}
+
 	dragStart(clip: ClipInstance, event: MouseEvent) {
 		//Checks if the user is clicking on the title of the clip or the resize handle
 		if((event.target as HTMLElement).classList.contains("clip-title")) {
@@ -91,13 +99,13 @@ export class TrackContentsComponent implements OnChanges, OnInit {
 				parentNode = parentNode.parentNode as HTMLElement;
 			}
 			
-			//Gets the distance between the mouse and the start of the clip
-			let x = (event.clientX - parentNode.getBoundingClientRect().left) + parentNode.scrollLeft;
+			//Gets the distance between the mouse and the start of the clips panel
+			let x = this.getMousePosition(event, parentNode);
 			let clipStart = this.cs.getPhantomClip()!.startTime;
 			//Calculates the difference between the mouse and the start of the clip
 			//This ensures that the clip start is relative to its current position
 			//and not the position of the mouse
-			this.cs.setDraggedDistanceDiff(Math.floor(x/10) - clipStart);
+			this.cs.setDraggedDistanceDiff(x - clipStart);
 		}else if((event.target as HTMLElement).classList.contains("resize-handle")) {
 			this.cs.setClipBeingResized(clip);
 			this.cs.setClipElementBeingResized((event.target as HTMLElement).parentElement);

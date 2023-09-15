@@ -36,6 +36,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 	videosLength: number = 0;
 
 	tracks: Track[] = [];
+	trackIdsList: number[] = [];
 	previousTracks: Track[] = [];
 	selectedTrackIndex: number = -1;
 	currentClip: number[] = [];
@@ -45,6 +46,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 	fps: number = 0;
 
 	canvasElements: any[] = [];
+	textures: any[] = [];
 
 	largestWidth: number = 0;
 	largestHeight: number = 0;
@@ -314,7 +316,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 		removedTracks.forEach((track) => {
 			//TODO (maybe): Remove the audio track from the stream at the index
-			let id = track.id;
+			const id = this.trackIdsList.findIndex(id => id === track.id);
 			// if(this.audioTracks[id]) {
 			// 	this.audioTracks[id].stop();
 			// 	this.stream.removeTrack(this.audioTracks[id]);
@@ -329,12 +331,15 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 			this.animationFrames[id] = null;
 			//Removes the canvases as well
 			this.renderer.removeChild(this.canvasContainer.nativeElement, this.canvasElements[id]);
-			this.canvasElements[id] = null;
+			delete this.canvasElements[id];
+			this.textures[id]?.destroy();
+			this.textures[id] = null;
 		});
 
 		this.tracks.forEach((track) => {
 			//Checks if the track is in the previousTracks array
-			if(this.previousTracks.filter(t => deepCompare(t, track)).length === 1) {
+			const matchingTracks = this.previousTracks.filter(t => deepCompare(t, track));
+			if(matchingTracks.length === 1) {
 				index++;
 				return;
 			}
@@ -347,7 +352,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 			this.setSource(track, video, index);
 
 			//Adds the video element to the videos array
-			if(this.videos[index]) {
+			if(!!this.videos[index]) {
 				this.videos.splice(index, 0, video);
 				for (let i = index + 1; i < this.videos.length; i++) {
 					if(this.videos[i]) {
@@ -357,6 +362,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 			}else {
 				this.videos[index] = video;
 			}
+			this.trackIdsList[index] = track.id;
 
 			index++;
 		});
@@ -511,7 +517,6 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		//Checks if the canvas has already been created
 		try {
 			canvas = fx.canvas();
-
 			if(this.canvasElements[index]) {
 				this.canvasElements.splice(index, 0, canvas);
 			}else {
@@ -525,8 +530,6 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		const insertBefore = this.canvasElements[index - 1] || nativeElement.parentNode.firstChild;
 
 		insertBefore.parentNode.insertBefore(canvas, insertBefore.nextSibling);
-
-		// nativeElement.parentNode.insertBefore(canvas, nativeElement.firstChild);
 
 		canvas.width = 1920;
 		canvas.height = 1080;
@@ -560,8 +563,9 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 				return;
 			}
 
-			if(!texture) {
+			if(!texture && canvas) {
 				texture = canvas.texture(video);
+				this.textures[index] = texture;
 			}
 
 			// canvas.width = video.videoWidth;
@@ -622,7 +626,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 						imageFilters = imageFilters[filter.function](...(filter.properties ?? []));
 
 						//Draws the filters to the visible canvas if the next filter is not an ImageFilters filter
-						if(track.filters![index + 1]?.type === FilterLibrary.GLFX || index == length) {
+						if((track.filters![index + 1]?.type === FilterLibrary.GLFX || index == length) && canvas) {
 							//Load the texture from the hidden canvas
 							texture.loadContentsOf(imageFilters.getImageData());
 							draw = canvas.draw(texture);
@@ -668,8 +672,8 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 						return;
 					}
 				}
-				
-				if(canvas?.width === 0 || canvas?.height === 0) {
+
+				if(!canvas || canvas?.width === 0 || canvas?.height === 0) {
 					return;
 				}
 
@@ -689,7 +693,6 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 				let func = track?.layerFilter?.function;
 				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
-
 				this.ctx.drawImage(canvas, x, y, width, height);
 			});
 			window.requestAnimationFrame(step);
@@ -785,9 +788,9 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 					this.createAudioTrack(video, index);
 
-					const sourceNode = new MediaStreamAudioSourceNode(this.audioCtx, 
-						{ mediaStream: new MediaStream([stream.getAudioTracks()[0]])}
-					);
+					const sourceNode = new MediaStreamAudioSourceNode(this.audioCtx, {
+							mediaStream: new MediaStream([stream.getAudioTracks()[0]])
+					});
 
 					sourceNode.connect(this.audioDestination);
 
@@ -845,8 +848,6 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 				this.createAudioTrack(video, index);
 			}
 		};
-		
-
 		//Creates and draws the canvas corresponding to the video
 		this.drawCanvas(video, track, index);
 
@@ -859,7 +860,6 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 	createAudioTrack(video: any, index: number) {
 		try {
-			
 			let sourceNode = this.audioCtx.createMediaElementSource(video);
 			// Connect the video element's output to the stream
 			sourceNode.connect(this.audioDestination);
@@ -1017,7 +1017,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 			video.src = "";
 			this.currentClip[index]++;
 
-			if(track.type !== TrackType.VIDEO && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime+0.5)) {
+			if(track.type !== TrackType.VIDEO && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime + 0.5)) {
 				this.setSource(track, video, index);
 			}
 		}

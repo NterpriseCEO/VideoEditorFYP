@@ -1,97 +1,113 @@
 <div class = "flex flex-column h-full w-full overflow-hidden select-none">
-	<div class = "flex w-full h-3rem border-bottom-1 border-50">
-		<div style = "width: 175px" class = "flex-shrink-0 flex align-items-center">
-			<span class = "ml-4">Tracks</span>
-		</div>
-		<div class = "flex flex-grow-1 align-items-center overflow-hidden" #timelineNumbers>
-			<span *ngFor = "let number of numbers" style = "width: 50px" class = "flex-grow-0 flex-shrink-0 text-center">
-				{{convertToTime(number)}}
-			</span>
-		</div>
-	</div>
 	<div
-		class = "w-full h-full overflow-hidden flex flex-grow-1"
+		class = "w-full h-full flex flex-grow-1"
 	>
-		<div style = "width: 200px" class = "h-full flex-shrink-0 overflow-hidden pb-9px border-right-1 border-50" #tracksDetails>
-			<app-track-details
-				*ngFor = "let track of tracks"
-				[track] = "track"
-				(onTrackDelete) = "tracksService.deleteTrack(track.id)"
-			>
-			</app-track-details>
-			<div class = "flex justify-content-center w-full py-4">
-				<button
-					pButton
-					class = "p-button-rounded"
-					[icon] = "'pi pi-plus'"
-					(click) = "tracksService.addTrack()"
-				>
-				</button>
-			</div>
-		</div>
 		<div
-			class = "overflow-auto flex-grow-1 h-full relative tracks-list"
 			#tracksList
-			(mouseup) = "completeDrag()"
-			(mousemove) = "onDrag($event)"
+			class = "flex-grow-1 overflow-auto max-h-full"
 		>
 			<div
-				id = "time-lines"
-				#timeLines
-				class = "absolute time-lines h-full"
-				[style.height.px] = "tracksList.scrollHeight"
+				id = "tracks-list"
+				class = "relative tracks-list"
+				[class.w-full] = "!tracks.length"
+				[class.h-full] = "hasLessTracksThanHeightOfTracksList"
+				[style.width.px] = "tracksWidth-200"
 			>
-			</div>
-			<div class = "absolute min-w-full h-full w-max">
+				<div
+					id = "tracks-panel-ribbon"
+					class = "flex flex-row sticky z-2 flex-nowrap top-0 surface-ground py-1 border-bottom-1 border-50"
+					[style.width.px] = "tracksWidth"
+				>
+					<div id = "track-details-header" class = "flex w-full left-0 z-1 sticky">
+						<div id = "track-details-header-inner" class = "flex align-items-center surface-ground">
+							<span class = "ml-1">Tracks</span>
+							<button
+								pButton
+								class = "p-button-text p-button-sm"
+								[icon] = "'pi pi-plus'"
+								(click) = "tracksService.addTrack()"
+							>
+							</button>
+						</div>
+					</div>
+					<div class = "flex flex-row" [style.width.px] = "tracksWidth-200">
+						<div
+							*ngFor = "let number of numbers"
+							class = "timeline-number flex text-center align-items-center justify-content-center"
+						>
+							<span>{{convertToTime(number)}}</span>
+						</div>
+					</div>
+				</div>
+				<div
+					id = "time-lines"
+					class = "absolute pointer-events-none"
+					[style.width.px] = "tracksWidth-200"
+				>
+				</div>
 				<div
 					id = "timeline-indicator"
-					class = "absolute top-0 h-full"
-					[style.left.px] = "timelineIndicatorPosition"
-				></div>
-				<ng-container *ngFor = "let track of tracks; let i = index">
-					<div
-						class = "flex"
-						(mousedown) = "originTrack = track"
-						(mousemove) = "setPhantomClip($event, track)"
-						(mouseleave) = "cs.phantomClip = null"
-						(mouseup) = "addClip(track, $event)"
-						(click) = "selectTrack(track, i)"
-						[class.selected-track] = "tracksService.getSelectedTrack()?.id === track.id"
-					>
-						<app-track-contents
-							[clips] = "track.clips ?? []"
-							(clipDeleted) = "pfService.updateTracks(tracks)"
-							[trackIndex] = "i"
-							[colour] = "track.colour"
-							class = "track-contents flex-grow-0 flex-shrink-0"
-						>
-						</app-track-contents>
-						<app-clip
-							*ngIf = "cs.phantomClip && hoveringTrack?.id === track.id"
-							[clip] = "cs.phantomClip"
-							[colour] = "track.colour"
-							class = "absolute opacity-50 pointer-events-none"
-							[style.width.px] = "cs.phantomClip.duration*10"
-							[style.left.px] = "cs.phantomClip.startTime*10"
-						></app-clip>
-						<div style = "width: 100px" class = "inline-block flex-grow-0 flex-shrink-0"></div>
-					</div>
-					<div
-						class = "divider"
-						[style.width.px] = "tracksList.scrollWidth"
-					>
-					</div>
-				</ng-container>
-				<div class = "flex justify-content-center w-full py-4" *ngIf = "tracks.length">
-					<button
-						pButton
-						class = "p-button-rounded"
-						[icon] = "'pi pi-plus'"
-						(click) = "tracksService.addTrack()"
-					>
-					</button>
+					class = "absolute z-1"
+					[style.left.px] = "200+timelineIndicatorPosition"
+				>
 				</div>
-				<div *ngIf = "!tracks.length" class = "flex w-full h-full align-items-center justify-content-center">
+				<div id = "track-details" class = "left-0 z-1 sticky fle surface-ground" #tracksDetails>
+					<app-track-details
+						*ngFor = "let track of tracks"
+						[track] = "track"
+						(onTrackDelete) = "deleteTrack(track.id)"
+					>
+					</app-track-details>
+					<div class = "flex justify-content-center w-full py-4 border-top-1 surface-border">
+						<button
+							pButton
+							class = "p-button-rounded"
+							[icon] = "'pi pi-plus'"
+							(click) = "tracksService.addTrack()"
+						>
+						</button>
+					</div>
+				</div>
+				<div id = "tracks" class = "absolute w-full" #tracksNgForList>
+					<ng-container *ngFor = "let track of tracks; let i = index">
+						<div
+							class = "flex h-full"
+							(mousedown) = "originTrack = track"
+							(mousemove) = "onDrag($event, track)"
+							(mouseup) = "completeDrag($event, track)"
+							(click) = "selectTrack(track, i)"
+							[class.selected-track] = "tracksService.getSelectedTrack()?.id === track.id"
+						>
+							<app-track-contents
+								[clips] = "track.clips ?? []"
+								(clipDeleted) = "pfService.updateTracks(tracks)"
+								[trackIndex] = "i"
+								[colour] = "track.colour"
+								class = "track-contents flex-grow-0 flex-shrink-0"
+							>
+							</app-track-contents>
+							<app-clip
+								*ngIf = "cs.phantomClip && hoveringTrack?.id === track.id"
+								[clip] = "cs.phantomClip"
+								[colour] = "track.colour"
+								class = "absolute opacity-50 pointer-events-none"
+								[style.width.px] = "cs.phantomClip.duration*10"
+								[style.left.px] = "cs.phantomClip.startTime*10"
+							></app-clip>
+							<div style = "width: 100px" class = "inline-block flex-grow-0 flex-shrink-0"></div>
+						</div>
+						<div
+							class = "divider"
+							[style.width.px] = "tracksWidth-200"
+						>
+						</div>
+					</ng-container>
+				</div>
+				<div
+					*ngIf = "!tracks.length"
+					id = "no-tracks"
+					class = "flex w-full align-items-center justify-content-center absolute top-0"
+				>
 					<h1 class = "text-center select-none surface-ground p-4 pt-3 border-round">No Tracks :( <br> Right click to add one</h1>
 				</div>
 			</div>

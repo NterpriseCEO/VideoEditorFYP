@@ -155,14 +155,17 @@ export class TracksService {
 			}
 		});
 
-		let track = {
+		let track: Track = {
 			id: number,
 			name: `Track ${number}`,
 			colour: this.setTrackColour(),
 			type: type,
-			isVisible: true,
-			source: source
+			isVisible: true
 		};
+
+		if(source) {
+			track.source = source;
+		}
 
 		// Adds the track to the array
 		this.tracks.push(track);
@@ -256,5 +259,14 @@ export class TracksService {
 		track!.layerFilter = layerFilter;
 		this.pfService.updateTracks(this.tracks);
 		window.api.emit("update-layer-filter", this.selectedTrack);
+	}
+
+	//Gets the duration of the project by finding the end time of the clip that ends last
+	getProjectDuration(): number {
+		return this.tracks
+			.map(track => track.clips?.at(-1))
+			.map(clip => (clip?.startTime || 0) + (clip?.duration || 0))
+			.sort((a, b) => (a > b) ? 1 : -1)
+			.at(-1) ?? 0;
 	}
 }

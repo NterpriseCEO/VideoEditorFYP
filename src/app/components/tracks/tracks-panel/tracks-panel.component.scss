@@ -1,18 +1,35 @@
+$top_height: 30px;
+
 .pb-9px {
 	padding-bottom: 9px;
 }
 
-.time-lines {
+#time-lines {
+	top: calc($top_height + 0.5rem);
+	left: 200px;
+	min-height: calc(100% - $top_height - 0.5rem);
+	height: calc(100% - $top_height - 0.5rem);
 	//linear gradient every 50px;
 	//Represents 5 seconds of time
 	background: repeating-linear-gradient(90deg, var(--surface-50), var(--surface-50), transparent 2px, transparent 50px);
 }
 
+.timeline-number {
+	flex: 0 0 50px;
+	width: 50px;
+	height: $top_height;
+	transform: translateX(-50%);
+}
+
 #timeline-indicator {
 	width: 2px;
-	height: 100%;
+	height: calc(100% - $top_height - 0.5rem);
+	top: calc($top_height + 0.5rem);
 	background: red;
-	z-index: 10;
+}
+
+#no-tracks {
+	height: calc(100% - $top_height - 0.5rem - 1px);
 }
 
 .divider {
@@ -20,10 +37,21 @@
 	border-bottom: 1px solid var(--surface-50);
 }
 
-.tracks-grid {
-	display: grid;
-}
-
 .selected-track {
 	background: rgb(54, 61, 71, 0.5);
+}
+
+#tracks {
+	left: 200px;
+	top: calc($top_height + 0.5rem);
+}
+
+#track-details, #track-details-header {
+	width: 200px;
+	height: calc(100% - $top_height - 0.5rem - 1px);
+}
+
+#track-details-header-inner {
+	width: 175px;
+	height: $top_height;
 }

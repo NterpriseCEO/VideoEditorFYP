@@ -5,7 +5,7 @@
 	<app-clip
 		*ngFor = "let clip of clips"
 		[clip] = "clip"
-		class = "absolute"
+		class = "absolute border-200"
 		[style.width.px] = "clip.duration*10"
 		[style.left.px] = "clip.startTime*10"
 		[colour] = "colour"
