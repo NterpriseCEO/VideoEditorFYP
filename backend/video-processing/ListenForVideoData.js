@@ -40,7 +40,7 @@ exports.listenForVideoData = function(client) {
 
 		let newFile = exportPath.substring(0, exportPath.lastIndexOf("_n")) + ".webm";
 		//Creates a copy of the file. This adds the correct metadata to the file
-		exec(`ffmpeg -i ${exportPath} -vcodec copy -acodec copy ${newFile}`, (error, stdout, stderr) => {
+		exec(`ffmpeg -i "${exportPath}" -vcodec copy -acodec copy "${newFile}"`, (error, stdout, stderr) => {
 			if(error) {
 				console.log(error);
 			}

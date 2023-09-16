@@ -51,7 +51,6 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 	largestWidth: number = 0;
 	largestHeight: number = 0;
 
-	lStream: any[] = [];
 	audioTracks: any[] = [];
 	stream: any;
 
@@ -280,6 +279,9 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		window.api.on("update-track-clips", (_, track: Track) => this.ngZone.run(() => {
 			//find the track with the matching id
 			this.tracks.find(({ id }) => id === track.id)!.clips = track.clips;
+			this.calculateDuration();
+
+			console.log(this.videos);
 
 			this.getClipAtTime(this.masterTime);
 		}));
@@ -819,12 +821,27 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 							maxHeight: 1080,
 						}
 					} as MediaTrackConstraints,
+					audio: {
+						mandatory: {
+							chromeMediaSource: "desktop",
+							chromeMediaSourceId: stream.find(({ id }) => id === source.sourceId).id,
+						},
+					} as MediaTrackConstraints,
 				}).then((stream) => {
 					//The video preview element src
 					video.srcObject = stream;
-					this.lStream.push(stream);
+					this.createAudioTrack(video, index);
 
-					this.initPreview(video, track, index);
+					const sourceNode = new MediaStreamAudioSourceNode(this.audioCtx, {
+						mediaStream: new MediaStream([stream.getAudioTracks()[0]])
+					});
+
+					sourceNode.connect(this.audioDestination);
+
+
+					if (!this.canvasElements[index]) {
+						this.initPreview(video, track, index);
+					}
 				});
 			}));
 		}else if(type === TrackType.VIDEO) {

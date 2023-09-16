@@ -1,10 +1,10 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
 import { ClipInstance, Track } from "src/app/utils/interfaces";
-import { fromEvent } from "rxjs";
 import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
+import { deepCompare } from "src/app/utils/utils";
 
 @Component({
 	selector: "app-tracks-panel",
@@ -309,8 +309,6 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 			return JSON.stringify(clip2) === JSON.stringify(draggedClip);
 		});
 
-		console.log("origin track", event);
-
 		this.checkIfClipOverlaps(track!, clip);
 		if(!clipBeingResized) {
 			//If a new clip is being added
@@ -319,8 +317,6 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 				if(!track.clips) {
 					track.clips = [];
 				}
-
-				console.log("clip", clip);
 
 				//Gets the mouse position relative to the tracksList element including the scroll
 				let mousePositionSeconds = this.getMousePosition(event);
@@ -377,8 +373,8 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracks);
 
-		window.api.emit("update-track-clips", track);
-		window.api.emit("update-track-clips", this.originTrack);
+		track && window.api.emit("update-track-clips", track);
+		this.originTrack && !deepCompare(this.originTrack, track) && window.api.emit("update-track-clips", this.originTrack);
 	}
 
 	deleteTrack(id: number) {
@@ -396,16 +392,20 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 	setPhantomClip(event: MouseEvent) {
 		const currentClip = this.cs.getCurrentClip();
 		const draggedClip = this.cs.getDraggedClip();
-		if (currentClip && !this.cs.isDraggingClip() && !draggedClip) {
+		if (!currentClip && !(this.cs.isDraggingClip() && draggedClip)) {
 			return;
 		}
+
+
 		if(this.cs.getClipBeingResized()) {
 			return;
 		}
+
 		let mousePositionSeconds = this.getMousePosition(event) - this.cs.getDraggedDistanceDiff();
 
 		//Sets the phantom clip to the current clip or the dragged clip
 		let clip = JSON.parse(JSON.stringify(currentClip || draggedClip));
+		
 		if(clip) {
 			this.cs.setPhantomClip(Object.assign(clip, { in: clip.in, startTime: mousePositionSeconds }));
 		}
