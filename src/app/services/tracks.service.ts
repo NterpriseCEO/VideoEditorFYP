@@ -109,7 +109,7 @@ export class TracksService {
 		let instance: FilterInstance = Object.assign({}, filter, {enabled: true});
 		
 		//Adds the filter to the selected track
-		if (!this.selectedTrack!.filters) {
+		if(!this.selectedTrack!.filters) {
 			this.selectedTrack!.filters = [];
 		}
 		//Lets the track properties panel know that a filter has been added
@@ -150,7 +150,7 @@ export class TracksService {
 
 		this.tracks.forEach((track, index) => {
 			//Finds the track with the highest id
-			if (track.id >= number) {
+			if(track.id >= number) {
 				number = track.id + 1;
 			}
 		});
@@ -204,7 +204,7 @@ export class TracksService {
 	setTrackSource(trackID: number, source: any) {
 		//Sets the source of the track with the given id
 		let track = this.tracks.find(t => t.id === trackID);
-		if (track) {
+		if(track) {
 			track.source = source;
 			this.tracksSubject.next(this.tracks);
 			window.api.emit("send-tracks", this.tracks);

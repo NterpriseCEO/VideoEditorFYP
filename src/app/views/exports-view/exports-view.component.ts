@@ -195,7 +195,7 @@ export class ExportsViewComponent implements AfterViewInit {
 		this.mediaRecorder = new MediaRecorder(this.stream, recorderOptions);
 		this.mediaRecorder.onstop = (event) => {};
 		this.mediaRecorder.ondataavailable = (event) => {
-			if (event.data && event.data.size > 0 && this.isRecording) {
+			if(event.data && event.data.size > 0 && this.isRecording) {
 				this.socket.emit("recording-data", event.data);
 			}
 		};

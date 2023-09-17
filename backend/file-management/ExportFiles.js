@@ -11,7 +11,7 @@ exports.listenForExportEvents = function(window) {
 				{ name: "Video file", extensions: ["webm"] },
 			],
 		}).then((result) => {
-			if (result.canceled) {
+			if(result.canceled) {
 				return;
 			}
 

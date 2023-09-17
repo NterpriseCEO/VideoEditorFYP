@@ -678,7 +678,6 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 				if(!canvas || canvas?.width === 0 || canvas?.height === 0) {
 					return;
 				}
-
 				let track = tracks[index];
 				let clip;
 				try {
@@ -791,18 +790,16 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 					this.createAudioTrack(video, index);
 
 					const sourceNode = new MediaStreamAudioSourceNode(this.audioCtx, {
-							mediaStream: new MediaStream([stream.getAudioTracks()[0]])
+						mediaStream: new MediaStream([stream.getAudioTracks()[0]])
 					});
 
 					sourceNode.connect(this.audioDestination);
-
 
 					if(!this.canvasElements[index]) {
 						this.initPreview(video, track, index);
 					}
 				});
 		}else if(type === TrackType.SCREEN_CAPTURE) {
-			window.cancelAnimationFrame(this.animationFrames[index]);
 			//Gets the list of desktop capture options
 			window.api.emit("get-stream");
 			window.api.on("stream", (_: any, stream: any[]) => this.ngZone.run(() => {
@@ -838,8 +835,7 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 
 					sourceNode.connect(this.audioDestination);
 
-
-					if (!this.canvasElements[index]) {
+					if(!this.canvasElements[index]) {
 						this.initPreview(video, track, index);
 					}
 				});

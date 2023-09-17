@@ -39,7 +39,7 @@ export class AppComponent {
 		window.api.on("check-if-can-exit", () => this.ngZone.run(() => {
 			//If there are no unsaved changes, exit the app
 
-			if (!this.pfService.isProjectDirty()) {
+			if(!this.pfService.isProjectDirty()) {
 				window.api.emit("exit");
 				return;
 			}

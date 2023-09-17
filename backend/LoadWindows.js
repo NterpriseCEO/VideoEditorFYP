@@ -64,7 +64,7 @@ MainWindow.prototype.listenForEvents = function() {
 
 	app.on("window-all-closed", () => {
 		// On macOS specific close process
-		if (process.platform !== "darwin") {
+		if(process.platform !== "darwin") {
 			app.quit()
 		}
 	});
@@ -79,7 +79,7 @@ MainWindow.prototype.listenForEvents = function() {
 	});
 	
 	app.on("activate", () => {
-		if (this.window === null) {
+		if(this.window === null) {
 			createWindow()
 		}
 	});

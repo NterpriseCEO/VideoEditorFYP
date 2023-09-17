@@ -48,7 +48,7 @@ export class ImportsPanelComponent {
 				//Gets everything after the last slash (the file name)
 				let nme = file.name;
 				let n = nme.substring(nme.lastIndexOf(nme.includes("/") ? "/" : "\\") + 1);
-				if (!this.clips.find(({name}) => name === n)) {
+				if(!this.clips.find(({name}) => name === n)) {
 					this.clips.push({
 						name: n,
 						location: file.location,
@@ -86,7 +86,7 @@ export class ImportsPanelComponent {
 	onSortChange(event) {
 		let value = event.value;
 
-		if (value.indexOf("!") === 0) {
+		if(value.indexOf("!") === 0) {
 			this.sortOrder = -1;
 			this.sortField = value.substring(1, value.length);
 		}

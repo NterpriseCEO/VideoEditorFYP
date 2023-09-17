@@ -33,7 +33,7 @@ ImportFiles.prototype.importFiles = function() {
 			{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm"] },
 		],
 	}).then((result) => {
-		if (result.canceled) {
+		if(result.canceled) {
 			return;
 		}
 		this.files = result.filePaths;
@@ -41,7 +41,7 @@ ImportFiles.prototype.importFiles = function() {
 		//Deletes all the thumbnails that are already in the folder
 		//that have the same name as the video file
 		this.files.forEach((file) => {
-			if (fs.existsSync(`${path.basename(file, ".mp4")}.png`)) {
+			if(fs.existsSync(`${path.basename(file, ".mp4")}.png`)) {
 				//Deletes the thumbnail
 				fs.rmSync(`${path.basename(file, ".mp4")}.png`);
 			}
@@ -63,7 +63,7 @@ ImportFiles.prototype.relinkClip = function(file) {
 			{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm"] },
 		],
 	}).then((result) => {
-		if (result.canceled) {
+		if(result.canceled) {
 			return;
 		}
 		const file = result.filePaths[0];
@@ -118,7 +118,7 @@ ImportFiles.prototype.extractThumbnails = function(counter, thumbnails, files) {
 				console.log(`error: ${error.message}`);
 				return;
 			}
-			if (stderr) {
+			if(stderr) {
 				console.log(`error?: ${stderr}`);
 			}
 			const dirname = __dirname.substring(0, __dirname.length-24);

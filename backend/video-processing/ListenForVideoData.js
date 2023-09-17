@@ -20,7 +20,7 @@ exports.listenForVideoData = function(client) {
 
 		exportPath = (options?.recordToProjectFolder ?? false) ? `${getProjectPath()}\\${date}_n.webm` : getExportPath();
 
-		if (fs.existsSync(exportPath)) {
+		if(fs.existsSync(exportPath)) {
 			fs.unlinkSync(exportPath);
 		}
 		if(!fileStream) {
@@ -44,7 +44,7 @@ exports.listenForVideoData = function(client) {
 			if(error) {
 				console.log(error);
 			}
-			if (stderr) {
+			if(stderr) {
 				console.log(stderr);
 			}
 			//Delete the origin file
@@ -69,7 +69,7 @@ exports.listenForVideoData = function(client) {
 			fileStream = null;
 			couldOpenStream = false;
 			//Delete the file
-			if (fs.existsSync(exportPath)) {
+			if(fs.existsSync(exportPath)) {
 				fs.unlinkSync(exportPath);
 			}
 		}

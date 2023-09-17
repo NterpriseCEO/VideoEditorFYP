@@ -80,10 +80,10 @@ export class ImageFilters {
 					let rowIndex = y + row,
 						offset;
 
-					if (0 <= rowIndex && rowIndex < srcHeight) {
+					if(0 <= rowIndex && rowIndex < srcHeight) {
 						offset = rowIndex * srcWidth;
 					}
-					else if (clamp) {
+					else if(clamp) {
 						offset = y * srcWidth;
 					}
 					else {
@@ -93,11 +93,11 @@ export class ImageFilters {
 					for (let col = -cols; col <= cols; col += 1) {
 						let m = matrix[mIndex++];
 
-						if (m !== 0) {
+						if(m !== 0) {
 							let colIndex = x + col;
 
-							if (!(0 <= colIndex && colIndex < srcWidth)) {
-								if (clamp) {
+							if(!(0 <= colIndex && colIndex < srcWidth)) {
+								if(clamp) {
 									colIndex = x;
 								}
 								else {
@@ -105,7 +105,7 @@ export class ImageFilters {
 								}
 							}
 
-							if (replace) {
+							if(replace) {
 								r += m * clampR;
 								g += m * clampG;
 								b += m * clampB;
@@ -169,7 +169,7 @@ export class ImageFilters {
 	}
 
 	getPixelIndex(x, y, width, height, edge) {
-		if (x < 0 || x >= width || y < 0 || y >= height) {
+		if(x < 0 || x >= width || y < 0 || y >= height) {
 			switch (edge) {
 				case 1: // clamp
 					x = x < 0 ? 0 : x >= width ? width - 1 : x;
@@ -207,12 +207,12 @@ export class ImageFilters {
 			// Lightness
 			l = (min + max) / 2;
 
-		if (chroma !== 0) {
+		if(chroma !== 0) {
 			// Hue
-			if (r === max) {
+			if(r === max) {
 				h = (g - b) / chroma + ((g < b) ? 6 : 0);
 			}
-			else if (g === max) {
+			else if(g === max) {
 				h = (b - r) / chroma + 2;
 			}
 			else {
@@ -238,12 +238,12 @@ export class ImageFilters {
 			r: number, g: number, b: number,
 			rgb: number[] = [];
 
-		if (s === 0) {
+		if(s === 0) {
 			r = g = b = l * 255 + 0.5 | 0;
 			rgb = [r, g, b];
 		}
 		else {
-			if (l <= 0.5) {
+			if(l <= 0.5) {
 				m2 = l * (s + 1);
 			}
 			else {
@@ -255,20 +255,20 @@ export class ImageFilters {
 
 			let tmp;
 			for (let i = 0; i < 3; i += 1) {
-				if (hue < 0) {
+				if(hue < 0) {
 					hue += 1;
 				}
-				else if (hue > 1) {
+				else if(hue > 1) {
 					hue -= 1;
 				}
 
-				if (6 * hue < 1) {
+				if(6 * hue < 1) {
 					tmp = m1 + (m2 - m1) * hue * 6;
 				}
-				else if (2 * hue < 1) {
+				else if(2 * hue < 1) {
 					tmp = m2;
 				}
-				else if (3 * hue < 2) {
+				else if(3 * hue < 2) {
 					tmp = m1 + (m2 - m1) * (2 / 3 - hue) * 6;
 				}
 				else {
@@ -298,11 +298,11 @@ export class ImageFilters {
 			cx, cy,
 			r, g, b, a;
 
-		if (fx >= 0 && fx < (width - 1) && fy >= 0 && fy < (height - 1)) {
+		if(fx >= 0 && fx < (width - 1) && fy >= 0 && fy < (height - 1)) {
 			// in bounds, no edge actions required
 			i = (fy * width + fx) << 2;
 
-			if (wx || wy) {
+			if(wx || wy) {
 				nw = src[i + 3] << 24 | src[i] << 16 | src[i + 1] << 8 | src[i + 2];
 
 				i += 4;
@@ -327,7 +327,7 @@ export class ImageFilters {
 			// edge actions required
 			nw = this.getPixel(src, fx, fy, width, height, edge);
 
-			if (wx || wy) {
+			if(wx || wy) {
 				ne = this.getPixel(src, fx + 1, fy, width, height, edge);
 				sw = this.getPixel(src, fx, fy + 1, width, height, edge);
 				se = this.getPixel(src, fx + 1, fy + 1, width, height, edge);
@@ -356,7 +356,7 @@ export class ImageFilters {
 	}
 
 	getPixel(src, x, y, width, height, edge) {
-		if (x < 0 || x >= width || y < 0 || y >= height) {
+		if(x < 0 || x >= width || y < 0 || y >= height) {
 			switch (edge) {
 				case 1: // clamp
 					x = x < 0 ? 0 : x >= width ? width - 1 : x;
@@ -389,11 +389,11 @@ export class ImageFilters {
 			dstImageData = this.ctx?.createImageData(srcWidth , srcHeight),
 			dstPixels = dstImageData?.data;
 
-		if (!dstPixels || !pixels) {
+		if(!dstPixels || !pixels) {
 			return this;
 		}
 
-		if (isNaN(threshold)) {
+		if(isNaN(threshold)) {
 			threshold = 0.5;
 		}
 
@@ -420,7 +420,7 @@ export class ImageFilters {
 			dstPixels = dstImageData.data,
 			blendPixels = blendImageData.data;
 
-		if (!dstPixels || !pixels) {
+		if(!dstPixels || !pixels) {
 			return this;
 		}
 
@@ -448,7 +448,7 @@ export class ImageFilters {
 			dstPixels = dstImageData.data,
 			blendPixels = blendImageData.data;
 
-		if (!dstPixels || !pixels) {
+		if(!dstPixels || !pixels) {
 			return this;
 		}
 
@@ -516,12 +516,12 @@ export class ImageFilters {
 					dst[p + 3] = sumTable[a];
 
 					nextIndex = x + radiusPlus1;
-					if (nextIndex > widthMinus1) {
+					if(nextIndex > widthMinus1) {
 						nextIndex = widthMinus1;
 					}
 
 					prevIndex = x - radius;
-					if (prevIndex < 0) {
+					if(prevIndex < 0) {
 						prevIndex = 0;
 					}
 
@@ -715,7 +715,7 @@ export class ImageFilters {
 
 		for (i = 1; i < div; i += 1) {
 			stack = stack.next = new BlurStack();
-			if (i == radiusPlus1) {
+			if(i == radiusPlus1) {
 				stackEnd = stack;
 			}
 		}
@@ -853,7 +853,7 @@ export class ImageFilters {
 
 				stack = stack.next ?? stack; //Fishy code
 
-				if (i < heightMinus1) {
+				if(i < heightMinus1) {
 					yp += srcWidth;
 				}
 			}
@@ -943,7 +943,7 @@ export class ImageFilters {
 			dstPixels = dstImageData.data,
 			p4 = Math.PI / 4;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -966,15 +966,15 @@ export class ImageFilters {
 		avg = avg / (srcLength / 4);
 
 		this.mapRGB(pixels, dstPixels, (value) => {
-			if (brightness < 0) {
+			if(brightness < 0) {
 				value = value * (1 + brightness);
 			}
-			else if (brightness > 0) {
+			else if(brightness > 0) {
 				value = value + ((255 - value) * brightness);
 			}
 			//value += brightness;
 
-			if (contrast !== 0) {
+			if(contrast !== 0) {
 				value = (value - avg) * contrast + avg;
 			}
 			return value + 0.5 | 0;
@@ -1056,7 +1056,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1110,7 +1110,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth ?? 333, srcHeight ?? 250),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1134,7 +1134,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(width, height),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1174,7 +1174,7 @@ export class ImageFilters {
 			dstImageData = this.ctx?.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData?.data;
 
-		if (!dstPixels || !pixels) {
+		if(!dstPixels || !pixels) {
 			return this;
 		}
 
@@ -1206,7 +1206,7 @@ export class ImageFilters {
 			dstImageData = this.clone(this.imageData),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1231,7 +1231,7 @@ export class ImageFilters {
 
 				dstIndex = (y * srcWidth + x) << 2;
 
-				if (x < mapX || y < mapY || x >= mapRight || y >= mapBottom) {
+				if(x < mapX || y < mapY || x >= mapRight || y >= mapBottom) {
 					// out of the map bounds
 					// copy src to dst
 					srcIndex = dstIndex;
@@ -1248,7 +1248,7 @@ export class ImageFilters {
 					ty = y + (((cy - 128) * scaleY) >> 8);
 
 					srcIndex = this.getPixelIndex(tx + 0.5 | 0, ty + 0.5 | 0, srcWidth, srcHeight, mode);
-					if (srcIndex === null) {
+					if(srcIndex === null) {
 						// if mode == ignore and (tx,ty) is out of src bounds
 						// then copy (x,y) to dst
 						srcIndex = dstIndex;
@@ -1296,7 +1296,7 @@ export class ImageFilters {
 
 			k += levels;
 
-			if (k > 255) {
+			if(k > 255) {
 				k -= 255;
 				j += 1;
 			}
@@ -1345,7 +1345,7 @@ export class ImageFilters {
 				// Apply the matrix.
 				// x + 1, y
 				index += 1 << 2;
-				if (x < srcWidthMinus1) {
+				if(x < srcWidthMinus1) {
 					nbr_r = dstPixels[index] + A * err_r;
 					nbr_g = dstPixels[index + 1] + A * err_g;
 					nbr_b = dstPixels[index + 2] + A * err_b;
@@ -1357,7 +1357,7 @@ export class ImageFilters {
 
 				// x - 1, y + 1
 				index += (srcWidth - 2) << 2;
-				if (x > 0 && y < srcHeightMinus1) {
+				if(x > 0 && y < srcHeightMinus1) {
 					nbr_r = dstPixels[index] + B * err_r;
 					nbr_g = dstPixels[index + 1] + B * err_g;
 					nbr_b = dstPixels[index + 2] + B * err_b;
@@ -1369,7 +1369,7 @@ export class ImageFilters {
 
 				// x, y + 1
 				index += 1 << 2;
-				if (y < srcHeightMinus1) {
+				if(y < srcHeightMinus1) {
 					nbr_r = dstPixels[index] + C * err_r;
 					nbr_g = dstPixels[index + 1] + C * err_g;
 					nbr_b = dstPixels[index + 2] + C * err_b;
@@ -1381,7 +1381,7 @@ export class ImageFilters {
 
 				// x + 1, y + 1
 				index += 1 << 2;
-				if (x < srcWidthMinus1 && y < srcHeightMinus1) {
+				if(x < srcWidthMinus1 && y < srcHeightMinus1) {
 					nbr_r = dstPixels[index] + D * err_r;
 					nbr_g = dstPixels[index + 1] + D * err_g;
 					nbr_b = dstPixels[index + 2] + D * err_b;
@@ -1437,7 +1437,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels || !srcLength) {
+		if(!pixels || !srcLength) {
 			return this;
 		}
 
@@ -1446,7 +1446,7 @@ export class ImageFilters {
 		for (y = 0; y < srcHeight; y += 1) {
 			for (x = 0; x < srcWidth; x += 1) {
 				srcIndex = (y * srcWidth + x) << 2;
-				if (vertical) {
+				if(vertical) {
 					dstIndex = ((srcHeight - y - 1) * srcWidth + x) << 2;
 				}
 				else {
@@ -1490,7 +1490,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1519,7 +1519,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1546,19 +1546,19 @@ export class ImageFilters {
 
 			// saturation
 			s = hsl[1] + hsl[1] * satDelta;
-			if (s < 0) {
+			if(s < 0) {
 				s = 0;
 			}
-			else if (s > 1) {
+			else if(s > 1) {
 				s = 1;
 			}
 
 			// lightness
 			l = hsl[2];
-			if (lightness > 0) {
+			if(lightness > 0) {
 				l += (1 - l) * lightness;
 			}
-			else if (lightness < 0) {
+			else if(lightness < 0) {
 				l += l * lightness;
 			}
 
@@ -1600,7 +1600,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1615,7 +1615,7 @@ export class ImageFilters {
 			y_start = row * blockSize;
 			y_end = y_start + blockSize;
 
-			if (y_end > srcHeight) {
+			if(y_end > srcHeight) {
 				y_end = srcHeight;
 			}
 
@@ -1623,7 +1623,7 @@ export class ImageFilters {
 				x_start = col * blockSize;
 				x_end = x_start + blockSize;
 
-				if (x_end > srcWidth) {
+				if(x_end > srcWidth) {
 					x_end = srcWidth;
 				}
 
@@ -1679,7 +1679,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1704,7 +1704,7 @@ export class ImageFilters {
 				for (row = -range; row <= range; row += 1) {
 					rowIndex = y + row;
 
-					if (rowIndex < 0 || rowIndex >= srcHeight) {
+					if(rowIndex < 0 || rowIndex >= srcHeight) {
 						continue;
 					}
 
@@ -1712,7 +1712,7 @@ export class ImageFilters {
 
 					for (col = -range; col <= range; col += 1) {
 						colIndex = x + col;
-						if (colIndex < 0 || colIndex >= srcWidth) {
+						if(colIndex < 0 || colIndex >= srcWidth) {
 							continue;
 						}
 
@@ -1734,13 +1734,13 @@ export class ImageFilters {
 
 				r = g = b = 0;
 				for (i = 1; i < levels; i += 1) {
-					if (rh[i] > rh[r]) {
+					if(rh[i] > rh[r]) {
 						r = i;
 					}
-					if (gh[i] > gh[g]) {
+					if(gh[i] > gh[g]) {
 						g = i;
 					}
-					if (bh[i] > bh[b]) {
+					if(bh[i] > bh[b]) {
 						b = i;
 					}
 				}
@@ -1766,7 +1766,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1810,7 +1810,7 @@ export class ImageFilters {
 
 			k += levels;
 
-			if (k > 255) {
+			if(k > 255) {
 				k -= 255;
 				j += 1;
 			}
@@ -1853,7 +1853,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(width, height),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1916,7 +1916,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -1975,7 +1975,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcHeight, srcWidth),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -2012,7 +2012,7 @@ export class ImageFilters {
 			dstImageData = this.ctx.createImageData(srcWidth, srcHeight),
 			dstPixels = dstImageData.data;
 
-		if (!pixels) {
+		if(!pixels) {
 			return this;
 		}
 
@@ -2033,7 +2033,7 @@ export class ImageFilters {
 				dy = y - centerY;
 				distance = dx * dx + dy * dy;
 
-				if (distance > radius2) {
+				if(distance > radius2) {
 					// out of the effected area. just copy the pixel
 					dstPixels[dstIndex] = pixels[dstIndex];
 					dstPixels[dstIndex + 1] = pixels[dstIndex + 1];
@@ -2048,7 +2048,7 @@ export class ImageFilters {
 					ty = centerY + distance * Math.sin(a);
 
 					// copy target pixel
-					if (smooth) {
+					if(smooth) {
 						// bilinear
 						this.copyBilinear(pixels, tx, ty, srcWidth, srcHeight, dstPixels, dstIndex, edge);
 					}

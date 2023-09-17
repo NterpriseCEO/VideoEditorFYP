@@ -112,7 +112,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		this.adjacentElement?.classList.remove("dropzone-left");
 
 		// If the dragged filter is not null, then reorder the filters
-		if (this.draggedFilter) {
+		if(this.draggedFilter) {
 			console.log("reorder", scroll, dropIndex);
 			
 			// Remove the dragged filter at the old position
@@ -180,7 +180,7 @@ export class TrackPropertiesPanelComponent implements AfterViewChecked {
 		let index = -1;
 		// Find the index of a specific filter by name
 		for(let i = 0; i < this.filters.length; i++) {
-			if (filter.function === this.filters[i].function) {
+			if(filter.function === this.filters[i].function) {
 				index = i;
 				break;
 			}

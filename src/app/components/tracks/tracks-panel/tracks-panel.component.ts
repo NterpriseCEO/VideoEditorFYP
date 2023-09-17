@@ -392,7 +392,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 	setPhantomClip(event: MouseEvent) {
 		const currentClip = this.cs.getCurrentClip();
 		const draggedClip = this.cs.getDraggedClip();
-		if (!currentClip && !(this.cs.isDraggingClip() && draggedClip)) {
+		if(!currentClip && !(this.cs.isDraggingClip() && draggedClip)) {
 			return;
 		}
 

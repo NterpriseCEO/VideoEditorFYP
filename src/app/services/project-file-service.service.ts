@@ -7,6 +7,7 @@ import { Clip, ClipInstance, Filter, Project, Track } from "../utils/interfaces"
 import GLFX_Filters from "../components/filters/filter-selector/filter-definitions/GLFX_Filters.json";
 import ImageFilters from "../components/filters/filter-selector/filter-definitions/ImageFilters.json";
 import { FilterLibrary } from "../utils/constants";
+import { deepCompare } from "../utils/utils";
 
 @Injectable({
 	providedIn: "root"
@@ -29,6 +30,8 @@ export class ProjectFileService {
 		clips: this.clips,
 		tracks: this.tracks
 	};
+
+	projectSavedIndexInHistory: number = 0;
 
 	projectHistory: Project[] = [];
 	historyIndex: number = 0;
@@ -73,6 +76,8 @@ export class ProjectFileService {
 			this.project.location = project.location;
 			this.location = project.location;
 
+			this.titleService.setTitle(`GraphX - ${this.location}`);
+
 			//Adds the project to the recent projects list
 			this.addProjectToRecentProjects();
 
@@ -85,7 +90,7 @@ export class ProjectFileService {
 
 		window.api.on("update-track-in-history", (_: any, track: Track) => {
 			this.project.tracks = this.project.tracks.map(t => {
-				if (t.id === track.id) {
+				if(t.id === track.id) {
 					if(track.width && track.height) {
 						t.width = track.width;
 						t.height = track.height;
@@ -98,6 +103,8 @@ export class ProjectFileService {
 			this.tracks = this.project.tracks;
 			this.loadTracksSubject.next(this.tracks);
 			this.isDirty = true;
+
+			this.titleService.setTitle(`GraphX - * ${this.location}`);
 		});
 	}
 
@@ -198,6 +205,8 @@ export class ProjectFileService {
 
 		this.isDirty = true;
 
+		this.titleService.setTitle(`GraphX - * ${this.location}`);
+
 		this.addProjectToHistory(this.project);
 	}
 
@@ -205,6 +214,8 @@ export class ProjectFileService {
 		this.clips = clips;
 
 		this.isDirty = true;
+
+		this.titleService.setTitle(`GraphX - * ${this.location}`);
 
 		//Adds the clips to all projects in the history
 		//This prevents the clips from being lost when the user
@@ -219,6 +230,7 @@ export class ProjectFileService {
 	saveProject() {
 		this.project.lastModifiedDate = new Date();
 		//If a project is loaded, save it instead of creating a new one
+		this.projectSavedIndexInHistory = this.historyIndex;
 		if(this.projectLoaded) {
 			window.api.emit("save-project", this.project);
 		}else {
@@ -228,6 +240,7 @@ export class ProjectFileService {
 
 	saveProjectAs() {
 		this.project.lastModifiedDate = new Date();
+		this.projectSavedIndexInHistory = this.historyIndex;
 		window.api.emit("save-project-as", this.project);
 	}
 
@@ -264,6 +277,10 @@ export class ProjectFileService {
 			this.isDirty = false;
 
 			this.addProjectToRecentProjects();
+
+			this.projectHistory = [];
+			this.historyIndex = 0;
+			this.projectSavedIndexInHistory = 0;
 
 			this.loadClipsSubject.next(this.clips);
 			this.loadTracksSubject.next(this.tracks);
@@ -302,8 +319,16 @@ export class ProjectFileService {
 
 	updateFromHistory() {
 		//Skips the update if the prject is the same as the one in the history
-		if(JSON.stringify(this.project) === JSON.stringify(this.projectHistory[this.historyIndex])) {
+		if(deepCompare(this.project, this.projectHistory[this.historyIndex])) {
 			return;
+		}else {
+			this.isDirty = true;
+			this.titleService.setTitle(`GraphX - * ${this.location}`);
+		}
+
+		if(this.historyIndex === this.projectSavedIndexInHistory) {
+			this.isDirty = false;
+			this.titleService.setTitle(`GraphX - ${this.location}`);
 		}
 
 		this.project = JSON.parse(JSON.stringify(this.projectHistory[this.historyIndex]));
@@ -318,6 +343,8 @@ export class ProjectFileService {
 		this.name = name;
 		this.project.name = name;
 		this.isDirty = true;
+
+		this.titleService.setTitle(`GraphX - * ${this.location}`);
 
 		//add the project name to all projects in the history
 		//This prevents the project name from being lost when the user
@@ -373,6 +400,9 @@ export class ProjectFileService {
 				return track;
 			});
 			this.isDirty = true;
+
+			this.titleService.setTitle(`GraphX - * ${this.location}`);
+
 			this.project.tracks = this.tracks;
 			this.loadTracksSubject.next(this.tracks);
 		});

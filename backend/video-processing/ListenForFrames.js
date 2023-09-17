@@ -48,7 +48,7 @@ function saveFrames() {
 			const buffer = Buffer.from(data, "base64");
 			//Save each frame to a file
 			fs.writeFile(`./frame${frameNumber}.png`, buffer, (err) => {
-				if (err) {
+				if(err) {
 					console.log(err);
 				}
 			});
@@ -77,7 +77,7 @@ function processFrames(frameNumber) {
 					console.log(`error: ${error.message}`);
 					return;
 				}
-				if (stderr) {
+				if(stderr) {
 					console.log(`stderr: ${stderr}`);
 					// return;
 				}
@@ -98,7 +98,7 @@ function mergeFrames(name, callback, range) {
 			console.log(`error: ${error.message}`);
 			return;
 		}
-		if (stderr) {
+		if(stderr) {
 			console.log(`error?: ${stderr}`);
 			// return;
 		}
