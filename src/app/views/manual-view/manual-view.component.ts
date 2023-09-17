@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { MenuItem, PrimeIcons } from "primeng/api";
 
@@ -7,7 +7,7 @@ import { MenuItem, PrimeIcons } from "primeng/api";
 	templateUrl: "./manual-view.component.html",
 	styleUrls: ["./manual-view.component.scss"]
 })
-export class ManualViewComponent {
+export class ManualViewComponent implements OnInit {
 
 	activeManualPage: number = 0;
 
@@ -74,7 +74,9 @@ export class ManualViewComponent {
 
 	constructor(
 		private titleService: Title
-	) {
+	) {}
+
+	ngOnInit() {
 		this.titleService.setTitle("GraphX Manual");
 	}
 }

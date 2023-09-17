@@ -1,5 +1,4 @@
-import { Component, NgZone } from "@angular/core";
-import { ClipService } from "./services/clip.service";
+import { Component, NgZone, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { ProjectFileService } from "./services/project-file-service.service";
 import { ConfirmationService, ConfirmEventType } from "primeng/api";
@@ -20,7 +19,7 @@ declare global {
 	templateUrl: "./app.component.html",
 	styleUrls: ["./app.component.scss"]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
 
 	title = "VideoEditor";
 
@@ -30,7 +29,9 @@ export class AppComponent {
 		private confirmationService: ConfirmationService,
 		private ngZone: NgZone,
 		private titleService: Title
-	) {
+	) {}
+
+	ngOnInit() {
 		this.titleService.setTitle("GraphX");
 		this.listenForEvents();
 	}

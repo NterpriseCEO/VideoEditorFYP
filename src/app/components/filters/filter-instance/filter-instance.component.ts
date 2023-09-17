@@ -20,11 +20,11 @@ export class FilterInstanceComponent implements OnInit {
 
 	modelChanged: Subject<[any, any]> = new Subject();
 
-	constructor() {
-		this.listenForEvents();
-	}
+	constructor() {}
 
 	ngOnInit() {
+		this.listenForEvents();
+
 		this.dropdownItems = [
 			{
 				label: "Reset",

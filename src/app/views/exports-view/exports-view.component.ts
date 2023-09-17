@@ -1,4 +1,4 @@
-import { Component, ElementRef, QueryList, ViewChild, ViewChildren, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, NgZone, Renderer2 } from "@angular/core";
+import { Component, ElementRef, QueryList, ViewChild, ViewChildren, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, NgZone, Renderer2, OnInit } from "@angular/core";
 import { io } from "socket.io-client";
 
 const fx = require("glfx-es6");
@@ -15,7 +15,7 @@ import { MenuItem } from "primeng/api";
 	styleUrls: ["./exports-view.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ExportsViewComponent implements AfterViewInit {
+export class ExportsViewComponent implements OnInit, AfterViewInit {
 
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
@@ -62,14 +62,16 @@ export class ExportsViewComponent implements AfterViewInit {
 				localStorage.setItem("recentExports", "[]");
 			}
 		}
-	]
+	];
 
 	constructor(
 		private tracksService: TracksService,
 		private changeDetector: ChangeDetectorRef,
 		private renderer: Renderer2,
 		private zone: NgZone
-	) {
+	) {}
+
+	ngOnInit() {
 		let recents = localStorage.getItem("recentExports");
 		if(recents) {
 			this.recentExports = JSON.parse(recents);

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ClipService } from "src/app/services/clip.service";
 import { KeyboardEventsService } from "src/app/services/keyboard-events.service";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
@@ -8,7 +8,7 @@ import { ProjectFileService } from "src/app/services/project-file-service.servic
 	templateUrl: "./main-view.component.html",
 	styleUrls: ["./main-view.component.scss"]
 })
-export class MainViewComponent {
+export class MainViewComponent implements OnInit {
 
 	insertPanelVisible = true;
 	tracksPanelIsVisible = true;
@@ -24,7 +24,9 @@ export class MainViewComponent {
 		private keys: KeyboardEventsService,
 		private pfService: ProjectFileService,
 		private cs: ClipService
-	) {
+	) {}
+
+	ngOnInit() {
 		//Reads the each panel's visibility from local storage
 		let insertPanelVisible = localStorage.getItem("insertPanelVisible");
 		let tracksPanelIsVisible = localStorage.getItem("tracksPanelIsVisible");

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, Renderer2, ViewChild } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, Renderer2, ViewChild } from "@angular/core";
 import { io } from "socket.io-client";
 import { fromEvent, Observable, Subscription } from "rxjs";
 import { Title } from "@angular/platform-browser";
@@ -18,7 +18,7 @@ const fx = require("glfx-es6");
 	styleUrls: ["./preview.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreviewComponent implements AfterViewInit, OnDestroy {
+export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
@@ -96,8 +96,9 @@ export class PreviewComponent implements AfterViewInit, OnDestroy {
 		private ngZone: NgZone,
 		private renderer: Renderer2,
 		private titleService: Title
-	) {
+	) {}
 
+	ngOnInit() {
 		this.titleService.setTitle("GraphX - Preview");
 
 		this.videoPlayback();

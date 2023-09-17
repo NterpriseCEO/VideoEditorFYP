@@ -66,7 +66,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 		}
 	}
 
-	ngOnDestroy(): void {
+	ngOnDestroy() {
 		if(this.resizeObserver) {
 			this.resizeObserver.disconnect();
 		}

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { TreeNode } from "primeng/api";
 import { FilterLibrary } from "src/app/utils/constants";
 import { Filter } from "src/app/utils/interfaces";
@@ -11,13 +11,15 @@ import { TracksService } from "src/app/services/tracks.service";
 	templateUrl: "./filter-selector.component.html",
 	styleUrls: ["./filter-selector.component.scss"]
 })
-export class FilterSelectorComponent {
+export class FilterSelectorComponent implements OnInit {
 
 	filters: TreeNode[] = [];
 
 	selectedFilter: Filter | null = null;
 
-	constructor(private trackService: TracksService) {
+	constructor(private trackService: TracksService) {}
+
+	ngOnInit() {
 		//Applies the type GLFX_Filters to the GLFX_Filters
 		//This may or may not be necessary
 		GLFX_Filters.filters = GLFX_Filters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX}));
@@ -25,7 +27,7 @@ export class FilterSelectorComponent {
 		let allFilters;
 
 		//Concatenates the two filter lists and sorts them by category
-		allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.IMAGE_FILTERS})) as Filter[])
+		allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, { type: FilterLibrary.IMAGE_FILTERS })) as Filter[])
 			.sort((a, b) => a.category.localeCompare(b.category));
 
 		let filterCategories = allFilters.map((filter) => filter.category);
@@ -33,19 +35,19 @@ export class FilterSelectorComponent {
 		//This adds all relevant filters to under their respective categories
 		let mappedFilters: TreeNode[] = filterCategories.filter((category, index) => filterCategories.indexOf(category) === index)
 			.map((category) => {
-			return {
-				label: category,
-				data: category,
-				type: "category",
-				//Filters out all filters that don't match the category and maps the rest of them to the SelectItem array
-				children: allFilters.filter((f) => f.category === category).map((f) => {
-					return {
-						label: f.displayName,
-						value: f
-					}
-				})
-			}
-		});
+				return {
+					label: category,
+					data: category,
+					type: "category",
+					//Filters out all filters that don't match the category and maps the rest of them to the SelectItem array
+					children: allFilters.filter((f) => f.category === category).map((f) => {
+						return {
+							label: f.displayName,
+							value: f
+						}
+					})
+				}
+			});
 		this.filters = mappedFilters;
 	}
 

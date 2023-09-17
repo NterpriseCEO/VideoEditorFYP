@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from "@angular/core";
+import { Injectable, NgZone, OnInit } from "@angular/core";
 import { Subject } from "rxjs";
 import { TrackType } from "../utils/constants";
 import { Filter, FilterInstance, Track } from "../utils/interfaces";
@@ -7,7 +7,7 @@ import { ProjectFileService } from "./project-file-service.service";
 @Injectable({
 	providedIn: "root"
 })
-export class TracksService {
+export class TracksService implements OnInit {
 	
 	//Subject to add filter to the current track
 	public filtersChangedSubject = new Subject<boolean>();
@@ -26,7 +26,9 @@ export class TracksService {
 	constructor(
 		private pfService: ProjectFileService,
 		private ngZone: NgZone,
-	) {
+	) {}
+
+	ngOnInit() {
 		this.listenForEvents();
 	}
 

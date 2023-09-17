@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from "@angular/core";
 import { ConfirmationService, ConfirmEventType, MenuItem, PrimeIcons } from "primeng/api";
 import { Router } from "@angular/router";
 
@@ -13,7 +13,7 @@ import { ProjectFileService } from "src/app/services/project-file-service.servic
 	styleUrls: ["./editor-toolbar.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EditorToollbarComponent {
+export class EditorToollbarComponent implements OnInit {
 
 	@ViewChild("sourceSelector") sourceSelector!: SourceSelectorComponent;
 
@@ -226,7 +226,9 @@ export class EditorToollbarComponent {
 		private confirmationService: ConfirmationService,
 		private ngZone: NgZone,
 		private changeDetector: ChangeDetectorRef,
-	) {
+	) {}
+
+	ngOnInit() {
 		this.listenForEvents();
 	}
 

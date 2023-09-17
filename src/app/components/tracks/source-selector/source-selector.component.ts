@@ -1,11 +1,11 @@
-import { Component, EventEmitter, Input, NgZone, Output } from "@angular/core";
+import { Component, EventEmitter, Input, NgZone, OnInit, Output } from "@angular/core";
 
 @Component({
 	selector: "app-source-selector",
 	templateUrl: "./source-selector.component.html",
 	styleUrls: ["./source-selector.component.scss"]
 })
-export class SourceSelectorComponent {
+export class SourceSelectorComponent implements OnInit {
 
 	@Input() showButton: boolean = false;
 
@@ -15,7 +15,9 @@ export class SourceSelectorComponent {
 
 	screenShareSources: any[] = [];
 
-	constructor(private ngZone: NgZone) {
+	constructor(private ngZone: NgZone) {}
+
+	ngOnInit() {
 		this.getScreenShareSources();
 	}
 

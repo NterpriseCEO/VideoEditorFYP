@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from "@angular/core";
 import { SelectItem } from "primeng/api";
 import { Clip } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
@@ -11,7 +11,7 @@ import { ProjectFileService } from "src/app/services/project-file-service.servic
 	styleUrls: ["./imports-panel.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ImportsPanelComponent {
+export class ImportsPanelComponent implements OnInit {
 
 	//reference dv ViewChild
 	@ViewChild("dv") dv!: any;
@@ -30,7 +30,9 @@ export class ImportsPanelComponent {
 		private ngZone: NgZone,
 		private changeDetector: ChangeDetectorRef,
 		private pfService: ProjectFileService
-	) {
+	) {}
+
+	ngOnInit() {
 		this.sortOptions = [
 			{label: "A-Z", value: "name"},
 			{label: "Z-A", value: "!name"}

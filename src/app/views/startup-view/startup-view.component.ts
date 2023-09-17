@@ -1,4 +1,4 @@
-import { Component, NgZone } from "@angular/core";
+import { Component, NgZone, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { MenuItem } from "primeng/api";
 
@@ -7,7 +7,7 @@ import { MenuItem } from "primeng/api";
 	templateUrl: "./startup-view.component.html",
 	styleUrls: ["./startup-view.component.scss"]
 })
-export class StartupViewComponent {
+export class StartupViewComponent implements OnInit {
 
 	recentProjects = [];
 
@@ -29,10 +29,11 @@ export class StartupViewComponent {
 	constructor(
 		private router: Router,
 		private ngZone: NgZone
-	) {
-		//read recentProjects from local storage
+	) {}
+
+	ngOnInit() {
 		let recentProjects = localStorage.getItem("recentProjects");
-		if(recentProjects) {
+		if (recentProjects) {
 			this.recentProjects = JSON.parse(recentProjects);
 		}
 	}
