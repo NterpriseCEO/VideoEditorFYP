@@ -277,12 +277,32 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.generateVideos();
 		}));
 
+		window.api.on("mute-track", (_, track: Track) => this.ngZone.run(() => {
+			//Finds the track with the matching id
+			const id = this.tracks.findIndex(({ id }) => id === track.id);
+
+			//Mutes/unmutes the video if it is a video track
+			//prevents live streams from being unmuted
+			//which causes audio feedback
+			if(track.type === TrackType.VIDEO) {
+				this.videos[id].muted = track.muted;
+			}
+			this.tracks[id].muted = track.muted;
+
+			//Mutes/unmutes the audio track
+			//if one exists
+			//This is for MediaStream tracks i.e. webcam and screen capture
+			if(this.audioTracks[id]) {
+				this.audioTracks[id].enabled = !track.muted;
+			}
+
+			this.changeDetector.detectChanges();
+		}));
+
 		window.api.on("update-track-clips", (_, track: Track) => this.ngZone.run(() => {
 			//find the track with the matching id
 			this.tracks.find(({ id }) => id === track.id)!.clips = track.clips;
 			this.calculateDuration();
-
-			console.log(this.videos);
 
 			this.getClipAtTime(this.masterTime);
 		}));
@@ -328,6 +348,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//Removes each video element from the preview container
 			this.renderer.removeChild(this.previewContainer.nativeElement, this.videos[id]);
 			this.videos[id] = null;
+			this.audioTracks[id] = null;
 			//And cancels the animation frames and time animation frames
 			window.cancelAnimationFrame(this.timeAnimationFrames[id]);
 			window.cancelAnimationFrame(this.animationFrames[id]);
@@ -788,10 +809,15 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 					// 	this.stream.removeTrack(this.stream.getAudioTracks()[index]);
 					// }
 
-					this.createAudioTrack(video, index);
+					this.audioTracks[index] = stream.getAudioTracks()[0];
+
+					//Mutes the media stream if the track is muted
+					if(track.muted) {
+						this.audioTracks[index].enabled = false;
+					}
 
 					const sourceNode = new MediaStreamAudioSourceNode(this.audioCtx, {
-						mediaStream: new MediaStream([stream.getAudioTracks()[0]])
+						mediaStream: new MediaStream([this.audioTracks[index]])
 					});
 
 					sourceNode.connect(this.audioDestination);
@@ -828,10 +854,15 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				}).then((stream) => {
 					//The video preview element src
 					video.srcObject = stream;
-					this.createAudioTrack(video, index);
+
+					this.audioTracks[index] = stream.getAudioTracks()[0];
+
+					if(track.muted) {
+						this.audioTracks[index].enabled = false;
+					}
 
 					const sourceNode = new MediaStreamAudioSourceNode(this.audioCtx, {
-						mediaStream: new MediaStream([stream.getAudioTracks()[0]])
+						mediaStream: new MediaStream([this.audioTracks[index]])
 					});
 
 					sourceNode.connect(this.audioDestination);
@@ -853,7 +884,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		video.onloadedmetadata = () => {
 			//Calls once the the video metadata has loaded
-			video.muted = track.type !== TrackType.VIDEO && video.srcObject !== null;
+			video.muted = (track.type !== TrackType.VIDEO && video.srcObject !== null) || (track?.muted ?? false);
 			if(this.videoPlaying || video.srcObject) {
 				video.play();
 			}
@@ -878,6 +909,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			// Connect the video element's output to the stream
 			sourceNode.connect(this.audioDestination);
 			sourceNode.connect(this.audioCtx.destination);
+			sourceNode.enabled = true;
 		}catch(e) {
 			console.log(e);
 		}

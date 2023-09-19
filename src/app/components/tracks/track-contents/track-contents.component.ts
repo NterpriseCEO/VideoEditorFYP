@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges,OnInit, Output } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges,OnDestroy,OnInit, Output } from "@angular/core";
 import { ClipService } from "src/app/services/clip.service";
 import { KeyboardEventsService } from "src/app/services/keyboard-events.service";
 import { TracksService } from "src/app/services/tracks.service";
@@ -9,7 +9,7 @@ import { ClipInstance, Track } from "src/app/utils/interfaces";
 	templateUrl: "./track-contents.component.html",
 	styleUrls: ["./track-contents.component.scss"]
 })
-export class TrackContentsComponent implements OnChanges, OnInit {
+export class TrackContentsComponent implements OnChanges, OnInit, OnChanges, OnDestroy {
 
 	@Input() clips!: ClipInstance[];
 	@Input() trackIndex!: number;
@@ -23,6 +23,8 @@ export class TrackContentsComponent implements OnChanges, OnInit {
 
 	clipToResize: HTMLElement | null = null;
 
+	keyboardEventsSubscription: any = [];
+
 	constructor(
 		private changeDetector: ChangeDetectorRef,
 		private keys: KeyboardEventsService,
@@ -31,25 +33,7 @@ export class TrackContentsComponent implements OnChanges, OnInit {
 	) {}
 
 	ngOnInit() {
-		this.keys.keypress("keyup.delete").subscribe(() => {
-			//Deletes the selected clip
-			if(this.selectedClip) {
-				if(this.clips.indexOf(this.selectedClip) == -1) {
-					return;
-				}
-				this.clips.splice(this.clips.indexOf(this.selectedClip), 1);
-				this.selectedClip = null;
-				this.changeDetector.detectChanges();
-
-				this.clipDeleted.emit();
-			}
-		});
-
-		this.cs.clipSelectionUpdateSubject.subscribe((clip: ClipInstance | null) => {
-			this.selectedClip = clip;
-
-			this.changeDetector.detectChanges();
-		});
+		this.listenForEvents();
 	}
 
 	ngOnChanges() {
@@ -62,6 +46,40 @@ export class TrackContentsComponent implements OnChanges, OnInit {
 			//Sets the width of the track = to the end coords of the last clip
 			this.trackWidth = (lastClip.startTime + lastClip.duration)*10;
 		}
+	}
+
+	ngOnDestroy() {
+		this.keyboardEventsSubscription.forEach((subscription: any) => subscription.unsubscribe());
+		this.keyboardEventsSubscription = [];
+
+		this.cs.clipSelectionUpdateSubject.unsubscribe();
+	}
+
+	listenForEvents() {
+		this.keyboardEventsSubscription.push(this.keys.keypress("keyup.delete").subscribe(() => {
+			//Deletes the selected clip
+			if (this.selectedClip) {
+				if (this.clips.indexOf(this.selectedClip) == -1) {
+					return;
+				}
+				this.clips.splice(this.clips.indexOf(this.selectedClip), 1);
+				this.selectedClip = null;
+				this.changeDetector.detectChanges();
+
+				this.clipDeleted.emit();
+			}
+		}));
+
+		//Can toggle track mute with ctrl+m
+		this.keyboardEventsSubscription.push(this.keys.keypress("keyup.control.m").subscribe(() => {
+			this.tracksService.toggleTrackMute(this.tracksService.tracks[this.trackIndex]);
+		}));
+
+		this.cs.clipSelectionUpdateSubject.subscribe((clip: ClipInstance | null) => {
+			this.selectedClip = clip;
+
+			this.changeDetector.detectChanges();
+		});
 	}
 
 	selectClip(event: Event, clip?: ClipInstance) {

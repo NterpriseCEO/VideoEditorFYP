@@ -1,5 +1,11 @@
 <app-source-selector #sourceSelector (sourceSelected) = "updateSource($event)"></app-source-selector>
-<div class = "flex track-controls">
+<p-contextMenu
+	[target] = "tracksDetails"
+	[model] = "menuItems"
+	appendTo = "body"
+>
+</p-contextMenu>
+<div #tracksDetails class = "flex track-controls">
 	<div class = "flex-shrink-0 w-6" [ngStyle] = "{backgroundColor: track.colour, color: titleColour }">
 		<div class = "h-full flex flex-column flex-grow-1 flex flex-column justify-content-center align-items-center">
 			<div style = "height: 45%">
@@ -58,14 +64,6 @@
 				></button>
 			</div>
 			<div>
-				<button
-					pButton
-					class = "p-button-sm p-button-text p-button-warning"
-					icon = "pi pi-palette"
-					tooltipPosition = "left"
-					pTooltip = "Change track colour"
-					(click) = "op.toggle($event)"
-				></button>
 				<p-overlayPanel #op>
 					<ng-template pTemplate>
 						<p-colorPicker [(ngModel)] = "track.colour" [inline] = "true"></p-colorPicker><br>
@@ -81,6 +79,16 @@
 					tooltipPosition = "left"
 					pTooltip = "Delete track"
 					(click) = "onTrackDelete.emit()"
+				></button>
+			</div>
+			<div>
+				<button
+					pButton
+					class = "p-button-sm p-button-text"
+					icon = "pi pi-cog"
+					tooltipPosition = "left"
+					pTooltip = "Show all track properties"
+					(click) = "showAllProperties()"
 				></button>
 			</div>
 		</div>

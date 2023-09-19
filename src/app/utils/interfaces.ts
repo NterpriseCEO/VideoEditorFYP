@@ -47,6 +47,7 @@ export interface Track {
 	source?: any; // If screen capture, this is the source/ source id
 	width?: number;
 	height?: number;
+	muted?: boolean;
 }
 
 export interface Clip {

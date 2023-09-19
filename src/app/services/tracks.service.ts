@@ -1,4 +1,4 @@
-import { Injectable, NgZone, OnInit } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
 import { TrackType } from "../utils/constants";
 import { Filter, FilterInstance, Track } from "../utils/interfaces";
@@ -7,13 +7,14 @@ import { ProjectFileService } from "./project-file-service.service";
 @Injectable({
 	providedIn: "root"
 })
-export class TracksService implements OnInit {
+export class TracksService {
 	
 	//Subject to add filter to the current track
 	public filtersChangedSubject = new Subject<boolean>();
 	public tracksSubject = new Subject<Track[]>;
 	public selectedTrackChangedSubject = new Subject<Track | null>;
 	public previewStateSubject = new Subject<{isPlaying: boolean, isFinishedPlaying: boolean, currentTime?: number}>();
+	trackMuteSubject = new Subject<Track>();
 
 	tracks: Track[] = [];
 
@@ -26,9 +27,7 @@ export class TracksService implements OnInit {
 	constructor(
 		private pfService: ProjectFileService,
 		private ngZone: NgZone,
-	) {}
-
-	ngOnInit() {
+	) {
 		this.listenForEvents();
 	}
 
@@ -261,6 +260,15 @@ export class TracksService implements OnInit {
 		track!.layerFilter = layerFilter;
 		this.pfService.updateTracks(this.tracks);
 		window.api.emit("update-layer-filter", this.selectedTrack);
+	}
+
+	toggleTrackMute(track: Track) {
+		track.muted = !track.muted;
+		this.tracksSubject.next(this.tracks);
+		this.pfService.updateTracks(this.tracks);
+		window.api.emit("mute-track", track);
+
+		this.trackMuteSubject.next(track);
 	}
 
 	//Gets the duration of the project by finding the end time of the clip that ends last

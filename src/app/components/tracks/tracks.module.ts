@@ -16,6 +16,7 @@ import { OverlayPanelModule } from "primeng/overlaypanel";
 import { ColorPickerModule } from "primeng/colorpicker";
 import { DataViewModule } from "primeng/dataview";
 import { ContextMenuModule } from "primeng/contextmenu";
+import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 
 import { FiltersModule } from "../filters/filters.module";
 import { ClipsModule } from "../clips/clips.module";
@@ -25,6 +26,7 @@ import { SourceSelectorComponent } from "./source-selector/source-selector.compo
 import { TrackPropertiesPanelComponent } from "./track-properties-panel/track-properties-panel.component";
 import { TrackContentsComponent } from "./track-contents/track-contents.component";
 import { TrackDetailsComponent } from "./track-details/track-details.component";
+import { TrackPropertiesPopupComponent } from './track-properties-popup/track-properties-popup.component';
 
 @NgModule({
 	declarations: [
@@ -32,7 +34,8 @@ import { TrackDetailsComponent } from "./track-details/track-details.component";
 		SourceSelectorComponent,
 		TrackPropertiesPanelComponent,
 		TrackContentsComponent,
-		TrackDetailsComponent
+		TrackDetailsComponent,
+  		TrackPropertiesPopupComponent
 	],
 	imports: [
 		BrowserModule,
@@ -53,6 +56,14 @@ import { TrackDetailsComponent } from "./track-details/track-details.component";
 		ContextMenuModule,
 		ClipsModule
 	],
-	exports: [TracksPanelComponent, TrackPropertiesPanelComponent, SourceSelectorComponent],
+	exports: [
+		TracksPanelComponent,
+		TrackPropertiesPanelComponent,
+		SourceSelectorComponent,
+		TrackPropertiesPopupComponent
+	],
+	providers: [
+		DialogService
+	]
 })
 export class TracksModule { }

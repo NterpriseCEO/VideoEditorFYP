@@ -45,6 +45,11 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 			this.previewWindow.webContents.send("tracks", tracks);	
 		}
 	});
+	ipcMain.on("mute-track", (_, track) => {
+		if(this.previewWindow) {
+			this.previewWindow.webContents.send("mute-track", track);
+		}
+	});
 	ipcMain.on("update-track-clips", (_, track) => {
 		if(this.previewWindow) {
 			this.previewWindow.webContents.send("update-track-clips", track);
