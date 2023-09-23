@@ -19,6 +19,7 @@ export class TracksService {
 	tracks: Track[] = [];
 
 	selectedTrack: Track | null = null;
+	selectedTrackIndex: number = 0;
 
 	canSendTracks = false;
 
@@ -37,6 +38,7 @@ export class TracksService {
 			this.tracks = tracks;
 
 			this.selectedTrack = this.tracks.find(track => track.id === this.selectedTrack?.id) ?? this.tracks[0];
+			this.selectedTrackIndex = this.tracks.findIndex(track => track.id === this.selectedTrack?.id);
 
 			this.selectedTrackChangedSubject.next(this.selectedTrack);
 			this.tracksSubject.next(this.tracks);
@@ -186,6 +188,7 @@ export class TracksService {
 
 	setSelectedTrack(track: Track) {
 		this.selectedTrack = JSON.parse(JSON.stringify(track));
+		this.selectedTrackIndex = this.tracks.findIndex(t => t.id === track.id);
 		this.selectedTrackChangedSubject.next(this.selectedTrack);
 	}
 
@@ -224,8 +227,10 @@ export class TracksService {
 			//if the currently selected track is deleted
 			try {
 				this.selectedTrack = this.tracks[trackIndex - 1 ?? 0];
+				this.selectedTrackIndex = trackIndex - 1;
 			}catch(error) {
 				this.selectedTrack = null;
+				this.selectedTrackIndex = 0;
 			}
 			this.selectedTrackChangedSubject.next(this.selectedTrack ?? null);
 
@@ -269,6 +274,22 @@ export class TracksService {
 		window.api.emit("mute-track", track);
 
 		this.trackMuteSubject.next(track);
+	}
+
+	selectTrackByIndex(index: number, delta: number = 0) {
+		//Uses the delta to select the previous or next track and
+		//modulo to loop back to the start or end of the array
+		const newIndex = (index + delta + this.tracks.length) % (this.tracks.length);
+		console.log(newIndex);
+		this.setSelectedTrack(this.tracks[newIndex]);
+	}
+
+	//Sets the selected track as the previous and next tracks
+	selectPreviousTrack() {
+		this.selectTrackByIndex(this.selectedTrackIndex, -1);
+	}
+	selectNextTrack() {
+		this.selectTrackByIndex(this.selectedTrackIndex, 1);
 	}
 
 	//Gets the duration of the project by finding the end time of the clip that ends last

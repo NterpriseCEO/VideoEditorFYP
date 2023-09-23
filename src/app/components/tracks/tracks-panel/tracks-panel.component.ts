@@ -183,12 +183,12 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 
 	setTimeNumbers() {
 		let roundedWidth = Math.round((this.projectDuration + 10) / 5);
-
-		//If the amound of numbers is less than 2 then set it the amount that
-		//fits in the tracksList element
-		if(roundedWidth === 2) {
-			const tracksListWidth = this.tracksList.nativeElement.scrollWidth-200;
-			roundedWidth = Math.round((tracksListWidth) / 50);
+		/*If the amount of numbers that need to be displayed is less
+		than the width of the tracksList element, then display enough
+		numbers to fill the width of the tracksList element*/
+		const tracksWidth = this.tracksList.nativeElement.scrollWidth-200;
+		if(roundedWidth*50 < tracksWidth) {
+			roundedWidth = Math.round((tracksWidth) / 50);
 		}
 		this.numbers = [...Array(roundedWidth).keys()];
 		this.changeDetector.detectChanges();

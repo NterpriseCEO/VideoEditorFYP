@@ -51,9 +51,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 	items: MenuItem[] = [
 		{
 			label: "Export",
-			command: () => {
-				this.startExport()
-			}
+			command: this.startExport.bind(this)
 		},
 		{
 			label: "Clear",
@@ -89,9 +87,10 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		this.videos.changes.subscribe(changes => {
 			this.isRecording = true;
 			this.finalRender();
-			this.recordAndSendData();
 
 			changes.forEach((video: ElementRef, index: number) => {
+				this.createAudioTrack(video.nativeElement, index);
+				video.nativeElement.muted = this.tracks[index]?.muted ?? false;
 				this.drawCanvas(video.nativeElement, this.tracks[index], index);
 			});
 		});
@@ -177,13 +176,16 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		});
 	}
 
-	createAudioTrack(video: HTMLVideoElement) {
-		//Creates an audio track from the video
-		let sourceNode = this.audioCtx.createMediaElementSource(video);
-		// Connect the video element's output to the stream
-		sourceNode.connect(this.audioDestination);
-		sourceNode.connect(this.audioCtx.destination);
-		this.stream.addTrack(this.audioDestination.stream.getAudioTracks()[0]);
+	createAudioTrack(video: any, index: number) {
+		try {
+			let sourceNode = this.audioCtx.createMediaElementSource(video);
+			// Connect the video element's output to the stream
+			sourceNode.connect(this.audioDestination);
+			sourceNode.connect(this.audioCtx.destination);
+			sourceNode.enabled = true;
+		} catch (e) {
+			console.log(e);
+		}
 	}
 
 	recordAndSendData() {
@@ -193,8 +195,10 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		};
 
 		//Captures the canvas and sends it to the server as new data is available
-		const mediaStream: MediaStream = new MediaStream(this.finalCanvas.nativeElement.captureStream());
-		this.mediaRecorder = new MediaRecorder(this.stream, recorderOptions);
+		this.mediaRecorder = new MediaRecorder(new MediaStream([
+			this.stream.getVideoTracks()[0],
+			this.audioDestination.stream.getAudioTracks()[0]
+		]), recorderOptions);
 		this.mediaRecorder.onstop = (event) => {};
 		this.mediaRecorder.ondataavailable = (event) => {
 			if(event.data && event.data.size > 0 && this.isRecording) {
@@ -426,10 +430,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 
 		window.requestAnimationFrame(step);
 		this.stream = finalCanvas.captureStream();
-		//Adds the audio to the stream
-		this.videos.toArray().forEach((video: ElementRef<HTMLVideoElement>) => {
-			this.createAudioTrack(video.nativeElement);
-		});
+		this.recordAndSendData();
 	}
 
 	exportProgress() {

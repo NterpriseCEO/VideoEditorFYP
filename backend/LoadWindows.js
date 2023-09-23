@@ -235,6 +235,7 @@ MainWindow.prototype.createPreviewWindow = function() {
 	//Clears the previous on close event
 	this.previewWindow.once("close", (e) => {
 		this.previewWindow = null;
+		this.server.setWindows(this.window, this.previewWindow);
 		this.streamingAndFilters.setWindows(this.window, this.previewWindow);
 		this.window.webContents.send("preview-exited");
 		this.window.webContents.send("update-play-video-button", {isPlaying: false, isFinishedPlaying: true});

@@ -14,7 +14,9 @@ function Server() {
 		ipcMain.on("get-server-port", () => {
 			let port = server.address().port;
 			this.window.webContents.send("server-port", port);
-			this.previewWindow.webContents.send("server-port", port);
+			if(this.previewWindow) {
+				this.previewWindow.webContents.send("server-port", port);
+			}
 		});
 	});
 }
