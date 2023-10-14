@@ -71,7 +71,7 @@ ImportFiles.prototype.relinkClip = function(file) {
 			this.mainWindow.webContents.send("relinked-clip-data", {
 				path: result.filePaths[0],
 				name: path.basename(result.filePaths[0]),
-				duration: duration,
+				duration: duration * 1000,
 			});
 		}).catch((err) => {
 			console.log(err);
@@ -90,7 +90,7 @@ ImportFiles.prototype.extractMetadata = function(counter, files) {
 		let file = this.files[counter];
 		//Gets the duration of the video file and continues to the next file
 		getVideoDurationInSeconds(file).then((duration) => {
-			files[counter] = {name: file, duration: duration, location: this.files[counter]};
+			files[counter] = {name: file, duration: duration*1000, location: this.files[counter]};
 			this.extractMetadata(++counter, files);
 		}).catch((err) => {
 			//Need to figure out how to handle files that don't have duration
@@ -149,7 +149,7 @@ exports.extractMetadataAndImportFile = function(file) {
 	getVideoDurationInSeconds(file).then((duration) => {
 		//The file name
 		let name = path.basename(file);
-		let _file = {name: name, location: file, duration: duration, totalDuration: duration};
+		let _file = {name: name, location: file, duration: duration * 1000, totalDuration: duration * 1000};
 		getMainWindow().webContents.send("imported-files", [_file]);
 		getMainWindow().webContents.send("add-clip-to-track", _file);
 	});

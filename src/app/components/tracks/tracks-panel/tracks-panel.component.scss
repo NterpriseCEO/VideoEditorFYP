@@ -11,14 +11,22 @@ $top_height: 30px;
 	height: calc(100% - $top_height - 0.5rem);
 	//linear gradient every 50px;
 	//Represents 5 seconds of time
-	background: repeating-linear-gradient(90deg, var(--surface-50), var(--surface-50), transparent 2px, transparent 50px);
+	background: repeating-linear-gradient(90deg, transparent 0 48px, var(--surface-50) 48px 50px);
+}
+
+#timeline-numbers {
+	font-size: 0;
 }
 
 .timeline-number {
-	flex: 0 0 50px;
-	width: 50px;
+	flex: 0 0 100px;
+	width: 100px;
 	height: $top_height;
 	transform: translateX(-50%);
+
+	& span {
+		width: 100%;
+	}
 }
 
 #timeline-indicator {

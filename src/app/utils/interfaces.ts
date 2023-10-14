@@ -75,3 +75,8 @@ export interface Project {
 	clips: Clip[];
 	tracks: Track[];
 }
+
+export interface ZoomSliderPosition {
+	left: number;
+	right: number;
+}

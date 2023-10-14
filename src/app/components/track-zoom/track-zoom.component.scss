@@ -1,0 +1,20 @@
+// #track-zoom-slider-outer {
+// 	width: 80px;
+// 	height: 70%;
+// 	margin-top: 5%;
+// 	clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+// 	cursor: ew-resize;
+// }
+
+.handle {
+	width: 10px;
+	cursor: ew-resize;
+}
+
+#left-handle {
+	border-right: none;
+}
+
+#right-handle {
+	border-left: none;
+}

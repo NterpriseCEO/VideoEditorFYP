@@ -459,7 +459,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 
 			if(lastClip.startTime + lastClip.duration > this.duration) {
-				this.duration = lastClip.startTime + lastClip.duration;
+				this.duration = (lastClip.startTime + lastClip.duration)/1000;
 			}
 		});
 	}

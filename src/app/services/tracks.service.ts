@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
 import { TrackType } from "../utils/constants";
-import { Filter, FilterInstance, Track } from "../utils/interfaces";
+import { Filter, FilterInstance, Track, ZoomSliderPosition } from "../utils/interfaces";
 import { ProjectFileService } from "./project-file-service.service";
 
 @Injectable({
@@ -11,9 +11,11 @@ export class TracksService {
 	
 	//Subject to add filter to the current track
 	public filtersChangedSubject = new Subject<boolean>();
-	public tracksSubject = new Subject<Track[]>;
-	public selectedTrackChangedSubject = new Subject<Track | null>;
+	public tracksSubject = new Subject<Track[]>();
+	public tracksLoadedFromProjectFileSubject = new Subject<Track[]>();
+	public selectedTrackChangedSubject = new Subject<Track | null>();
 	public previewStateSubject = new Subject<{isPlaying: boolean, isFinishedPlaying: boolean, currentTime?: number}>();
+	public tracksPanelZoomSubject = new Subject<number>();
 	trackMuteSubject = new Subject<Track>();
 
 	tracks: Track[] = [];
@@ -24,6 +26,11 @@ export class TracksService {
 	canSendTracks = false;
 
 	currentlyRecordingTrack: Track | null = null;
+
+	zoomSliderResizeSubject = new Subject<ZoomSliderPosition>();
+
+	timelineIntervalGap: number = 5000;
+	zoomSliderScrollSubject: Subject<number> = new Subject<number>();
 
 	constructor(
 		private pfService: ProjectFileService,
@@ -39,9 +46,9 @@ export class TracksService {
 
 			this.selectedTrack = this.tracks.find(track => track.id === this.selectedTrack?.id) ?? this.tracks[0];
 			this.selectedTrackIndex = this.tracks.findIndex(track => track.id === this.selectedTrack?.id);
-
 			this.selectedTrackChangedSubject.next(this.selectedTrack);
 			this.tracksSubject.next(this.tracks);
+			this.tracksLoadedFromProjectFileSubject.next(this.tracks);
 			this.filtersChangedSubject.next(false);
 			interval = setInterval(() => {
 				//Waits until the preview window is

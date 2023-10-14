@@ -125,7 +125,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				}
 				//Filters out disabled filters
 				track.filters =
-					track!.filters?.filter(filter=> filter.enabled).map((filter: Filter, index: number) => {
+					track!.filters?.filter(filter=> filter.enabled).map((filter: Filter) => {
 
 					//Converts the filter properties to
 					//an array of values
@@ -239,7 +239,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 	}
 
 	updateTime() {
-		let currentTime = window.performance.now() / 1000;
+		let currentTime = window.performance.now();
 		if(this.isRecording) {
 			//Calculates the time since the recording started
 			this.masterTime = currentTime - this.startTime;
@@ -380,7 +380,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		let finalCanvas = this.finalCanvas.nativeElement;
 		this.ctx = finalCanvas.getContext("2d");
 
-		this.startTime = window.performance.now() / 1000;
+		this.startTime = window.performance.now();
 
 		let step = async () => {
 			this.ctx.globalCompositeOperation = "source-over";

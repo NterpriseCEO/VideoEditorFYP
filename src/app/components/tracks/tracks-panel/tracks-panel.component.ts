@@ -1,10 +1,12 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
-import { ClipInstance, Track } from "src/app/utils/interfaces";
+import { ClipInstance, Track, ZoomSliderPosition } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
 import { deepCompare } from "src/app/utils/utils";
+import { fromEvent } from "rxjs";
+import { TrackHelpers } from "../track-helpers";
 
 @Component({
 	selector: "app-tracks-panel",
@@ -12,7 +14,7 @@ import { deepCompare } from "src/app/utils/utils";
 	styleUrls: ["./tracks-panel.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, OnDestroy {
+export class TracksPanelComponent extends TrackHelpers implements AfterViewChecked, AfterViewInit, OnDestroy {
 
 	@ViewChild("tracksList") tracksList!: ElementRef;
 	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
@@ -23,7 +25,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 
 	addingTrack: boolean = false;
 
-	numbers: number[] = [];
+	timelineNumbers: string[] = [];
 
 	hoveringTrack: Track | null = null;
 	originTrack: Track | null = null;
@@ -42,12 +44,19 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 	hasLessTracksThanHeightOfTracksList: boolean = false;
 	resizeObserver: ResizeObserver | null = null;
 
+	percentageOfTracksVisible: number = 1;
+	numberOfIntervals: number = 0;
+	numberOfMillisecondsShown: number = 0;
+	numbersPosition: number = 0;
+
 	constructor(
-		public tracksService: TracksService,
-		private changeDetector: ChangeDetectorRef,
-		public cs: ClipService,
-		public pfService: ProjectFileService
-	) { }
+		public pfService: ProjectFileService,
+		tracksService: TracksService,
+		changeDetector: ChangeDetectorRef,
+		cs: ClipService
+	) {
+		super(tracksService, changeDetector, cs);
+	}
 
 	ngAfterViewInit() {
 		this.listenForEvents();
@@ -92,7 +101,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 	listenForEvents() {
 		//Listens for resize events on the tracksList element
 		this.resizeObserver = new ResizeObserver(() => {
-			this.tracksWidth = this.tracksList.nativeElement.scrollWidth;
+			this.tracksWidth = this.tracksList.nativeElement.scrollWidth-200;
 			const trackCount = this.tracks.length;
 			//Checks if the number of tracks is less than the height of the tracksList element
 			this.hasLessTracksThanHeightOfTracksList = trackCount * 100 < this.tracksList.nativeElement.clientHeight;
@@ -102,6 +111,22 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 
 		this.resizeObserver.observe(this.tracksList.nativeElement);
 
+		this.tracksService.zoomSliderResizeSubject.subscribe(position => {
+			//Calculates the percentage of the tracks that are visible
+			this.percentageOfTracksVisible = (position.right - position.left)/100;
+			this.numberOfMillisecondsShown = this.projectDuration * this.percentageOfTracksVisible;
+			this.numberOfMillisecondsShown = this.numberOfMillisecondsShown < 1000 * 135 ? 1000 * 135 * this.percentageOfTracksVisible : this.numberOfMillisecondsShown;
+			
+			const scrollWidth = this.tracksList.nativeElement.scrollWidth - this.tracksList.nativeElement.clientWidth;
+			//Percentage of the scrollbar that is scrolled
+			const scroll = (position.left/100) * scrollWidth;
+			this.tracksList.nativeElement.scrollLeft = scroll;
+
+			this.tracksService.timelineIntervalGap = Math.round(this.numberOfMillisecondsShown / (this.calculateNumberOfIntervals() - 0.5));
+
+			this.setTimeNumbers();
+			this.updateTracksPanelDimensions();
+		});
 		//Subscribes to the addTrackSubject in the tracks service
 		this.tracksService.tracksSubject.subscribe((tracks: Track[]) => {
 			//Checks if a track is being added not removed
@@ -112,13 +137,20 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 
 			this.projectDuration = this.tracksService.getProjectDuration();
 
-			//Sets the tracks width to the project duration + 30 seconds
-			//but the minimum width is the width of #tracksList
-			const width = (this.projectDuration + 30) * 10;
+			//Sends the project duration to anything that subscribes to the projectDurationSubject
+			const projectDuration = this.determineProjectDurationFromTrackWidth();
+			
+			this.projectDuration = projectDuration > this.projectDuration ? projectDuration : this.projectDuration;
+			this.pfService.projectDurationSubject.next(this.projectDuration);
 
-			this.tracksWidth = width > this.tracksList.nativeElement.clientWidth ? width : this.tracksList.nativeElement.clientWidth;
+			//Calculates the number of milliseconds of the project that are visible
+			this.numberOfMillisecondsShown = this.projectDuration * this.percentageOfTracksVisible;
+			this.numberOfMillisecondsShown = this.numberOfMillisecondsShown < 1000*135 ? 1000*135 : this.numberOfMillisecondsShown;
+
+			this.tracksService.timelineIntervalGap = Math.round(this.numberOfMillisecondsShown / (this.calculateNumberOfIntervals()-0.5));			
 
 			this.setTimeNumbers();
+			this.updateTracksPanelDimensions();
 
 			this.changeDetector.detectChanges();
 		});
@@ -158,11 +190,26 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 				this.moveTimeLineIndicator();
 			}
 		}, false);
+
+		//fromEvent scrolls the tracksList element when the mouse wheel is scrolled
+		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
+			console.log('scroll', event.target.offsetWidth, event.target.scrollLeft, event.target.scrollWidth-100);			
+			if (event.target.offsetWidth + event.target.scrollLeft >= event.target.scrollWidth-100) {
+				//End of scroll
+				return;
+			}
+			this.setTimeNumbers();
+			this.calculateNumbersPosition();
+			//Calculates the percentage that the scrollbar is scrolled
+			const percentageScrolled = event.target.scrollLeft / (event.target.scrollWidth - event.target.offsetWidth);
+			this.tracksService.zoomSliderScrollSubject.next(percentageScrolled*100);
+			this.changeDetector.detectChanges();
+		});
 	}
 
 	setTimlineIndicatorPosition() {
 		let currentTime = Date.now()-this.playStartTime;
-		//Rounds to the nearest 200ms
+		//Rounds to the nearest 10px
 		this.timelineIndicatorPosition = Math.floor(currentTime / 100);
 
 		this.changeDetector.detectChanges();
@@ -182,24 +229,31 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 	}
 
 	setTimeNumbers() {
-		let roundedWidth = Math.round((this.projectDuration + 10) / 5);
-		/*If the amount of numbers that need to be displayed is less
-		than the width of the tracksList element, then display enough
-		numbers to fill the width of the tracksList element*/
-		const tracksWidth = this.tracksList.nativeElement.scrollWidth-200;
-		if(roundedWidth*50 < tracksWidth) {
-			roundedWidth = Math.round((tracksWidth) / 50);
+		this.timelineNumbers = [];
+		for(let i = 0; i < this.numberOfIntervals; i++) {
+			this.timelineNumbers.push(this.convertToTime(i));
 		}
-		this.numbers = [...Array(roundedWidth).keys()];
 		this.changeDetector.detectChanges();
 	}
 
-	convertToTime(time: number) {
-		//Converts the input to minutes and seconds where each number represents 5 seconds
-		let minutes = Math.floor(time / 12);
-		let seconds = (time % 12) * 5;
+	determineProjectDurationFromTrackWidth() {
+		//Calculates the project duration based on the width of the tracksList element
+		//tracksList width - 200px (width of the tracksDetails element)
+		//divided by 50px (width between each number) and multiplied by 5 seconds
+		const tracksWidth = this.tracksList.nativeElement.scrollWidth - 200;
+		return (Math.round(tracksWidth / 50)-2) * 5000;
+	}
 
-		return minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+	convertToTime(time: number) {
+		//Converts scroll left to number of 100px intervals
+		const numberOfIntervals = Math.round(this.tracksList.nativeElement.scrollLeft / 100);
+
+		const timeInMilliseconds = this.tracksService.timelineIntervalGap * (time + numberOfIntervals);
+		const timeInSeconds = timeInMilliseconds / 1000;
+		const minutes = Math.floor(timeInSeconds / 60);
+		const seconds = Math.floor(timeInSeconds % 60);
+		const milliseconds = Math.floor(timeInMilliseconds % 1000);
+		return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}:${milliseconds < 10 ? "0" + milliseconds : milliseconds}`;
 	}
 
 	insertClipAtPosition(track: Track, newClip: ClipInstance) {
@@ -319,9 +373,9 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 				}
 
 				//Gets the mouse position relative to the tracksList element including the scroll
-				let mousePositionSeconds = this.getMousePosition(event);
+				let mousePositionInMilliseconds = this.getMousePosition(event, this.tracksList.nativeElement);
 
-				clip = JSON.parse(JSON.stringify(Object.assign(currentClip, { in: 0, startTime: mousePositionSeconds })));
+				clip = JSON.parse(JSON.stringify(Object.assign(currentClip, { in: 0, startTime: mousePositionInMilliseconds })));
 
 				this.insertClipAtPosition(track, clip);
 
@@ -381,14 +435,6 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 		this.tracksService.deleteTrack(id);
 	}
 
-	getMousePosition(event: MouseEvent) {
-		let mousePosition = event.clientX - this.tracksList.nativeElement.getBoundingClientRect().left + this.tracksList.nativeElement.scrollLeft - 200;
-		mousePosition = Math.round(mousePosition / 10) * 10;
-
-		//Converts the mouse position to seconds
-		return mousePosition/10;
-	}
-
 	setPhantomClip(event: MouseEvent) {
 		const currentClip = this.cs.getCurrentClip();
 		const draggedClip = this.cs.getDraggedClip();
@@ -401,13 +447,13 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 			return;
 		}
 
-		let mousePositionSeconds = this.getMousePosition(event) - this.cs.getDraggedDistanceDiff();
+		let mousePositionInMilliseconds = this.getMousePosition(event, this.tracksList.nativeElement) - this.cs.getDraggedDistanceDiff();
 
 		//Sets the phantom clip to the current clip or the dragged clip
 		let clip = JSON.parse(JSON.stringify(currentClip || draggedClip));
 		
 		if(clip) {
-			this.cs.setPhantomClip(Object.assign(clip, { in: clip.in, startTime: mousePositionSeconds }));
+			this.cs.setPhantomClip(Object.assign(clip, { in: clip.in, startTime: mousePositionInMilliseconds }));
 		}
 		this.changeDetector.detectChanges();
 	}
@@ -430,7 +476,7 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 		if(clip) {
 			//Resizes the clip
 			const elementBeingResized = this.cs.getClipElementBeingResized()?.getBoundingClientRect()!;
-			const mousePosition = this.getMousePosition(event);
+			const mousePosition = this.getMousePosition(event, this.tracksList.nativeElement);
 			if(event.clientX > elementBeingResized.right - 20) {
 				//Makes sure the clip can't be resized to a duration longer than the total duration
 				let newDuration = mousePosition - clip!.startTime;
@@ -481,17 +527,37 @@ export class TracksPanelComponent implements AfterViewChecked, AfterViewInit, On
 		}
 	}
 
-	selectTrack(track: Track, index: number) {
-		if(!track.clips || !track.clips.length) {
-		}
+	selectTrack(index: number) {
 		window.api.emit("set-selected-clip-in-preview", {location: null, trackIndex: index, clipIndex: null});
 	}
 
+	setOriginTrack(track: Track, event) {
+		if(event.button == 1) {
+			return;
+		}
+		this.originTrack = track;
+	}
+
 	updateTracksPanelDimensions() {
-		//width = product duration +30 seconds * 10px per second
-		const width = (this.projectDuration + 30) * 10;
-		this.tracksWidth = width > this.tracksList.nativeElement.clientWidth ? width : this.tracksList.nativeElement.clientWidth;
+		//width = project duration +30 seconds * 10px per second
+		const width = (this.projectDuration / this.msPerPX()) + 100;
+		this.tracksWidth = width > this.tracksList.nativeElement.clientWidth-200 ? width : this.tracksList.nativeElement.clientWidth-200;
 		const trackCount = this.tracks.length;
 		this.hasLessTracksThanHeightOfTracksList = trackCount * 100 < this.tracksList.nativeElement.clientHeight;
+	}
+
+	//Calculates how many 100px intervals fit within the tracksList element
+	calculateNumberOfIntervals() {
+		this.numberOfIntervals = Math.round((this.tracksList.nativeElement.clientWidth-200) / 100);
+		return this.numberOfIntervals;
+	}
+
+	//Calculates the position of the numbers on the timeline
+	//relative to the scroll position
+	calculateNumbersPosition() {
+		if(!this.tracksList?.nativeElement) {
+			return;
+		}
+		this.numbersPosition = Math.round(this.tracksList.nativeElement.scrollLeft / 100) * 100;
 	}
 }

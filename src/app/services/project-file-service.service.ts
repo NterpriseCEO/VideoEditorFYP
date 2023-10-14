@@ -41,6 +41,8 @@ export class ProjectFileService {
 	loadProjectNameSubject: Subject<string> = new Subject<string>();
 	projectSavedSubject: Subject<any> = new Subject<any>();
 
+	public projectDurationSubject: Subject<number> = new Subject<number>();
+
 	isDirty: boolean = false;
 
 	projectLoaded: boolean = false;
@@ -295,7 +297,7 @@ export class ProjectFileService {
 
 		//Set the length of the array to the historyIndex
 		this.projectHistory.length = this.historyIndex;
-		
+
 		this.projectHistory.push(JSON.parse(JSON.stringify(project)));	
 	}
 

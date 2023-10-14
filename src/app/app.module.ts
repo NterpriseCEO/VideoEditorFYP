@@ -15,6 +15,7 @@ import { AppRoutingModule } from "./app-routing.module";
 
 import { AppComponent } from "./app.component";
 import { ViewsModule } from "./views/views.module";
+import { ProjectFileService } from "./services/project-file-service.service";
 
 @NgModule({
 	declarations: [
@@ -33,7 +34,7 @@ import { ViewsModule } from "./views/views.module";
 		ToastModule,
 		ConfirmDialogModule
 	],
-	providers: [MessageService, ConfirmationService],
+	providers: [MessageService, ConfirmationService, ProjectFileService],
 	bootstrap: [AppComponent]
 })
 export class AppModule { }

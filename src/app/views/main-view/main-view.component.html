@@ -22,7 +22,7 @@
 			<button
 				*ngIf = "insertPanelVisible"
 				pButton
-				class = "p-button-lg p-button-text"
+				class = "p-button-md p-button-text"
 				pTooltip = "Hide insert panel"
 				(click) = "togglePanel('insertPanelVisible')"
 				icon = "pi pi-folder-open"
@@ -30,7 +30,7 @@
 			<button
 				*ngIf = "!insertPanelVisible"
 				pButton
-				class = "p-button-lg p-button-text"
+				class = "p-button-md p-button-text"
 				[class.p-button-secondary] = "!insertPanelVisible"
 				pTooltip = "Show insert panel"
 				(click) = "togglePanel('insertPanelVisible')"
@@ -38,7 +38,7 @@
 			></button>
 			<button
 				pButton
-				class = "p-button-lg p-button-text"
+				class = "p-button-md p-button-text"
 				[class.p-button-secondary] = "!tracksPanelIsVisible"
 				[pTooltip] = "(tracksPanelIsVisible ? 'Hide' : 'Show') + ' tracks panel'"
 				(click) = "togglePanel('tracksPanelIsVisible')"
@@ -46,7 +46,7 @@
 			></button>
 			<button
 				pButton
-				class = "p-button-lg p-button-text"
+				class = "p-button-md p-button-text"
 				[class.p-button-secondary] = "!tracksPropertiesPanelIsVisible"
 				[pTooltip] = "(tracksPropertiesPanelIsVisible ? 'Hide' : 'Show') + ' track properties panel'"
 				(click) = "togglePanel('tracksPropertiesPanelIsVisible')"
@@ -54,7 +54,7 @@
 			></button>
 			<button
 				pButton
-				class = "p-button-lg p-button-text"
+				class = "p-button-md p-button-text"
 				[class.p-button-secondary] = "!infoPanelIsVisible"
 				[pTooltip] = "(infoPanelIsVisible ? 'Hide' : 'Show') + ' info panel'"
 				(click) = "togglePanel('infoPanelIsVisible')"
@@ -62,7 +62,7 @@
 			></button>
 			<button
 				pButton
-				class = "p-button-lg p-button-text"
+				class = "p-button-md p-button-text"
 				[class.p-button-secondary] = "!previewWindowIsVisible"
 				[pTooltip] = "previewWindowIsVisible ? '' : 'Show preview window'"
 				(click) = "showPreviewWindow()"

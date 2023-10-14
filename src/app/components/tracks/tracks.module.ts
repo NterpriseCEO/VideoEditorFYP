@@ -27,6 +27,7 @@ import { TrackPropertiesPanelComponent } from "./track-properties-panel/track-pr
 import { TrackContentsComponent } from "./track-contents/track-contents.component";
 import { TrackDetailsComponent } from "./track-details/track-details.component";
 import { TrackPropertiesPopupComponent } from './track-properties-popup/track-properties-popup.component';
+import { TrackZoomComponent } from "../track-zoom/track-zoom.component";
 
 @NgModule({
 	declarations: [
@@ -35,7 +36,8 @@ import { TrackPropertiesPopupComponent } from './track-properties-popup/track-pr
 		TrackPropertiesPanelComponent,
 		TrackContentsComponent,
 		TrackDetailsComponent,
-  		TrackPropertiesPopupComponent
+  		TrackPropertiesPopupComponent,
+		TrackZoomComponent
 	],
 	imports: [
 		BrowserModule,

@@ -1,7 +1,10 @@
 <div class = "flex flex-column h-full w-full overflow-hidden select-none">
 	<div
-		class = "w-full h-full flex flex-grow-1"
+		class = "w-full h-full flex flex-grow-1 flex flex-column"
 	>
+		<div class="sticky w-full">
+			<app-track-zoom class="w-full h-2rem"></app-track-zoom>
+		</div>
 		<div
 			#tracksList
 			class = "flex-grow-1 overflow-auto max-h-full"
@@ -11,14 +14,14 @@
 				class = "relative tracks-list"
 				[class.w-full] = "!tracks.length"
 				[class.h-full] = "hasLessTracksThanHeightOfTracksList"
-				[style.width.px] = "tracksWidth-200"
+				[style.width.px] = "tracksWidth"
 			>
 				<div
 					id = "tracks-panel-ribbon"
-					class = "flex flex-row sticky z-2 flex-nowrap top-0 surface-ground py-1 border-bottom-1 border-50"
-					[style.width.px] = "tracksWidth"
+					class = "sticky z-2 white-space-nowrap top-0 surface-ground py-1 border-bottom-1 border-50 overflow-hidden"
+					[style.width.px] = "tracksWidth+200"
 				>
-					<div id = "track-details-header" class = "flex w-full left-0 z-1 sticky">
+					<div id = "track-details-header" class = "inline-flex left-0 z-1 sticky">
 						<div id = "track-details-header-inner" class = "flex align-items-center surface-ground">
 							<span class = "ml-1">Tracks</span>
 							<button
@@ -30,19 +33,23 @@
 							</button>
 						</div>
 					</div>
-					<div class = "flex flex-row" [style.width.px] = "tracksWidth-200">
+					<div
+						class = "inline-flex absolute"
+						[style.left.px] = "numbersPosition+200"
+					>
 						<div
-							*ngFor = "let number of numbers"
+							*ngFor = "let number of timelineNumbers; let i = index"
 							class = "timeline-number flex text-center align-items-center justify-content-center"
 						>
-							<span>{{convertToTime(number)}}</span>
+							<span>{{number}}</span>
 						</div>
+						<div class="flex-grow-1"></div>
 					</div>
 				</div>
 				<div
 					id = "time-lines"
 					class = "absolute pointer-events-none"
-					[style.width.px] = "tracksWidth-200"
+					[style.width.px] = "tracksWidth"
 				>
 				</div>
 				<div
@@ -72,10 +79,10 @@
 					<ng-container *ngFor = "let track of tracks; let i = index">
 						<div
 							class = "flex h-full"
-							(mousedown) = "originTrack = track"
-							(mousemove) = "onDrag($event, track)"
-							(mouseup) = "completeDrag($event, track)"
-							(click) = "selectTrack(track, i)"
+							(mousedown) = "setOriginTrack(track, $event)"
+							(mousemove) = "$event.button != 1 && onDrag($event, track)"
+							(mouseup) = "$event.button != 1 && completeDrag($event, track)"
+							(click) = "selectTrack(i)"
 							[class.selected-track] = "tracksService.getSelectedTrack()?.id === track.id"
 						>
 							<app-track-contents
@@ -91,14 +98,14 @@
 								[clip] = "cs.phantomClip"
 								[colour] = "track.colour"
 								class = "absolute opacity-50 pointer-events-none"
-								[style.width.px] = "cs.phantomClip.duration*10"
-								[style.left.px] = "cs.phantomClip.startTime*10"
+								[style.width.px] = "getClipWidth(cs.phantomClip)"
+								[style.left.px] = "getClipPosition(cs.phantomClip)"
 							></app-clip>
 							<div style = "width: 100px" class = "inline-block flex-grow-0 flex-shrink-0"></div>
 						</div>
 						<div
 							class = "divider"
-							[style.width.px] = "tracksWidth-200"
+							[style.width.px] = "tracksWidth"
 						>
 						</div>
 					</ng-container>

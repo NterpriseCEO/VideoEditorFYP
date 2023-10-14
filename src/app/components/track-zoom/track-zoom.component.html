@@ -1,0 +1,28 @@
+<div
+	#zoomSliderWrapper
+	class="w-full h-2rem surface-overlay pl-3"
+	pTooltip="Drag to zoom in/out"
+	tooltipPosition="bottom"
+	(mousedown) = "startDrag($event)"
+	(mousemove) = "dragSlider($event)"
+	(mouseup) = "stopDrag()"
+>
+	<div
+		#zoomSlider
+		id = "slider"
+		class = "h-full flex justify-content-between"
+		[style.width.%] = "sliderPosition.right-sliderPosition.left"
+		[style.marginLeft.%] = "sliderPosition.left"
+	>
+		<div
+			id = "left-handle"
+			class = "handle h-full border-3"
+		>
+		</div>
+		<div
+			id = "right-handle"
+			class = "handle h-full border-3"
+		>
+		</div>
+	</div>
+</div>
