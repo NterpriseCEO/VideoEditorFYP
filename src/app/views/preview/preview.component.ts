@@ -459,7 +459,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 
 			if(lastClip.startTime + lastClip.duration > this.duration) {
-				this.duration = (lastClip.startTime + lastClip.duration)/1000;
+				this.duration = lastClip.startTime + lastClip.duration;
 			}
 		});
 	}
@@ -472,7 +472,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	videoPlayback() {
-		this.startTime = window.performance.now() / 1000 - this.masterTime;
+		this.startTime = window.performance.now() - this.masterTime;
 		this.tracks.forEach((track: Track, index) => {
 			let elapsedTime = 0;
 
@@ -491,7 +491,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 			let step = async () => {
 				if(this.videoPlaying) {
-					let currentTime = window.performance.now() / 1000;
+					let currentTime = window.performance.now();
 					this.masterTime = currentTime - this.startTime;
 
 					this.checkIfClipNeedsChanging(video, track, index);
@@ -955,10 +955,10 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 			this.currentClip = [];
 
-			this.startTime = window.performance.now() / 1000;
+			this.startTime = window.performance.now();
 			this.videoPlayback();
 		}else {
-			this.startTime = window.performance.now() / 1000 - this.masterTime;
+			this.startTime = window.performance.now() - this.masterTime;
 		}
 	}
 
@@ -973,7 +973,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.currentTime = value;
 
-		this.startTime = window.performance.now() / 1000 - this.masterTime;
+		this.startTime = window.performance.now() - this.masterTime;
 		this.videoPlayback();
 
 		//Seeks the video at the current time value
@@ -1048,6 +1048,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		}
 
 		//convert this.startTime to seconds
+		console.log(this.masterTime, clip.startTime, clip.duration);
 		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
 			if(video.src != "local-resource://getMediaFile/" + clip.location || clip.location === clips[i - 1]?.location) {
 				if(track.type !== TrackType.VIDEO) {
@@ -1058,11 +1059,18 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 				this.changeDetector.detectChanges();
 				video.currentTime = clip.in;
+			}else {
+				//Check if the video is finished and if so, restart it
+				//This is for looping videos
+				if(video.ended) {
+					video.currentTime = clip.in;
+					video.play();
+					this.changeDetector.detectChanges();
+				}
 			}
 		}else if(this.masterTime >= clip.startTime + clip.duration) {
 			video.src = "";
 			this.currentClip[index]++;
-
 			if(track.type !== TrackType.VIDEO && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime + 0.5)) {
 				this.setSource(track, video, index);
 			}
@@ -1071,6 +1079,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	//Converts this.masterTime to hrs, mins, secs
 	convertTime(time: number) {
+		time = time / 1000;
 		let hours = Math.floor(time / 3600);
 		let minutes = Math.floor((time % 3600) / 60);
 		let seconds = Math.floor(time % 60);

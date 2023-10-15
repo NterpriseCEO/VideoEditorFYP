@@ -230,10 +230,15 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				this.changeDetector.detectChanges();
 				video.currentTime = clip.in;
 				video.play();
+			}else {
+				if(video.ended) {
+					video.currentTime = clip.in;
+					video.play();
+					this.changeDetector.detectChanges();
+				}
 			}
 		}else if(this.masterTime >= clip.startTime + clip.duration) {
 			video.src = "";
-
 			this.currentClip[index]++;
 		}
 	}
@@ -244,7 +249,6 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			//Calculates the time since the recording started
 			this.masterTime = currentTime - this.startTime;
 			if(this.masterTime >= this.duration) {
-				this.masterTime = 0;
 				// this.mediaRecorder.stop();
 				this.isRecording = false;
 				this.socket.emit("stop-recording");
@@ -384,7 +388,6 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 
 		let step = async () => {
 			this.ctx.globalCompositeOperation = "source-over";
-			this.updateTime();
 			//Clears the canvas
 			this.ctx.clearRect(0, 0, finalCanvas.width, finalCanvas.height);
 			//Draws the background
@@ -424,6 +427,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 
 				this.ctx.drawImage(canvas, x, y, width, height);
+				this.updateTime();
 			});
 			window.requestAnimationFrame(step);
 		}
