@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
 import { TrackType } from "../utils/constants";
-import { Filter, FilterInstance, Track, ZoomSliderPosition } from "../utils/interfaces";
+import { ClipInstance, Filter, FilterInstance, Track, ZoomSliderPosition } from "../utils/interfaces";
 import { ProjectFileService } from "./project-file-service.service";
 
 @Injectable({
@@ -297,6 +297,24 @@ export class TracksService {
 	}
 	selectNextTrack() {
 		this.selectTrackByIndex(this.selectedTrackIndex, 1);
+	}
+
+	alignClips() {
+		//Aligns all clips in each track to come after each other
+		this.tracks.forEach((track: Track) => {
+			const clips = track.clips;
+			clips?.forEach((clip: ClipInstance, i) => {
+				//Sets the start time of the first clip to 0
+				if(i === 0) {
+					clip.startTime = 0;
+					return;
+				}
+				clip.startTime = clips[i - 1].startTime + clips[i - 1].duration;
+			});
+		});
+
+		this.pfService.updateTracks(this.tracks);
+		window.api.emit("update-tracks", this.tracks);
 	}
 
 	//Gets the duration of the project by finding the end time of the clip that ends last

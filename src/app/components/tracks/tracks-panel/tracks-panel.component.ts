@@ -1,12 +1,13 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
-import { ClipInstance, Track, ZoomSliderPosition } from "src/app/utils/interfaces";
+import { ClipInstance, Track } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
 import { deepCompare } from "src/app/utils/utils";
 import { fromEvent } from "rxjs";
 import { TrackHelpers } from "../track-helpers";
+import { MenuItem } from "primeng/api/menuitem";
 
 @Component({
 	selector: "app-tracks-panel",
@@ -48,6 +49,31 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 	numberOfIntervals: number = 0;
 	numberOfMillisecondsShown: number = 0;
 	numbersPosition: number = 0;
+
+	tracksContentsMenu: MenuItem[] = [
+		{
+			label: "Add Track",
+			icon: "pi pi-plus",
+			command: () => {
+				this.tracksService.addTrack()
+		}
+		},
+		{
+			label: "Delete Track",
+			icon: "pi pi-trash",
+			command: () => {
+				this.tracksService.deleteTrack(this.tracksService.getSelectedTrack()!.id);
+			}
+		},
+		{
+			//Takes all clips and makes sure they start after the previous clip ends
+			label: "Align Clips",
+			icon: "pi pi-align-justify",
+			command: () => {
+				this.tracksService.alignClips();
+			}
+		}
+	];
 
 	constructor(
 		public pfService: ProjectFileService,

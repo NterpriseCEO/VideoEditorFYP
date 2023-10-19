@@ -75,7 +75,11 @@
 						</button>
 					</div>
 				</div>
-				<div id = "tracks" class = "absolute w-full" #tracksNgForList>
+				<div
+					#tracksNgForList
+					id = "tracks"
+					class = "absolute w-full"
+				>
 					<ng-container *ngFor = "let track of tracks; let i = index">
 						<div
 							class = "flex h-full"
@@ -121,3 +125,10 @@
 		</div>
 	</div>
 </div>
+
+<p-contextMenu
+	[target] = "tracksNgForList"
+	[model] = "tracksContentsMenu"
+	appendTo = "body"
+>
+</p-contextMenu>
