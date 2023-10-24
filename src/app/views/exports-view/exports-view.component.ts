@@ -141,7 +141,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			this.calculateDuration();
 			this.changeDetector.detectChanges();
 
-			this.socket.emit("start-recording");
+			this.socket.emit("start-recording", { recordToProjectFolder: false });
 		}));
 	}
 

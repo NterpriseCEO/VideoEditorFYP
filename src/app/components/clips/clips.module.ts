@@ -8,6 +8,7 @@ import { DropdownModule } from "primeng/dropdown";
 import { TooltipModule } from "primeng/tooltip";
 import { InputTextModule } from "primeng/inputtext";
 import { ButtonModule } from "primeng/button";
+import { ContextMenuModule } from "primeng/contextmenu";
 
 import { ImportsPanelComponent } from "./imports-panel/imports-panel.component";
 import { ClipComponent } from "./clip/clip.component";
@@ -26,7 +27,8 @@ import { PipesModule } from "src/app/utils/pipes.module";
 		TooltipModule,
 		InputTextModule,
 		ButtonModule,
-		PipesModule
+		PipesModule,
+		ContextMenuModule
 	],
 	exports: [ImportsPanelComponent, ClipComponent]
 })

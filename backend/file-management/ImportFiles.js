@@ -4,7 +4,7 @@ const path = require("path");
 const sharp = require("sharp");
 const { exec } = require("child_process");
 const { getVideoDurationInSeconds } = require("get-video-duration");
-const { getMainWindow, getProjectPath } = require("../globals/Globals");
+const { getMainWindow, getProjectPath, cmdExec } = require("../globals/Globals");
 
 function ImportFiles(window) {
 	this.mainWindow = window;
@@ -22,6 +22,87 @@ ImportFiles.prototype.listenForEvents = function() {
 
 	ipcMain.on("relink-clip", (_, file) => {
 		this.relinkClip(file);
+	});
+
+	ipcMain.on("reverse-clip", (_, clip) => {
+		//Gets all parts of the file name (name, ext, dir, root, base)
+		const parse = path.parse(clip.name);
+		const clips = `${getProjectPath()}\\clips\\`;
+		//epoch time in milliseconds
+		const time = new Date().getTime();
+		const location = `${clips}${parse.name}-${time}\\`;
+		//Create the above directory if it doesn't exist
+		if (!fs.existsSync(location)) {
+			fs.mkdirSync(location);
+		}
+		cmdExec("ffmpeg", ["-i", `${clip.location}`, "-map", "0", "-c", "copy", "-f", "segment", "-segment_time", "300", "-reset_timestamps", "1", `${location}\\video_%03d.mp4`]).then(() => {
+			return reverseClips(location, parse.ext);
+		}).then(() => 
+			cmdExec("ffmpeg", ["-f", "concat", "-safe", "0", "-i", `${location}reversed_data\\files.txt`, "-c", "copy", `${clips}${parse.name}-${time}_reversed${parse.ext}`])
+		).then(() => {
+			fs.rmdirSync(location, { recursive: true })
+			//mioght need to change this to a different path
+			if (fs.existsSync(`${path.basename(`${clips}${parse.name}-${time}_reversed`, parse.ext)}.png`)) {
+				//Deletes the existing thumbnail
+				fs.rmSync(`${path.basename(file, ".mp4")}.png`);
+			}
+
+			this.files = [`${clips}${parse.name}-${time}_reversed${parse.ext}`];
+
+			//Extracts the time metadata from the video files
+			this.extractMetadata(0, [...this.files]);
+		})
+			.catch((err) => {
+				console.log("\n\nerror\n\n");
+				console.log(err);
+			});
+	});
+}
+
+// for %% A in ("C:\Users\Gaming\Videos\GraphX projects\Test\clips\Bestlightning\*.mp4") do (
+// 	ffmpeg - i "%%A" - vf reverse - af areverse "C:\Users\Gaming\Videos\GraphX projects\Test\clips\Bestlightning\reversed_data\%%~nA_reversed.mp4"
+// )
+function reverseClips(location, extension) {
+	//Gets all clips in the clips/Bestlightning folder
+	//for each clip, run the ffmpeg command
+	//ffmpeg - i "%%A" - vf reverse - af areverse "C:\Users\Gaming\Videos\GraphX projects\Test\clips\Bestlightning\reversed_data\%%~nA_reversed.mp4"
+
+	//get all the clips
+	const clips = fs.readdirSync(location);
+	//filter out anything that isn't a file
+	const files = clips.filter(clip => fs.lstatSync(location+clip).isFile());
+
+	//check if location/reversed_data exists
+	const reversedData = `${location}\\reversed_data`;
+	if(!fs.existsSync(reversedData)) {
+		fs.mkdirSync(reversedData);
+	}
+
+	const filePromises = [];
+
+	//Opens a file stream in location/reversed_data for fieles.text
+	const fileStream = fs.createWriteStream(`${reversedData}\\files.txt`);
+
+	files.forEach((_, i) => filePromises.push(reverseClip(files, i, location, fileStream, extension, filePromises)));
+
+	return Promise.all(filePromises).then(() => {
+		fileStream.end();
+		return Promise.resolve();
+	}).catch((err) => {
+		console.log(err);
+		return Promise.reject(err);
+	});
+}
+
+function reverseClip(files, index, location, fileStream, extension, filePromises) {
+	const file = files[index];
+	//ffmpeg -i "%%A" -vf reverse -af areverse "C:\Users\Gaming\Videos\GraphX projects\Test\clips\Bestlightning\reversed_data\%%~nA_reversed.mp4"
+	return cmdExec("ffmpeg", ["-i", `${location}${file}`, "-vf", "reverse", "-af", "areverse", `${location}reversed_data\\${file}-reversed${extension}`]).then(() => {
+		//Writes the file name to the files.txt file like this: file 'file.mp4'
+		fileStream.write(`file '${location}reversed_data\\${file}-reversed${extension}'\n`);
+	}).catch((err) => {
+		console.log(err);
+		return Promise.reject(err);
 	});
 }
 

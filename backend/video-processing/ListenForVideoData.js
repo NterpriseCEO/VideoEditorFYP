@@ -18,7 +18,11 @@ exports.listenForVideoData = function(client) {
 		//Delete webm if it exists before opening a new stream
 		addToTrack = options?.addToTrack ?? false;
 
-		exportPath = (options?.recordToProjectFolder ?? false) ? `${getProjectPath()}\\${date}_n.webm` : getExportPath();
+		exportPath = options?.recordToProjectFolder ? `${getProjectPath()}\\clips\\${date}_n.webm` : getExportPath();
+
+		if (options?.recordToProjectFolder && !fs.existsSync(`${getProjectPath()}\\clips`)) {
+			fs.mkdirSync(`${getProjectPath()}\\clips`);
+		}
 
 		if(fs.existsSync(exportPath)) {
 			fs.unlinkSync(exportPath);

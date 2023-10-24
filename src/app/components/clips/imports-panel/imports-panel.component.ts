@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from "@angular/core";
-import { SelectItem } from "primeng/api";
+import { MenuItem, SelectItem } from "primeng/api";
 import { Clip } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
@@ -24,6 +24,29 @@ export class ImportsPanelComponent implements OnInit {
 	clips: Clip[] = []
 
 	brokenImage: string = "assets/clip-icon.png";
+
+	selectedClip: Clip | null = null;
+
+	clipMenu: MenuItem[] = [
+		// {
+		// 	label: "Relink Clip",
+		// 	icon: "pi pi-link",
+		// 	command: (event: any) => this.relinkClip(event.item)
+		// },
+		// {
+		// 	label: "Delete Clip",
+		// 	icon: "pi pi-trash",
+		// 	command: (event: any) => this.removeFile(event.item)
+		// }
+		//reverse clip
+		{
+			label: "Reverse Clip",
+			icon: "pi pi-refresh",
+			command: (_: any) => {
+				this.cs.reverseClip(this.selectedClip!);
+			}
+		},
+	];
 
 	constructor(
 		public cs: ClipService,
@@ -102,7 +125,7 @@ export class ImportsPanelComponent implements OnInit {
 		window.api.emit("import-files");
 	}
 
-	relinkClip(Clip: Clip) {
-		this.pfService.relinkClip(Clip);
+	relinkClip(clip: Clip) {
+		this.pfService.relinkClip(clip);
 	}
 }

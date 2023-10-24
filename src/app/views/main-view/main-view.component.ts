@@ -101,7 +101,10 @@ export class MainViewComponent implements OnInit {
 		this.fileY = event.y;
 	}
 
-	startAdd() {
+	startAdd(event: MouseEvent) {
+		//Only shows the clip draggin UI element
+		//if the left mouse button is pressed
+		if(event.button !== 0) return;
 		this.showFileRepresentation = this.cs.getIsAddingClip();
 	}
 

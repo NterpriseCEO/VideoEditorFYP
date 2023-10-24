@@ -1,4 +1,4 @@
-<div class = "p-2 h-full">
+<div class = "p-2 h-full" #menu>
 	<p-dataView
 		#dv
 		[value] = "clips"
@@ -31,7 +31,18 @@
 			</div>
 		</ng-template>
 		<ng-template let-clip pTemplate = "gridItem">
-			<div class = "col-4 p-1 select-none" (click) = "relinkClip(clip)">
+			<p-contextMenu
+				[target] = "menu"
+				[model] = "clipMenu"
+				appendTo = "body"
+			>
+			</p-contextMenu>
+			<div
+				#menu
+				class = "col-4 p-1 select-none"
+				(click) = "relinkClip(clip)"
+				(mouseup) = "this.selectedClip = clip;"
+			>
 				<div
 					class = "file card border-round cursor-pointer white-space-nowrap text-overflow-ellipsis overflow-hidden w-full"
 					[pTooltip] = "(clip?.needsRelinking ? 'Click to relink: ' : '') + clip.location"

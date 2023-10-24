@@ -109,4 +109,8 @@ export class ClipService {
 	setClipElementBeingResized(element: HTMLElement | null) {
 		this.clipElementBeingResized = element;
 	}
+
+	reverseClip(clip: Clip | ClipInstance) {
+		window.api.emit("reverse-clip", clip);	
+	}
 }
