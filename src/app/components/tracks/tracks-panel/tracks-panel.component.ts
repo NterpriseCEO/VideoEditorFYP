@@ -504,7 +504,6 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			const elementBeingResized = this.cs.getClipElementBeingResized()?.getBoundingClientRect()!;
 			const mousePosition = this.getMousePosition(event, this.tracksList.nativeElement);
 			if(event.clientX > elementBeingResized.right - 20) {
-				//Makes sure the clip can't be resized to a duration longer than the total duration
 				let newDuration = mousePosition - clip!.startTime;
 				//The mouse psotion in seconds - the start time of the clip
 				clip!.duration = newDuration;

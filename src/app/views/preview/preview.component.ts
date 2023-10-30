@@ -910,6 +910,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			sourceNode.connect(this.audioDestination);
 			sourceNode.connect(this.audioCtx.destination);
 			sourceNode.enabled = true;
+			this.audioTracks[index] = sourceNode;
 		}catch(e) {
 			console.log(e);
 		}
@@ -981,6 +982,22 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		window.api.emit("update-play-video-button", { isPlaying: this.videoPlaying, isFinishedPlaying: false, currentTime: value });
 	}
 
+	//Calculates how much of a clip has been played
+	calculateMSOfClipPlayed(clip: ClipInstance) {
+		let msPlayed = this.masterTime - clip.startTime;
+		let playableDuration = clip.totalDuration - clip.in;
+		//if the clip has been played for longer than the duration of the clip
+		//finds out how many times the clip has been repeated
+		//and how much of the current iteration of the clip has been played
+		if(msPlayed > playableDuration) {
+			let repetitions = Math.floor(msPlayed / playableDuration);
+			msPlayed = msPlayed - (repetitions * playableDuration);
+			return msPlayed;
+		}
+
+		return msPlayed + clip.in;
+	}
+
 	getClipAtTime(time: number = this.masterTime) {
 		//Gets all the clips that overlap a given time
 		this.tracks.forEach((track: Track, i) => {
@@ -1002,9 +1019,9 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 					//Sets the current clip to j if
 					//the clip is to be played
 					this.currentClip[i] = j;
-					//Sets the video's current time if to masterTime-the start time of the clip
-					video.currentTime = time - clip.startTime;
 					this.masterTime = time;
+					video.currentTime = this.calculateMSOfClipPlayed(clip) / 1000;
+
 					if(this.videoPlaying) {
 						video.play();
 					}
@@ -1048,9 +1065,8 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		}
 
 		//convert this.startTime to seconds
-		console.log(this.masterTime, clip.startTime, clip.duration);
 		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
-			if(video.src != "local-resource://getMediaFile/" + clip.location || clip.location === clips[i - 1]?.location) {
+			if(video.src != "local-resource://getMediaFile/" + clip.location) {
 				if(track.type !== TrackType.VIDEO) {
 					video.srcObject = null;
 					video.removeAttribute("srcObject");
@@ -1058,19 +1074,23 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				video.src = "local-resource://getMediaFile/" + clip.location;
 
 				this.changeDetector.detectChanges();
-				video.currentTime = clip.in;
+				video.currentTime = clip.in / 1000;
 			}else {
 				//Check if the video is finished and if so, restart it
 				//This is for looping videos
 				if(video.ended) {
-					video.currentTime = clip.in;
+					video.currentTime = clip.in / 1000;
 					video.play();
 					this.changeDetector.detectChanges();
 				}
 			}
 		}else if(this.masterTime >= clip.startTime + clip.duration) {
-			video.src = "";
 			this.currentClip[index]++;
+			if (clip.location === clips[i + 1]?.location) {
+				video.currentTime = clips[i + 1].in / 1000;
+				return;
+			}
+			video.src = "";
 			if(track.type !== TrackType.VIDEO && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime + 0.5)) {
 				this.setSource(track, video, index);
 			}
