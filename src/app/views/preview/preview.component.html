@@ -90,15 +90,15 @@
 					[(ngModel)] = "masterTime"
 					[max] = "duration"
 					[step] = "0.01"
-					(ngModelChange) = "seekVideo($event)"
+					(ngModelChange) = "seekMedia($event)"
 				></p-slider>
 			</div>
 			<div class = "w-full surface-50 flex flex-row justify-content-between">
 				<button
 					pButton
 					class = "p-button-text"
-					[icon] = "'pi pi-' + (videoPlaying ? 'pause' : 'play')"
-					(click) = "playPauseVideo()"
+					[icon] = "'pi pi-' + (mediaPlaying ? 'pause' : 'play')"
+					(click) = "playPauseMedia()"
 				></button>
 				<span class = "align-self-center text-lg">{{convertTime(masterTime)}}</span>
 				<button

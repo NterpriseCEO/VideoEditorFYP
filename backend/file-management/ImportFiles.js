@@ -6,6 +6,8 @@ const { exec } = require("child_process");
 const { getVideoDurationInSeconds } = require("get-video-duration");
 const { getMainWindow, getProjectPath, cmdExec } = require("../globals/Globals");
 
+const audioExtensions = [".mp3", ".m4a", ".wav", ".flac"];
+
 function ImportFiles(window) {
 	this.mainWindow = window;
 	this.files = [];
@@ -35,7 +37,7 @@ ImportFiles.prototype.listenForEvents = function() {
 		if (!fs.existsSync(location)) {
 			fs.mkdirSync(location);
 		}
-		cmdExec("ffmpeg", ["-i", `${clip.location}`, "-map", "0", "-c", "copy", "-f", "segment", "-segment_time", "300", "-reset_timestamps", "1", `${location}\\video_%03d.mp4`]).then(() => {
+		cmdExec("ffmpeg", ["-i", `${clip.location}`, "-map", "0", "-c", "copy", "-f", "segment", "-segment_time", "300", "-reset_timestamps", "1", `${location}\\video_%03d${parse.ext}`]).then(() => {
 			return reverseClips(location, parse.ext);
 		}).then(() => 
 			cmdExec("ffmpeg", ["-f", "concat", "-safe", "0", "-i", `${location}reversed_data\\files.txt`, "-c", "copy", `${clips}${parse.name}-${time}_reversed${parse.ext}`])
@@ -44,7 +46,7 @@ ImportFiles.prototype.listenForEvents = function() {
 			//mioght need to change this to a different path
 			if (fs.existsSync(`${path.basename(`${clips}${parse.name}-${time}_reversed`, parse.ext)}.png`)) {
 				//Deletes the existing thumbnail
-				fs.rmSync(`${path.basename(file, ".mp4")}.png`);
+				fs.rmSync(`${path.basename(file, parse.ext)}.png`);
 			}
 
 			this.files = [`${clips}${parse.name}-${time}_reversed${parse.ext}`];
@@ -67,12 +69,12 @@ function reverseClips(location, extension) {
 	//for each clip, run the ffmpeg command
 	//ffmpeg - i "%%A" - vf reverse - af areverse "C:\Users\Gaming\Videos\GraphX projects\Test\clips\Bestlightning\reversed_data\%%~nA_reversed.mp4"
 
-	//get all the clips
+	//Gets all the clips
 	const clips = fs.readdirSync(location);
-	//filter out anything that isn't a file
+	//Filters out anything that isn't a file
 	const files = clips.filter(clip => fs.lstatSync(location+clip).isFile());
 
-	//check if location/reversed_data exists
+	//Checks if location/reversed_data exists
 	const reversedData = `${location}\\reversed_data`;
 	if(!fs.existsSync(reversedData)) {
 		fs.mkdirSync(reversedData);
@@ -111,7 +113,7 @@ ImportFiles.prototype.importFiles = function() {
 	dialog.showOpenDialog(this.mainWindow, {
 		properties: ["openFile", "multiSelections"],
 		filters: [
-			{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm"] },
+			{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm", "mp3", "m4a", "wav", "flac"] },
 		],
 	}).then((result) => {
 		if(result.canceled) {
@@ -122,9 +124,10 @@ ImportFiles.prototype.importFiles = function() {
 		//Deletes all the thumbnails that are already in the folder
 		//that have the same name as the video file
 		this.files.forEach((file) => {
-			if(fs.existsSync(`${path.basename(file, ".mp4")}.png`)) {
+			const parse = path.parse(file);
+			if(fs.existsSync(`${path.basename(file, parse.ext)}.png`)) {
 				//Deletes the thumbnail
-				fs.rmSync(`${path.basename(file, ".mp4")}.png`);
+				fs.rmSync(`${path.basename(file, parse.ext)}.png`);
 			}
 		});
 
@@ -141,7 +144,7 @@ ImportFiles.prototype.relinkClip = function(file) {
 		properties: ["openFile"],
 		title: "Relink Clip previous located at: " + file,
 		filters: [
-			{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm"] },
+			{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm", "mp3", "m4a", "wav", "flac"] },
 		],
 	}).then((result) => {
 		if(result.canceled) {
@@ -169,9 +172,10 @@ ImportFiles.prototype.extractMetadata = function(counter, files) {
 	//Checks if there are still files to extract metadata from
 	if(this.files[counter]) {
 		let file = this.files[counter];
+		const type = audioExtensions.includes(path.parse(file).ext) ? "Audio" : "Video";
 		//Gets the duration of the video file and continues to the next file
 		getVideoDurationInSeconds(file).then((duration) => {
-			files[counter] = {name: file, duration: duration*1000, location: this.files[counter]};
+			files[counter] = {name: file, duration: duration*1000, location: this.files[counter], type: type};
 			this.extractMetadata(++counter, files);
 		}).catch((err) => {
 			//Need to figure out how to handle files that don't have duration
@@ -188,11 +192,20 @@ ImportFiles.prototype.extractMetadata = function(counter, files) {
 ImportFiles.prototype.extractThumbnails = function(counter, thumbnails, files) {
 	if(this.files[counter]) {
 		let file = this.files[counter];
-		let png = `${path.basename(this.files[counter], ".mp4")}.png`;
+		const parse = path.parse(file);
+		let png = `${path.basename(this.files[counter], parse.ext)}.png`;
 		//Remove the dash from the beginning of the file name if it exists
 		if(png.charAt(0) === "-") {
 			png = png.substring(1);
 		}
+
+		//Checks if the file is an audio file
+		if(audioExtensions.includes(parse.ext)) {
+			//Returns and moves to the next thumbnail
+			this.extractThumbnails(++counter, thumbnails, files);
+			return;
+		}
+
 		//Extracts the first frame of the video file and converts it to a a png
 		exec(`ffmpeg -i "${file}" -vf "scale=iw*sar:ih,setsar=1" -vframes 1 "${png}"`, (error, stdout, stderr) => {
 			if(error) {

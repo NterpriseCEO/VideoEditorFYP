@@ -1,6 +1,6 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
-import { ClipInstance, Track } from "src/app/utils/interfaces";
+import { Clip, ClipInstance, Track } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
@@ -354,6 +354,11 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 		});
 	}
 
+	//A function that checks if clip is audio and track is video and vice versa
+	checkForCllpTrackMismatch(clip: Clip, track: Track) {
+		return (clip.type === TrackType.AUDIO && track.type !== TrackType.AUDIO) || (clip.type !== TrackType.AUDIO && track.type === TrackType.AUDIO);
+	}
+
 	completeDrag(event, track: Track) {
 		//Selects the hovering track
 		this.tracksService.setSelectedTrack(this.hoveringTrack!);
@@ -392,7 +397,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 		this.checkIfClipOverlaps(track!, clip);
 		if(!clipBeingResized) {
 			//If a new clip is being added
-			if(track && currentClip && track.type === TrackType.VIDEO) {
+			if(track && currentClip && [TrackType.VIDEO, TrackType.AUDIO].includes(track.type) && !this.checkForCllpTrackMismatch(currentClip, track)) {
 				//Creates an empty array if the track doesn't have any clips
 				if(!track.clips) {
 					track.clips = [];

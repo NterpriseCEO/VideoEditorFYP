@@ -1,11 +1,18 @@
-<video
-	#videos
-	*ngFor = "let track of tracks"
-	class = "w-full flex-grow-1 absolute h-full hidden"
-	muted
-	controls
->
-</video>
+<div #mediaElements *ngFor = "let track of tracks">
+	<video
+		*ngIf = "track.type === 'Video'"
+		class = "w-full flex-grow-1 absolute h-full hidden"
+		muted
+		controls
+	>
+	</video>
+
+	<audio
+		*ngIf = "track.type === 'Audio'"
+		muted
+	>
+	</audio>
+</div>
 <div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
 <div class = "flex w-full h-full overflow-hidden">
 	<div class = "w-6 h-full surface-card overflow-auto">

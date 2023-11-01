@@ -6,7 +6,7 @@ const fx = require("glfx-es6");
 import { Filter, FilterInstance, Track } from "src/app/utils/interfaces";
 import { TracksService } from "../../services/tracks.service";
 import { ImageFilters } from "src/app/utils/ImageFilters";
-import { FilterLibrary } from "src/app/utils/constants";
+import { FilterLibrary, TrackType } from "src/app/utils/constants";
 import { MenuItem } from "primeng/api";
 
 @Component({
@@ -20,7 +20,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
 	@ViewChild("canvasContainer") canvasContainer!: ElementRef;
-	@ViewChildren("videos") videos!: QueryList<ElementRef>;
+	@ViewChildren("mediaElements") mediaElements!: QueryList<ElementRef>;
 
 	recentExports: any[] = [];
 
@@ -84,14 +84,16 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			this.socket = io("http://localhost:" + port);
 		}));
 
-		this.videos.changes.subscribe(changes => {
+		this.mediaElements.changes.subscribe(changes => {
 			this.isRecording = true;
 			this.finalRender();
 
-			changes.forEach((video: ElementRef, index: number) => {
-				this.createAudioTrack(video.nativeElement, index);
-				video.nativeElement.muted = this.tracks[index]?.muted ?? false;
-				this.drawCanvas(video.nativeElement, this.tracks[index], index);
+			changes.forEach((mediaElement: ElementRef, index: number) => {
+				//Finds the media element and creates a track from it
+				const element = mediaElement.nativeElement.querySelectorAll("video, audio")[0];
+				this.createAudioTrack(element);
+				element.muted = this.tracks[index]?.muted ?? false;
+				this.drawCanvas(element, this.tracks[index], index);
 			});
 		});
 	}
@@ -157,7 +159,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 
 	initAudio() {
 		this.audioCtx = new AudioContext();
-		// This will be used to merge audio tracks from multiple videos
+		// This will be used to merge audio tracks from multiple media elements
 		this.audioDestination = this.audioCtx.createMediaStreamDestination();
 	}
 
@@ -176,10 +178,10 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		});
 	}
 
-	createAudioTrack(video: any, index: number) {
+	createAudioTrack(mediaElement: HTMLMediaElement) {
 		try {
-			let sourceNode = this.audioCtx.createMediaElementSource(video);
-			// Connect the video element's output to the stream
+			let sourceNode = this.audioCtx.createMediaElementSource(mediaElement);
+			// Connect the media element's output to the stream
 			sourceNode.connect(this.audioDestination);
 			sourceNode.connect(this.audioCtx.destination);
 			sourceNode.enabled = true;
@@ -209,7 +211,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		this.mediaRecorder.start(100); // 1000 - the number of milliseconds to record into each Blob
 	}
 
-	checkIfClipNeedsChanging(video: HTMLVideoElement, track: Track, index: number) {
+	checkIfClipNeedsChanging(mediaElement: HTMLMediaElement, track: Track, index: number) {
 		//This keeps track of the current clip in a track that is being played
 		//Each index in the array corresponds to a track
 		if(!this.currentClip[index]) {
@@ -225,20 +227,20 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 
 		//Checks if the master time is within the clip's start and end time
 		if(this.masterTime >= clip.startTime && this.masterTime <= clip.startTime + clip.duration) {
-			if(video.src != "local-resource://getMediaFile/"+clip.location) {
-				video.src = "local-resource://getMediaFile/"+clip.location;
+			if(mediaElement.src != "local-resource://getMediaFile/"+clip.location) {
+				mediaElement.src = "local-resource://getMediaFile/"+clip.location;
 				this.changeDetector.detectChanges();
-				video.currentTime = clip.in;
-				video.play();
+				mediaElement.currentTime = clip.in;
+				mediaElement.play();
 			}else {
-				if(video.ended) {
-					video.currentTime = clip.in;
-					video.play();
+				if(mediaElement.ended) {
+					mediaElement.currentTime = clip.in;
+					mediaElement.play();
 					this.changeDetector.detectChanges();
 				}
 			}
 		}else if(this.masterTime >= clip.startTime + clip.duration) {
-			video.src = "";
+			mediaElement.src = "";
 			this.currentClip[index]++;
 		}
 	}
@@ -262,22 +264,27 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		const nativeElement = this.replaceWithCanvas.nativeElement;
 		let canvas;
 		//Checks if the canvas has already been created
-		try {
-			canvas = fx.canvas();
-			if(this.canvasElements[index]) {
-				this.renderer.removeChild(this.canvasContainer, this.canvasElements[index]);
+		if(track.type !== TrackType.AUDIO) {
+			try {
+				canvas = fx.canvas();
+				if(this.canvasElements[index]) {
+					this.renderer.removeChild(this.canvasContainer, this.canvasElements[index]);
+				}
+				this.canvasElements[index] = canvas;
+			} catch (e) {
+				console.log(e);
+				return;
 			}
-			this.canvasElements[index] = canvas;
-		} catch (e) {
-			console.log(e);
-			return;
+			//Inserts the canvas into the DOM
+			nativeElement.parentNode.insertBefore(canvas, nativeElement.firstChild);
+	
+			canvas.width = 1920;
+			canvas.height = 1080;
+
+			//Applies certain classes to the canvas
+			canvas.classList.add("w-full", "h-full", "absolute", "opacity-0", "non-final-canvas");
 		}
 
-		//Inserts the canvas into the DOM
-		nativeElement.parentNode.insertBefore(canvas, nativeElement.firstChild);
-
-		canvas.width = 1920;
-		canvas.height = 1080;
 
 		let imageFilters = new ImageFilters();
 
@@ -290,15 +297,17 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		let fpsInterval = 1000 / 30;
 		let elapsedTime = 0;
 
-		//Applies certain classes to the canvas
-		canvas.classList.add("w-full", "h-full", "absolute", "opacity-0", "non-final-canvas");
-
 		let step = async () => {
 			// console.time("draw");
 			//Measure the time it takes to draw the canvas
 			// let start = window.performance.now();
 
 			this.checkIfClipNeedsChanging(video, track, index);
+
+			if(track.type === TrackType.AUDIO) {
+				this.animationFrames[index] = window.requestAnimationFrame(step);
+				return;
+			}
 
 			if(video.paused || video.currentTime === 0) {
 				this.animationFrames[index] = window.requestAnimationFrame(step);
@@ -394,14 +403,18 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			this.ctx.fillStyle = "black";
 			this.ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-			let videos = this.videos.toArray();
+			let mediaElements = this.mediaElements.toArray();
 
 			let tracks = this.tracks;
 
 			//Loops through all the canvas elements and draws them to the final canvas
 			//Filter out all canvases in which the corresponding video is paused
 			this.canvasElements.forEach((canvas: HTMLCanvasElement, index: number) => {
-				if(videos[index] && videos[index].nativeElement.paused) {
+				if(mediaElements[index] && mediaElements[index].nativeElement.paused) {
+					return;
+				}
+
+				if(mediaElements[index] instanceof HTMLAudioElement) {
 					return;
 				}
 

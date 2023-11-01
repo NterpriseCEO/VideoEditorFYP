@@ -27,13 +27,11 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	@ViewChild("canvasContainer") canvasContainer!: ElementRef;
 	@ViewChild("scaler") scaler!: ElementRef;
 
-	videos: any[] = [];
+	mediaElements: any[] = [];
 
 	mediaRecorder: any;
 
 	ctx: any;
-
-	videosLength: number = 0;
 
 	tracks: Track[] = [];
 	trackIdsList: number[] = [];
@@ -58,7 +56,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	timeAnimationFrames: number[] = [];
 
 	isFullscreen: boolean = false;
-	videoPlaying: boolean = false;
+	mediaPlaying: boolean = false;
 	isRecording: boolean = false;
 
 	audioCtx: any;
@@ -101,7 +99,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	ngOnInit() {
 		this.titleService.setTitle("GraphX - Preview");
 
-		this.videoPlayback();
+		this.mediaPlayback();
 
 		this.listenForEvents();
 
@@ -131,7 +129,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 		})
 		//Gets the localhost server port.
-		//Used to send live video data to the server
+		//Used to send live media data to the server
 		window.api.emit("get-server-port");
 		window.api.once("server-port", (_: any, port: number) => {
 			//Sets the socket connection to the server			
@@ -253,7 +251,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				//Finds the track matching data.track
 				let id = this.tracks.findIndex(track => track.id === data.track.id);
 
-				this.startRecording(this.videos[id].captureStream(), true);
+				this.startRecording(this.mediaElements[id].captureStream(), true);
 			}else {
 				this.mediaRecorder.stop();
 				this.socket.emit("stop-recording");
@@ -274,7 +272,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//Gets all the new tracks
 			this.tracks = [...tracks.filter(track => track.isVisible)];
 			this.calculateDuration();
-			this.generateVideos();
+			this.generateMediaElements();
 		}));
 
 		window.api.on("mute-track", (_, track: Track) => this.ngZone.run(() => {
@@ -285,7 +283,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//prevents live streams from being unmuted
 			//which causes audio feedback
 			if(track.type === TrackType.VIDEO) {
-				this.videos[id].muted = track.muted;
+				this.mediaElements[id].muted = track.muted;
 			}
 			this.tracks[id].muted = track.muted;
 
@@ -320,14 +318,14 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		}));
 
 		window.api.on("toggle-playing", () => this.ngZone.run(() => {
-			this.playPauseVideo(false);
+			this.playPauseMedia(false);
 		}));
 		window.api.on("rewind-to-start", () => this.ngZone.run(() => {
 			this.rewindToStart();
 		}));
 	}
 
-	generateVideos() {
+	generateMediaElements() {
 		let index = 0;
 
 
@@ -345,9 +343,9 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			// 	this.stream.removeTrack(this.audioTracks[id]);
 			// }
 
-			//Removes each video element from the preview container
-			this.renderer.removeChild(this.previewContainer.nativeElement, this.videos[id]);
-			this.videos[id] = null;
+			//Removes each media element from the preview container
+			this.renderer.removeChild(this.previewContainer.nativeElement, this.mediaElements[id]);
+			this.mediaElements[id] = null;
 			this.audioTracks[id] = null;
 			//And cancels the animation frames and time animation frames
 			window.cancelAnimationFrame(this.timeAnimationFrames[id]);
@@ -368,23 +366,23 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				return;
 			}
 
-			let video = document.createElement("video");
-			video.id = "video-" + index;
-			video.classList.add("video", "w-full", "flex-grow-1", "absolute", "h-full", "opacity-0");
-			//Appends the video element after #previewVideo
-			this.renderer.appendChild(this.previewContainer.nativeElement, video);
-			this.setSource(track, video, index);
+			let mediaElement = document.createElement(track.type.toLocaleLowerCase()) as HTMLMediaElement;
+			mediaElement.id = "media-" + index;
+			mediaElement.classList.add("media", "w-full", "flex-grow-1", "absolute", "h-full", "opacity-0");
+			//Appends the media element after #previewVideo
+			this.renderer.appendChild(this.previewContainer.nativeElement, mediaElement);
+			this.setSource(track, mediaElement, index);
 
-			//Adds the video element to the videos array
-			if(!!this.videos[index]) {
-				this.videos.splice(index, 0, video);
-				for (let i = index + 1; i < this.videos.length; i++) {
-					if(this.videos[i]) {
-						this.videos[i].id = "video-" + i;
+			//Adds the media element to the mediaElements array
+			if(!!this.mediaElements[index]) {
+				this.mediaElements.splice(index, 0, mediaElement);
+				for (let i = index + 1; i < this.mediaElements.length; i++) {
+					if(this.mediaElements[i]) {
+						this.mediaElements[i].id = "media-" + i;
 					}
 				}
 			}else {
-				this.videos[index] = video;
+				this.mediaElements[index] = mediaElement;
 			}
 			this.trackIdsList[index] = track.id;
 
@@ -394,7 +392,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.previousTracks = JSON.parse(JSON.stringify([...this.tracks]));
 	}
 
-	startRecording(stream, addToTrack: boolean = false, video?: HTMLVideoElement) {
+	startRecording(stream, addToTrack: boolean = false) {
 		this.socket.emit("start-recording", { recordToProjectFolder: true, addToTrack: addToTrack });
 		//Captures the canvas or video and sends it to the server as new data is available
 		this.mediaRecorder = new MediaRecorder(new MediaStream([
@@ -425,17 +423,17 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.currentTime = 0;
 		this.duration = 0;
 
-		this.videoPlaying = false;
+		this.mediaPlaying = false;
 
 		this.currentClip = [];
 		this.calculateDuration();
 
-		this.videos.forEach((video, i) => {
-			//Pauses and rewinds all videos that are not live streams
-			if(!video?.srcObject) {
-				video.pause();
+		this.mediaElements.forEach((mediaElement, i) => {
+			//Pauses and rewinds all media elements that are not live streams
+			if(!mediaElement?.srcObject) {
+				mediaElement.pause();
 			}
-			video.currentTime = 0;
+			mediaElement.currentTime = 0;
 		});
 
 		this.changeDetector.detectChanges();
@@ -471,33 +469,33 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.finalCanvas.nativeElement.style.transform = "translateY(-50%)";
 	}
 
-	videoPlayback() {
+	mediaPlayback() {
 		this.startTime = window.performance.now() - this.masterTime;
 		this.tracks.forEach((track: Track, index) => {
 			let elapsedTime = 0;
 
-			let video;
+			let media;
 
-			if(this.videos[index]) {
-				video = this.videos[index];
+			if(this.mediaElements[index]) {
+				media = this.mediaElements[index];
 			}
 
 			if(!track.isVisible) {
 				return;
 			}
 
-			video.src = "";
-			video.currentTime = 0;
+			media.src = "";
+			media.currentTime = 0;
 
 			let step = async () => {
-				if(this.videoPlaying) {
+				if(this.mediaPlaying) {
 					let currentTime = window.performance.now();
 					this.masterTime = currentTime - this.startTime;
 
-					this.checkIfClipNeedsChanging(video, track, index);
+					this.checkIfClipNeedsChanging(media, track, index);
 
 					if(this.masterTime >= this.duration) {
-						this.videoPlaying = false;
+						this.mediaPlaying = false;
 						this.masterTime = 0;
 						window.api.emit("update-play-video-button", { isPlaying: false, isFinishedPlaying: true });
 					}
@@ -687,12 +685,17 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//Loops through all the canvas elements and draws them to the final canvas
 			//Filters out all canvases in which the corresponding video is paused
 			this.canvasElements.forEach((canvas: HTMLCanvasElement, index: number) => {
-				let video = this.videos[index];
-				if(video) {
-					if(!video.src && !video?.srcObject) {
+				let mediaElement = this.mediaElements[index];
+				if(mediaElement) {
+					//Will not render the canvas if this is an audio track
+					if (mediaElement instanceof HTMLAudioElement) {
 						return;
 					}
-					if(this.videos[index].paused && this.videoPlaying) {
+
+					if(!mediaElement.src && !mediaElement?.srcObject) {
+						return;
+					}
+					if(this.mediaElements[index].paused && this.mediaPlaying) {
 						return;
 					}
 				}
@@ -725,7 +728,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.stream = finalCanvas.captureStream();
 	}
 
-	setPreviewSource(videoSource: string, track: Track) {
+	setPreviewSource(mediaSource: string, track: Track) {
 		let type = track.type;
 		let source = track?.source;
 
@@ -773,13 +776,13 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				});
 			}));
 		}else if(type === TrackType.VIDEO) {
-			this.previewSrc = videoSource;
+			this.previewSrc = mediaSource;
 			this.previewStream = null;
 			this.changeDetector.markForCheck();
 		}
 	}
 
-	setSource(track: Track, video: HTMLVideoElement, index: number) {
+	setSource(track: Track, media: HTMLMediaElement, index: number) {
 		let type = track.type;
 		let source = track?.source;
 
@@ -801,7 +804,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			navigator.mediaDevices.getUserMedia({ video: true, audio: true })
 				.then(stream => {
 					//The video preview element src
-					video.srcObject = stream;
+					media.srcObject = stream;
 
 					// //remove the audio track from the stream at the index
 					// if(this.stream.getAudioTracks()[index]) {
@@ -823,7 +826,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 					sourceNode.connect(this.audioDestination);
 
 					if(!this.canvasElements[index]) {
-						this.initPreview(video, track, index);
+						this.initPreview(media, track, index);
 					}
 				});
 		}else if(type === TrackType.SCREEN_CAPTURE) {
@@ -853,7 +856,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 					} as MediaTrackConstraints,
 				}).then((stream) => {
 					//The video preview element src
-					video.srcObject = stream;
+					media.srcObject = stream;
 
 					this.audioTracks[index] = stream.getAudioTracks()[0];
 
@@ -868,45 +871,48 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 					sourceNode.connect(this.audioDestination);
 
 					if(!this.canvasElements[index]) {
-						this.initPreview(video, track, index);
+						this.initPreview(media, track, index);
 					}
 				});
 			}));
-		}else if(type === TrackType.VIDEO) {
+		}else if([TrackType.VIDEO, TrackType.AUDIO].includes(type)) {
 			this.changeDetector.markForCheck();
-			this.initPreview(video, track, index);
+			this.initPreview(media, track, index);
 		}
 	}
 
 	//This starts playing the preview so that the canvas can be drawn
-	initPreview(video: HTMLVideoElement, track: Track, index: number) {
+	initPreview(mediaElement: HTMLMediaElement, track: Track, index: number) {
 		this.changeDetector.detectChanges();
 
-		video.onloadedmetadata = () => {
-			//Calls once the the video metadata has loaded
-			video.muted = (track.type !== TrackType.VIDEO && video.srcObject !== null) || (track?.muted ?? false);
-			if(this.videoPlaying || video.srcObject) {
-				video.play();
+		mediaElement.onloadedmetadata = () => {
+			//Calls once the the media metadata has loaded
+			mediaElement.muted = (track.type !== TrackType.VIDEO && mediaElement.srcObject !== null) || (track?.muted ?? false);
+			if(this.mediaPlaying || mediaElement.srcObject) {
+				mediaElement.play();
 			}
 
-			if(track.type === TrackType.VIDEO && !this.audioTracks[index]) {
-				this.createAudioTrack(video, index);
+			if([TrackType.VIDEO, TrackType.AUDIO].includes(track.type) && !this.audioTracks[index]) {
+				this.createAudioTrack(mediaElement, index);
 			}
 		};
-		//Creates and draws the canvas corresponding to the video
-		this.drawCanvas(video, track, index);
 
-		video.ontimeupdate = () => {
-			//Updates the time of the video
-			this.currentTime = video.currentTime;
+		if(track.type !== TrackType.AUDIO) {
+			//Creates and draws the canvas corresponding to the video
+			this.drawCanvas(mediaElement as HTMLVideoElement, track, index);
+		}
+
+		mediaElement.ontimeupdate = () => {
+			//Updates the time of the media
+			this.currentTime = mediaElement.currentTime;
 			this.changeDetector.detectChanges();
 		}
 	}
 
-	createAudioTrack(video: any, index: number) {
+	createAudioTrack(media: any, index: number) {
 		try {
-			let sourceNode = this.audioCtx.createMediaElementSource(video);
-			// Connect the video element's output to the stream
+			let sourceNode = this.audioCtx.createMediaElementSource(media);
+			// Connect the media element's output to the stream
 			sourceNode.connect(this.audioDestination);
 			sourceNode.connect(this.audioCtx.destination);
 			sourceNode.enabled = true;
@@ -918,36 +924,36 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	initAudio() {
 		this.audioCtx = new AudioContext();
-		// This will be used to merge audio tracks from multiple videos
+		// This will be used to merge audio tracks from multiple media elements
 		this.audioDestination = new MediaStreamAudioDestinationNode(this.audioCtx);
 	}
 
-	playPauseVideo(updateInMainEditor: boolean = true) {
+	playPauseMedia(updateInMainEditor: boolean = true) {
 		//Toggles play pause on the preview
 		// this.videoNativeElement.paused ? this.videoNativeElement.play() : this.videoNativeElement.pause();
-		this.videoPlaying = !this.videoPlaying;
+		this.mediaPlaying = !this.mediaPlaying;
 
-		this.videos.forEach((video, i) => {
-			if(video?.srcObject || !video.src) {
+		this.mediaElements.forEach((mediaElement, i) => {
+			if(mediaElement?.srcObject || !mediaElement.src) {
 				return;
 			}
-			video.paused ? video.play() : video.pause();
+			mediaElement.paused ? mediaElement.play() : mediaElement.pause();
 		});
 
 		if(updateInMainEditor) {
 			//Sends the signal to update the play pause button in the main editor
 			//This is only done if the play/pause event was triggered in the preview
-			window.api.emit("update-play-video-button", { isPlaying: this.videoPlaying, isFinishedPlaying: false });
+			window.api.emit("update-play-video-button", { isPlaying: this.mediaPlaying, isFinishedPlaying: false });
 		}
 
-		if(!this.videoPlaying) {
+		if(!this.mediaPlaying) {
 			return;
 		}
 
 		if(this.masterTime === 0) {
-			//Resets everything when a user plays the video
+			//Resets everything when a user plays the media
 			//after it it has played all the way through
-			//This will basically restart the video from the beginning
+			//This will basically restart the media from the beginning
 			this.timeAnimationFrames.forEach((frame) => {
 				window.cancelAnimationFrame(frame);
 			});
@@ -957,13 +963,13 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.currentClip = [];
 
 			this.startTime = window.performance.now();
-			this.videoPlayback();
+			this.mediaPlayback();
 		}else {
 			this.startTime = window.performance.now() - this.masterTime;
 		}
 	}
 
-	seekVideo(value: number) {
+	seekMedia(value: number) {
 		this.timeAnimationFrames.forEach((frame) => {
 			window.cancelAnimationFrame(frame);
 		});
@@ -975,11 +981,11 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.currentTime = value;
 
 		this.startTime = window.performance.now() - this.masterTime;
-		this.videoPlayback();
+		this.mediaPlayback();
 
-		//Seeks the video at the current time value
+		//Seeks the media at the current time value
 		this.getClipAtTime(value);
-		window.api.emit("update-play-video-button", { isPlaying: this.videoPlaying, isFinishedPlaying: false, currentTime: value });
+		window.api.emit("update-play-video-button", { isPlaying: this.mediaPlaying, isFinishedPlaying: false, currentTime: value });
 	}
 
 	//Calculates how much of a clip has been played
@@ -1007,48 +1013,48 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 			let hasPlayingClip = false;
 
-			let video = this.videos[i];
+			let mediaElement = this.mediaElements[i];
 			track.clips.forEach((clip: ClipInstance, j) => {
 				if(time >= clip.startTime && time < clip.startTime + clip.duration) {
 					hasPlayingClip = true;
-					if(video.src != "local-resource://getMediaFile/" + clip.location) {
-						video.srcObject = null;
-						video.src = "local-resource://getMediaFile/" + clip.location;
+					if(mediaElement.src != "local-resource://getMediaFile/" + clip.location) {
+						mediaElement.srcObject = null;
+						mediaElement.src = "local-resource://getMediaFile/" + clip.location;
 						this.changeDetector.markForCheck();
 					}
 					//Sets the current clip to j if
 					//the clip is to be played
 					this.currentClip[i] = j;
 					this.masterTime = time;
-					video.currentTime = this.calculateMSOfClipPlayed(clip) / 1000;
+					mediaElement.currentTime = this.calculateMSOfClipPlayed(clip) / 1000;
 
-					if(this.videoPlaying) {
-						video.play();
+					if(this.mediaPlaying) {
+						mediaElement.play();
 					}
 					return;
 				}
 				this.masterTime = time;
 			});
 
-			//Set the video source to nothing
+			//Set the media element's source to nothing
 			if(!hasPlayingClip) {
-				video.removeAttribute("src");
+				mediaElement.removeAttribute("src");
 				if(track.type !== TrackType.VIDEO) {
-					if(video?.srcObject) {
-						video.play();
+					if(mediaElement?.srcObject) {
+						mediaElement.play();
 						return;
 					}
 
-					this.setSource(track, video, i);
+					this.setSource(track, mediaElement, i);
 				}
 			}
 		});
 		this.changeDetector.markForCheck();
 	}
 
-	checkIfClipNeedsChanging(video: HTMLVideoElement, track: Track, index: number) {
+	checkIfClipNeedsChanging(mediaElement: HTMLMediaElement, track: Track, index: number) {
 		//Checks if the clip needs to be changed
-		if(!track.clips || !this.videoPlaying) {
+		if(!track.clips || !this.mediaPlaying) {
 			return;
 		}
 
@@ -1064,35 +1070,37 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			return;
 		}
 
+		const isAudioOrVideo = [TrackType.VIDEO, TrackType.AUDIO].includes(track.type);		
+
 		//convert this.startTime to seconds
 		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
-			if(video.src != "local-resource://getMediaFile/" + clip.location) {
-				if(track.type !== TrackType.VIDEO) {
-					video.srcObject = null;
-					video.removeAttribute("srcObject");
+			if(mediaElement.src != "local-resource://getMediaFile/" + clip.location) {
+				if (isAudioOrVideo) {
+					mediaElement.srcObject = null;
+					mediaElement.removeAttribute("srcObject");
 				}
-				video.src = "local-resource://getMediaFile/" + clip.location;
+				mediaElement.src = "local-resource://getMediaFile/" + clip.location;
 
 				this.changeDetector.detectChanges();
-				video.currentTime = clip.in / 1000;
+				mediaElement.currentTime = clip.in / 1000;
 			}else {
-				//Check if the video is finished and if so, restart it
-				//This is for looping videos
-				if(video.ended) {
-					video.currentTime = clip.in / 1000;
-					video.play();
+				//Check if the media element is finished and if so, restart it
+				//This is for looping media elements
+				if(mediaElement.ended) {
+					mediaElement.currentTime = clip.in / 1000;
+					mediaElement.play();
 					this.changeDetector.detectChanges();
 				}
 			}
 		}else if(this.masterTime >= clip.startTime + clip.duration) {
 			this.currentClip[index]++;
 			if (clip.location === clips[i + 1]?.location) {
-				video.currentTime = clips[i + 1].in / 1000;
+				mediaElement.currentTime = clips[i + 1].in / 1000;
 				return;
 			}
-			video.src = "";
-			if(track.type !== TrackType.VIDEO && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime + 0.5)) {
-				this.setSource(track, video, index);
+			mediaElement.src = "";
+			if(isAudioOrVideo && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime + 0.5)) {
+				this.setSource(track, mediaElement, index);
 			}
 		}
 	}

@@ -80,7 +80,7 @@ export class ImportsPanelComponent implements OnInit {
 						thumbnail: "local-resource://getMediaFile/" + file.thumbnail,
 						duration: file.duration,
 						totalDuration: file.duration,
-						type: TrackType.VIDEO
+						type: file.type ?? TrackType.VIDEO
 					});
 				}
 			});

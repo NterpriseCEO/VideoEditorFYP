@@ -7,4 +7,5 @@ export enum TrackType {
 	VIDEO = "Video",
 	WEBCAM = "Web cam",
 	SCREEN_CAPTURE = "Screen capture",
+	AUDIO = "Audio"
 }

@@ -60,6 +60,13 @@ export class EditorToollbarComponent implements OnInit {
 							}
 						},
 						{
+							label: "Audio",
+							icon: PrimeIcons.PLUS,
+							command: () => {
+								this.tracksService.addTrack(TrackType.AUDIO);
+							}
+						},
+						{
 							label: "Webcam",
 							icon: PrimeIcons.PLUS,
 							command: () => {
