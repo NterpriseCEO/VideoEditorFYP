@@ -1,6 +1,6 @@
 <div #mediaElements *ngFor = "let track of tracks">
 	<video
-		*ngIf = "track.type === 'Video'"
+		*ngIf = "track.type !== 'Audio'"
 		class = "w-full flex-grow-1 absolute h-full hidden"
 		muted
 		controls

@@ -31,8 +31,8 @@
 				class = "text-center"
 				[class.cursor-pointer] = "track.type == 'Screen capture'"
 				style = "height: 45%"
-				[pTooltip] = "track.type == 'Screen capture' ? 'Change Source': ''"
-				(click) = "changeSource()"
+				[pTooltip] = "track.type === 'Screen capture' ? 'Change Source': ''"
+				(click) = "track.type === 'Screen capture' && changeSource()"
 			>
 				{{track.type}}
 			</div>

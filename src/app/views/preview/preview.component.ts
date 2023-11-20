@@ -38,6 +38,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	previousTracks: Track[] = [];
 	selectedTrackIndex: number = -1;
 	currentClip: number[] = [];
+	trackVisibilityAtGivenTime: any[] = [];
 	selectedClipIndex: number = -1;
 
 	//Testing
@@ -366,7 +367,10 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				return;
 			}
 
-			let mediaElement = document.createElement(track.type.toLocaleLowerCase()) as HTMLMediaElement;
+			let trackType = track.type.toLocaleLowerCase();
+			trackType = trackType === "audio" ? "audio" : "video"; 
+
+			let mediaElement = document.createElement(trackType) as HTMLMediaElement;
 			mediaElement.id = "media-" + index;
 			mediaElement.classList.add("media", "w-full", "flex-grow-1", "absolute", "h-full", "opacity-0");
 			//Appends the media element after #previewVideo
@@ -426,6 +430,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.mediaPlaying = false;
 
 		this.currentClip = [];
+		this.trackVisibilityAtGivenTime = [];
 		this.calculateDuration();
 
 		this.mediaElements.forEach((mediaElement, i) => {
@@ -686,6 +691,22 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//Filters out all canvases in which the corresponding video is paused
 			this.canvasElements.forEach((canvas: HTMLCanvasElement, index: number) => {
 				let mediaElement = this.mediaElements[index];
+				let track = tracks[index];
+
+				if(Array.isArray(track.isVisible)) {
+					if(!this.trackVisibilityAtGivenTime[index]) {
+						this.trackVisibilityAtGivenTime[index] = 0;
+					}
+					const visibility = track.isVisible[this.trackVisibilityAtGivenTime[index]];
+					if (visibility) {						
+						if (this.masterTime >= visibility.startTime && this.masterTime <= visibility.startTime + visibility.duration && !visibility.on) {
+							return;
+						} else if (this.masterTime >= visibility.startTime + visibility.duration) {
+							this.trackVisibilityAtGivenTime[index]++;
+						}
+					}
+				}
+
 				if(mediaElement) {
 					//Will not render the canvas if this is an audio track
 					if (mediaElement instanceof HTMLAudioElement) {
@@ -703,7 +724,6 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				if(!canvas || canvas?.width === 0 || canvas?.height === 0) {
 					return;
 				}
-				let track = tracks[index];
 				let clip;
 				try {
 					clip = track?.clips![this.currentClip[index]];
@@ -877,7 +897,9 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}));
 		}else if([TrackType.VIDEO, TrackType.AUDIO].includes(type)) {
 			this.changeDetector.markForCheck();
-			this.initPreview(media, track, index);
+			if(!this.canvasElements[index]) {
+				this.initPreview(media, track, index);
+			}
 		}
 	}
 
@@ -977,6 +999,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.timeAnimationFrames = [];
 
 		this.currentClip = [];
+		this.trackVisibilityAtGivenTime = [];
 
 		this.currentTime = value;
 
@@ -1011,6 +1034,13 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				return;
 			}
 
+			if(Array.isArray(track.isVisible)) {
+				track.isVisible.forEach((visibility, j) => {
+					if(this.masterTime >= visibility.startTime && this.masterTime <= visibility.startTime + visibility.duration) {
+						this.trackVisibilityAtGivenTime[i] = j;
+					}
+				});
+			}
 			let hasPlayingClip = false;
 
 			let mediaElement = this.mediaElements[i];
@@ -1070,15 +1100,11 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			return;
 		}
 
-		const isAudioOrVideo = [TrackType.VIDEO, TrackType.AUDIO].includes(track.type);		
-
 		//convert this.startTime to seconds
 		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
-			if(mediaElement.src != "local-resource://getMediaFile/" + clip.location) {
-				if (isAudioOrVideo) {
-					mediaElement.srcObject = null;
-					mediaElement.removeAttribute("srcObject");
-				}
+			if(decodeURIComponent(mediaElement.src) != "local-resource://getMediaFile/" + clip.location) {
+				mediaElement.srcObject = null;
+				mediaElement.removeAttribute("srcObject");
 				mediaElement.src = "local-resource://getMediaFile/" + clip.location;
 
 				this.changeDetector.detectChanges();
@@ -1099,7 +1125,8 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				return;
 			}
 			mediaElement.src = "";
-			if(isAudioOrVideo && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime + 0.5)) {
+			const isLiveFootage = [TrackType.SCREEN_CAPTURE, TrackType.WEBCAM].includes(track.type);
+			if(isLiveFootage && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime + 0.5)) {
 				this.setSource(track, mediaElement, index);
 			}
 		}

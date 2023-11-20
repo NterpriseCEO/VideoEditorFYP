@@ -28,6 +28,7 @@ Server.prototype.setWindows = function(window, previewWindow) {
 
 function socketConnections() {
 	const io = require("socket.io")(server, {
+		pingTimeout: 86400000,
 		cors: {
 			origin: server.address().port,
 			methods: ["GET", "POST"]
@@ -35,7 +36,6 @@ function socketConnections() {
 	});
 	io.on("connection", client => {
 		listenForVideoData(client);
-		client.on("disconnect", () => {});
 	});
 }
 

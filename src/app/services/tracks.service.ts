@@ -11,7 +11,7 @@ export class TracksService {
 	
 	//Subject to add filter to the current track
 	public filtersChangedSubject = new Subject<boolean>();
-	public tracksSubject = new Subject<Track[]>();
+	public tracksSubject = new Subject<any[]>();
 	public tracksLoadedFromProjectFileSubject = new Subject<Track[]>();
 	public selectedTrackChangedSubject = new Subject<Track | null>();
 	public previewStateSubject = new Subject<{isPlaying: boolean, isFinishedPlaying: boolean, currentTime?: number}>();
@@ -41,9 +41,8 @@ export class TracksService {
 
 	listenForEvents() {
 		let interval;
-		this.pfService.loadTracksSubject.subscribe((tracks) => {
+		this.pfService.loadTracksSubject.subscribe((tracks: Track[]) => {
 			this.tracks = tracks;
-
 			this.selectedTrack = this.tracks.find(track => track.id === this.selectedTrack?.id) ?? this.tracks[0];
 			this.selectedTrackIndex = this.tracks.findIndex(track => track.id === this.selectedTrack?.id);
 			this.selectedTrackChangedSubject.next(this.selectedTrack);

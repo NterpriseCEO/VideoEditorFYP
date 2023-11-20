@@ -162,7 +162,7 @@ export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked {
 
 		this.enabledFilters = [...this.enabledFilters];
 
-		this.changeDetector.detectChanges();
+		this.changeDetector.markForCheck();
 
 		//Updates the project file object
 		if(updateProjectFile) {

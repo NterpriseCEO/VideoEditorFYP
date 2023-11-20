@@ -4,6 +4,7 @@ import { KeyboardEventsService } from "src/app/services/keyboard-events.service"
 import { TracksService } from "src/app/services/tracks.service";
 import { Clip, ClipInstance, Track } from "src/app/utils/interfaces";
 import { TrackHelpers } from "../track-helpers";
+import { Subscription } from "rxjs";
 
 @Component({
 	selector: "app-track-contents",
@@ -25,6 +26,8 @@ export class TrackContentsComponent extends TrackHelpers implements OnChanges, O
 	clipToResize: HTMLElement | null = null;
 
 	keyboardEventsSubscription: any = [];
+	clipSelectionUpdateSubject: Subscription = new Subscription();
+	zoomSliderResizeSubject: Subscription = new Subscription();
 
 	constructor(
 		private keys: KeyboardEventsService,
@@ -53,7 +56,8 @@ export class TrackContentsComponent extends TrackHelpers implements OnChanges, O
 		this.keyboardEventsSubscription.forEach((subscription: any) => subscription.unsubscribe());
 		this.keyboardEventsSubscription = [];
 
-		this.cs.clipSelectionUpdateSubject.unsubscribe();
+		if(this.clipSelectionUpdateSubject) this.clipSelectionUpdateSubject.unsubscribe();
+		if(this.zoomSliderResizeSubject) this.zoomSliderResizeSubject.unsubscribe();
 	}
 
 	listenForEvents() {
@@ -76,13 +80,13 @@ export class TrackContentsComponent extends TrackHelpers implements OnChanges, O
 			this.tracksService.toggleTrackMute(this.tracksService.tracks[this.trackIndex]);
 		}));
 
-		this.cs.clipSelectionUpdateSubject.subscribe((clip: ClipInstance | null) => {
+		this.clipSelectionUpdateSubject = this.cs.clipSelectionUpdateSubject.subscribe((clip: ClipInstance | null) => {
 			this.selectedClip = clip;
 
 			this.changeDetector.detectChanges();
 		});
 
-		this.tracksService.zoomSliderResizeSubject.subscribe(() => {
+		this.zoomSliderResizeSubject = this.tracksService.zoomSliderResizeSubject.subscribe(() => {
 			if(!this.clips.length) return;
 			let lastClip = this.lastClip();
 

@@ -43,8 +43,6 @@ export class ProjectFileService {
 
 	public projectDurationSubject: Subject<number> = new Subject<number>();
 
-	isDirty: boolean = false;
-
 	projectLoaded: boolean = false;
 
 	allFilters: any[] = [];
@@ -72,7 +70,6 @@ export class ProjectFileService {
 
 		window.api.on("project-saved", (_: any, project: Project) => this.ngZone.run(() => {
 			this.messageService.add({severity:"success", summary:"Project saved!"});
-			this.isDirty = false;
 
 			//Updates the project location
 			this.project.location = project.location;
@@ -104,7 +101,6 @@ export class ProjectFileService {
 			});
 			this.tracks = this.project.tracks;
 			this.loadTracksSubject.next(this.tracks);
-			this.isDirty = true;
 
 			this.titleService.setTitle(`GraphX - * ${this.location}`);
 		});
@@ -120,10 +116,6 @@ export class ProjectFileService {
 			});
 			this.loadClipsSubject.next(this.project.clips);
 		});
-
-		setTimeout(() => {
-			console.log(this.clips);
-		}, 2000);
 	}
 
 	intitaliseProject(project: Project) {
@@ -142,7 +134,6 @@ export class ProjectFileService {
 		this.tracks = JSON.parse(JSON.stringify(project.tracks));
 
 		this.projectLoaded = true;
-		this.isDirty = false;
 
 		//Tells other components that the project has been loaded
 		//and that they should load these clips and tracks
@@ -198,24 +189,22 @@ export class ProjectFileService {
 		//if they haven't changed, don't update them
 		//This prevent the project from being marked as dirty
 		//when the user clicks on a track
-		if(JSON.stringify(this.tracks) === JSON.stringify(tracks)) {
+		if(deepCompare(this.tracks, tracks)) {
 			return;
 		}
 
 		this.tracks = JSON.parse(JSON.stringify(tracks));
 		this.project.tracks = JSON.parse(JSON.stringify(tracks));
 
-		this.isDirty = true;
+		const showEditedIndicator = deepCompare(this.tracks, this.projectHistory[this.projectSavedIndexInHistory].tracks) ? '' : '*';
 
-		this.titleService.setTitle(`GraphX - * ${this.location}`);
+		this.titleService.setTitle(`GraphX - ${showEditedIndicator} ${this.location}`);
 
 		this.addProjectToHistory(this.project);
 	}
 
 	updateClips(clips: Clip[]) {
 		this.clips = clips;
-
-		this.isDirty = true;
 
 		this.titleService.setTitle(`GraphX - * ${this.location}`);
 
@@ -247,7 +236,7 @@ export class ProjectFileService {
 	}
 
 	isProjectDirty() {
-		return this.isDirty;
+		return !deepCompare(this.projectHistory[this.projectSavedIndexInHistory], this.project);
 	}
 
 	createBlankProject() {
@@ -276,7 +265,6 @@ export class ProjectFileService {
 			this.tracks = this.project.tracks;
 
 			this.projectLoaded = true;
-			this.isDirty = false;
 
 			this.addProjectToRecentProjects();
 
@@ -324,12 +312,10 @@ export class ProjectFileService {
 		if(deepCompare(this.project, this.projectHistory[this.historyIndex])) {
 			return;
 		}else {
-			this.isDirty = true;
 			this.titleService.setTitle(`GraphX - * ${this.location}`);
 		}
 
 		if(this.historyIndex === this.projectSavedIndexInHistory) {
-			this.isDirty = false;
 			this.titleService.setTitle(`GraphX - ${this.location}`);
 		}
 
@@ -344,7 +330,6 @@ export class ProjectFileService {
 	setProjectName(name: string) {
 		this.name = name;
 		this.project.name = name;
-		this.isDirty = true;
 
 		this.titleService.setTitle(`GraphX - * ${this.location}`);
 
@@ -401,7 +386,6 @@ export class ProjectFileService {
 				console.log(track);
 				return track;
 			});
-			this.isDirty = true;
 
 			this.titleService.setTitle(`GraphX - * ${this.location}`);
 

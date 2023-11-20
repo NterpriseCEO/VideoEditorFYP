@@ -158,11 +158,9 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			//Checks if a track is being added not removed
 			this.addingTrack = this.tracksCount < tracks.length;
 			this.tracksCount = tracks.length;
-
 			this.tracks = tracks;
 
 			this.projectDuration = this.tracksService.getProjectDuration();
-
 			//Sends the project duration to anything that subscribes to the projectDurationSubject
 			const projectDuration = this.determineProjectDurationFromTrackWidth();
 			
@@ -174,6 +172,9 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			this.numberOfMillisecondsShown = this.numberOfMillisecondsShown < 1000*135 ? 1000*135 : this.numberOfMillisecondsShown;
 
 			this.tracksService.timelineIntervalGap = Math.round(this.numberOfMillisecondsShown / (this.calculateNumberOfIntervals()-0.5));			
+
+			//timeline interval position should be the current time in milliseconds / timelineIntervalGap
+			// this.timelineIndicatorPosition = this.current
 
 			this.setTimeNumbers();
 			this.updateTracksPanelDimensions();
@@ -243,7 +244,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 
 	moveTimeLineIndicator() {
 		this.timelineInterval = setInterval(() => {
-			this.timelineIndicatorPosition+=2;
+			this.timelineIndicatorPosition += 100 / (this.tracksService.timelineIntervalGap / 200);
 			this.changeDetector.detectChanges();
 		}, 200);
 	}

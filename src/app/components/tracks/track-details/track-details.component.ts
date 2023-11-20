@@ -9,6 +9,7 @@ import { TrackPropertiesPopupComponent } from "../track-properties-popup/track-p
 import { MenuItem } from "primeng/api";
 import { TrackType } from "src/app/utils/constants";
 import { OverlayPanel } from "primeng/overlaypanel";
+import { Subscription } from "rxjs";
 
 @Component({
 	selector: "app-track-details",
@@ -30,6 +31,8 @@ export class TrackDetailsComponent implements OnInit, OnChanges, OnDestroy {
 	isEditingName: boolean = false;
 
 	titleColour: string = "white";
+
+	trackMuteSubject: Subscription = new Subscription();
 
 	menuItems: MenuItem[] = [
 		{
@@ -90,11 +93,11 @@ export class TrackDetailsComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	ngOnDestroy() {
-		this.tracksService.trackMuteSubject.unsubscribe();
+		if(this.trackMuteSubject) this.trackMuteSubject.unsubscribe();
 	}
 
 	listenForEvents() {
-		this.tracksService.trackMuteSubject.subscribe((track) => {
+		this.trackMuteSubject = this.tracksService.trackMuteSubject.subscribe((track) => {
 			if(track.id === this.track.id) {
 				//Sets the mute label to the opposite of the track's muted state
 				this.setMuteLabel(track.muted ?? false);

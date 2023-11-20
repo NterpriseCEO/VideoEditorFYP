@@ -34,7 +34,11 @@ exports.listenForVideoData = function(client) {
 	});
 	client.on("recording-data", data => {
 		if(couldOpenStream) {
-			fileStream.write(Buffer.from(new Uint8Array(data)));
+			try {
+				fileStream.write(Buffer.from(new Uint8Array(data)));
+			}catch(e) {
+				console.log(e);
+			}
 		}
 	});
 	client.on("stop-recording", () => {

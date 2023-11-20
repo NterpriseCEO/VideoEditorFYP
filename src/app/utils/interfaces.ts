@@ -37,7 +37,7 @@ export interface FilterPropertyInstance extends FilterProperty {
 
 export interface Track {
 	id: number;
-	isVisible: boolean;
+	isVisible: boolean | TrackVisibility[];
 	name: string;
 	type: TrackType; //Video, webcam or screen capture
 	colour: string;
@@ -48,6 +48,12 @@ export interface Track {
 	width?: number;
 	height?: number;
 	muted?: boolean;
+}
+
+export interface TrackVisibility {
+	startTime: number;
+	duration: number;
+	on: boolean;
 }
 
 export interface Clip {

@@ -26,6 +26,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 
 	tracks: Track[] = [];
 	currentClip: number[] = [];
+	trackVisibilityAtGivenTime: any[] = [];
 
 	canvasElements: any[] = [];
 	ctx: any;
@@ -116,6 +117,8 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			this.recentExports.push(newExport);
 			localStorage.setItem("recentExports", JSON.stringify(this.recentExports));
 
+			this.trackVisibilityAtGivenTime = [];
+
 			//Gets all tracks and filters out invisible ones
 			this.tracks = [...JSON.parse(JSON.stringify(this.tracksService.getTracks()))];
 
@@ -129,11 +132,13 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				track.filters =
 					track!.filters?.filter(filter=> filter.enabled).map((filter: Filter) => {
 
+					filter.properties.forEach(prop => console.log(prop.value));
+
 					//Converts the filter properties to
 					//an array of values
 					return {
 						function: filter.function,
-						properties: filter.properties ? filter.properties.map(prop => prop.value.value ?? prop.defaultValue) : [],
+						properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
 						type: filter.type
 					}
 				}) as FilterInstance[];
@@ -201,10 +206,14 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			this.stream.getVideoTracks()[0],
 			this.audioDestination.stream.getAudioTracks()[0]
 		]), recorderOptions);
-		this.mediaRecorder.onstop = (event) => {};
+		this.mediaRecorder.onstop = (event) => {console.log("stopped", event)};
 		this.mediaRecorder.ondataavailable = (event) => {
 			if(event.data && event.data.size > 0 && this.isRecording) {
-				this.socket.emit("recording-data", event.data);
+				try {
+					this.socket.emit("recording-data", event.data);
+				}catch(e) {
+					console.log(e);
+				}
 			}
 		};
 
@@ -226,15 +235,15 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		}
 
 		//Checks if the master time is within the clip's start and end time
-		if(this.masterTime >= clip.startTime && this.masterTime <= clip.startTime + clip.duration) {
-			if(mediaElement.src != "local-resource://getMediaFile/"+clip.location) {
+		if(this.masterTime >= clip.startTime && this.masterTime < clip.startTime + clip.duration) {
+			if(decodeURIComponent(mediaElement.src) != "local-resource://getMediaFile/"+clip.location) {
 				mediaElement.src = "local-resource://getMediaFile/"+clip.location;
 				this.changeDetector.detectChanges();
-				mediaElement.currentTime = clip.in;
+				mediaElement.currentTime = clip.in / 1000;
 				mediaElement.play();
 			}else {
 				if(mediaElement.ended) {
-					mediaElement.currentTime = clip.in;
+					mediaElement.currentTime = clip.in / 1000;
 					mediaElement.play();
 					this.changeDetector.detectChanges();
 				}
@@ -280,9 +289,8 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 	
 			canvas.width = 1920;
 			canvas.height = 1080;
-
 			//Applies certain classes to the canvas
-			canvas.classList.add("w-full", "h-full", "absolute", "opacity-0", "non-final-canvas");
+			canvas.classList.add("w-full", "h-full", "absolute", "opacity-0", "non-final-canvas", "canvas-" + index);
 		}
 
 
@@ -309,7 +317,12 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				return;
 			}
 
-			if(video.paused || video.currentTime === 0) {
+			if(video.paused || video.currentTime === 0 || video.videoWidth === 0 || video.videoHeight === 0) {
+				this.animationFrames[index] = window.requestAnimationFrame(step);
+				return;
+			}
+
+			if((!video.src && !video?.srcObject) || video.readyState < 2) {
 				this.animationFrames[index] = window.requestAnimationFrame(step);
 				return;
 			}
@@ -321,7 +334,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			if(!ifTexture) {
 				ifTexture = imageFilters.texture(video);
 			}
-			
+
 			now = window.performance.now();
 			elapsedTime = now - then;
 
@@ -410,12 +423,15 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			//Loops through all the canvas elements and draws them to the final canvas
 			//Filter out all canvases in which the corresponding video is paused
 			this.canvasElements.forEach((canvas: HTMLCanvasElement, index: number) => {
-				if(mediaElements[index] && mediaElements[index].nativeElement.paused) {
-					return;
-				}
-
-				if(mediaElements[index] instanceof HTMLAudioElement) {
-					return;
+				if(mediaElements[index]) {
+					const mediaElement = mediaElements[index].nativeElement.querySelectorAll("video, audio")[0];
+					if(mediaElement.paused) {
+						return;	
+					}
+	
+					if(mediaElement instanceof HTMLAudioElement) {
+						return;
+					}
 				}
 
 				if(canvas.width === 0 || canvas.height === 0) {
@@ -440,8 +456,8 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 
 				this.ctx.drawImage(canvas, x, y, width, height);
-				this.updateTime();
 			});
+			this.updateTime();
 			window.requestAnimationFrame(step);
 		}
 
