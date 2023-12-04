@@ -7,7 +7,7 @@ import { Clip, ClipInstance, Filter, Project, Track } from "../utils/interfaces"
 import GLFX_Filters from "../components/filters/filter-selector/filter-definitions/GLFX_Filters.json";
 import ImageFilters from "../components/filters/filter-selector/filter-definitions/ImageFilters.json";
 import { FilterLibrary } from "../utils/constants";
-import { deepCompare } from "../utils/utils";
+import { deepCompare, deepCopyObject } from "../utils/utils";
 
 @Injectable({
 	providedIn: "root"
@@ -236,7 +236,12 @@ export class ProjectFileService {
 	}
 
 	isProjectDirty() {
-		return !deepCompare(this.projectHistory[this.projectSavedIndexInHistory], this.project);
+		const projectAtSavedIndex = deepCopyObject(this.projectHistory[this.projectSavedIndexInHistory]);
+		const projectNow = deepCopyObject(this.project);
+		delete projectAtSavedIndex.lastModifiedDate;
+		delete projectNow.lastModifiedDate;
+
+		return !deepCompare(projectAtSavedIndex, projectNow);
 	}
 
 	createBlankProject() {

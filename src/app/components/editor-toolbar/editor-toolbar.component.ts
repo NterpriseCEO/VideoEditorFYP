@@ -274,11 +274,20 @@ export class EditorToollbarComponent implements OnInit {
 
 	togglePlaying() {
 		this.isPlaying = !this.isPlaying;
-		this.tracksService.previewStateSubject.next({
-			isPlaying: this.isPlaying,
-			isFinishedPlaying: false
-		});
+		//Checks if the preview window is open before toggling playing
 		window.api.emit("toggle-playing", this.isPlaying);
+		window.api.on("preview-window-is-open", (_, isOpen) => {
+			if(!isOpen) {
+				this.isPlaying = false;
+			}
+			
+			this.tracksService.previewStateSubject.next({
+				isPlaying: this.isPlaying,
+				isFinishedPlaying: false
+			});
+
+			this.changeDetector.detectChanges();
+		});
 	}
 
 	rewind() {

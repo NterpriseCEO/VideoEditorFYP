@@ -142,16 +142,16 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			this.percentageOfTracksVisible = (position.right - position.left)/100;
 			this.numberOfMillisecondsShown = this.projectDuration * this.percentageOfTracksVisible;
 			this.numberOfMillisecondsShown = this.numberOfMillisecondsShown < 1000 * 135 ? 1000 * 135 * this.percentageOfTracksVisible : this.numberOfMillisecondsShown;
-			
+
+			this.updateTracksPanelDimensions();
+
 			const scrollWidth = this.tracksList.nativeElement.scrollWidth - this.tracksList.nativeElement.clientWidth;
-			//Percentage of the scrollbar that is scrolled
-			const scroll = (position.left/100) * scrollWidth;
+			const scroll = scrollWidth * (position.left / 50);
 			this.tracksList.nativeElement.scrollLeft = scroll;
 
 			this.tracksService.timelineIntervalGap = Math.round(this.numberOfMillisecondsShown / (this.calculateNumberOfIntervals() - 0.5));
 
 			this.setTimeNumbers();
-			this.updateTracksPanelDimensions();
 		});
 		//Subscribes to the addTrackSubject in the tracks service
 		this.tracksService.tracksSubject.subscribe((tracks: Track[]) => {
@@ -204,7 +204,8 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			}
 
 			if(state?.currentTime) {
-				this.timelineIndicatorPosition = state.currentTime*10;
+				//Calculates the position of the timeline indicator based on the current time
+				this.timelineIndicatorPosition = state.currentTime / this.msPerPX();
 				this.changeDetector.detectChanges();
 			}
 		});
@@ -220,7 +221,6 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 
 		//fromEvent scrolls the tracksList element when the mouse wheel is scrolled
 		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
-			console.log('scroll', event.target.offsetWidth, event.target.scrollLeft, event.target.scrollWidth-100);			
 			if (event.target.offsetWidth + event.target.scrollLeft >= event.target.scrollWidth-100) {
 				//End of scroll
 				return;
@@ -243,6 +243,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 	}
 
 	moveTimeLineIndicator() {
+		clearInterval(this.timelineInterval);
 		this.timelineInterval = setInterval(() => {
 			this.timelineIndicatorPosition += 100 / (this.tracksService.timelineIntervalGap / 200);
 			this.changeDetector.detectChanges();

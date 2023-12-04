@@ -32,7 +32,8 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 			setProjectPath(projectFolder);
 
 			//Saves the project to a file
-			fs.writeFile(project.location, JSON.stringify(project), (err) => {
+			//Formtas the JSON with tabs
+			fs.writeFile(project.location, JSON.stringify(project, null, "\t"), (err) => {
 				if(err) {
 					console.log(err);
 				}
@@ -66,7 +67,7 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 			//reduces the filter properties to just their values
 
 			//Saves the project to a file
-			fs.writeFile(project.location, JSON.stringify(project), (err) => {
+			fs.writeFile(project.location, JSON.stringify(project, null, "\t"), (err) => {
 				if(err) {
 					console.log(err);
 				}
@@ -82,7 +83,7 @@ SaveAndLoadProjects.prototype.listenForEvents = function() {
 		//remove everything after the last slash
 		let folderName = project.location.substring(0, project.location.lastIndexOf("\\"));
 		setProjectPath(folderName);
-		fs.writeFile(project.location, JSON.stringify(project), (err) => {
+		fs.writeFile(project.location, JSON.stringify(project, null, "\t"), (err) => {
 			if(err) {
 				console.log(err);
 			}

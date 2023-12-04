@@ -238,7 +238,7 @@ MainWindow.prototype.createPreviewWindow = function() {
 		this.server.setWindows(this.window, this.previewWindow);
 		this.streamingAndFilters.setWindows(this.window, this.previewWindow);
 		this.window.webContents.send("preview-exited");
-		this.window.webContents.send("update-play-video-button", {isPlaying: false, isFinishedPlaying: true});
+		this.window.webContents.send("update-play-video-button", { isPlaying: false, isFinishedPlaying: true, currentTime: 0 });
 	});
 	
 	//Tells the main window that the preview window has loaded

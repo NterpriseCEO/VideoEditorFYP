@@ -77,8 +77,11 @@ StreamingAndFilters.prototype.listenForEvents = function() {
 	ipcMain.on("toggle-playing", () => {
 		//Toggles the playing state of the preview
 		if(this.previewWindow) {
-			this.previewWindow.webContents.send("toggle-playing");	
+			this.previewWindow.webContents.send("toggle-playing");
 		}
+
+		//Tells the main window that the preview is open and ready to be played
+		this.window.webContents.send("preview-window-is-open", !!this.previewWindow);
 	});
 
 	ipcMain.on("rewind-to-start", () => {

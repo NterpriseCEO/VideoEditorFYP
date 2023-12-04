@@ -9,12 +9,5 @@
 .handle {
 	width: 10px;
 	cursor: ew-resize;
-}
-
-#left-handle {
-	border-right: none;
-}
-
-#right-handle {
-	border-left: none;
+	border: 5px solid white;
 }

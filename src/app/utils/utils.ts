@@ -44,3 +44,37 @@ export function deepCompare(a: any, b) {
 		return a === b;
 	}
 }
+
+export function deepCopy(array: any[]): any[] {
+	let arrayCopy: any[] = [];
+
+	array.forEach(item => {
+		if (Array.isArray(item)) {
+			arrayCopy.push(deepCopy(item))
+		} else {
+			if (typeof item === "object") {
+				arrayCopy.push(deepCopyObject(item))
+			} else {
+				arrayCopy.push(item)
+			}
+		}
+	})
+	return arrayCopy;
+}
+
+export function deepCopyObject(object: any): any {
+	let temporaryObject: any = {};
+
+	for (let [key, value] of Object.entries(object)) {
+		if (Array.isArray(value)) {
+			temporaryObject[key] = deepCopy(value);
+		} else {
+			if (typeof value === 'object') {
+				temporaryObject[key] = deepCopyObject(value);
+			} else {
+				temporaryObject[key] = value
+			}
+		}
+	}
+	return temporaryObject;
+}
