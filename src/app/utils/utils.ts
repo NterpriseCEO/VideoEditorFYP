@@ -69,7 +69,7 @@ export function deepCopyObject(object: any): any {
 		if (Array.isArray(value)) {
 			temporaryObject[key] = deepCopy(value);
 		} else {
-			if (typeof value === 'object') {
+			if (typeof value === "object") {
 				temporaryObject[key] = deepCopyObject(value);
 			} else {
 				temporaryObject[key] = value

@@ -1,18 +1,18 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
-import { ProjectFileService } from 'src/app/services/project-file-service.service';
-import { TracksService } from 'src/app/services/tracks.service';
-import { ZoomSliderPosition } from 'src/app/utils/interfaces';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, ViewChild } from "@angular/core";
+import { ProjectFileService } from "src/app/services/project-file-service.service";
+import { TracksService } from "src/app/services/tracks.service";
+import { ZoomSliderPosition } from "src/app/utils/interfaces";
 
 @Component({
-	selector: 'app-track-zoom',
-	templateUrl: './track-zoom.component.html',
-	styleUrls: ['./track-zoom.component.scss'],
+	selector: "app-track-zoom",
+	templateUrl: "./track-zoom.component.html",
+	styleUrls: ["./track-zoom.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TrackZoomComponent {
 
-	@ViewChild('zoomSliderWrapper') zoomSliderWrapper!: ElementRef;
-	@ViewChild('zoomSlider') zoomSlider!: ElementRef;
+	@ViewChild("zoomSliderWrapper") zoomSliderWrapper!: ElementRef;
+	@ViewChild("zoomSlider") zoomSlider!: ElementRef;
 
 
 	isDragging: boolean = false;
@@ -35,7 +35,7 @@ export class TrackZoomComponent {
 	) {}
 
 
-	@HostListener('document:mouseup', ['$event.target'])
+	@HostListener("document:mouseup", ["$event.target"])
 	public click(targetElement: HTMLElement) {
 		//Checks if the click is inside the tracksNgForList element
 		//and resets the dragged clip if it isn't

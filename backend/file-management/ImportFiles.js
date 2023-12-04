@@ -100,7 +100,7 @@ function reverseClip(files, index, location, fileStream, extension, filePromises
 	const file = files[index];
 	//ffmpeg -i "%%A" -vf reverse -af areverse "C:\Users\Gaming\Videos\GraphX projects\Test\clips\Bestlightning\reversed_data\%%~nA_reversed.mp4"
 	return cmdExec("ffmpeg", ["-i", `${location}${file}`, "-vf", "reverse", "-af", "areverse", `${location}reversed_data\\${file}-reversed${extension}`]).then(() => {
-		//Writes the file name to the files.txt file like this: file 'file.mp4'
+		//Writes the file name to the files.txt file like this: file "file.mp4"
 		fileStream.write(`file '${location}reversed_data\\${file}-reversed${extension}'\n`);
 	}).catch((err) => {
 		console.log(err);

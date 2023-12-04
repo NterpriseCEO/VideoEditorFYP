@@ -111,7 +111,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 		this.tracksService.previewStateSubject.unsubscribe();
 	}
 
-	@HostListener('document:click', ['$event.target'])
+	@HostListener("document:click", ["$event.target"])
 	public click(targetElement) {
 		//Checks if the click is inside the tracksNgForList element
 		//and resets the dragged clip if it isn't

@@ -196,7 +196,7 @@ export class ProjectFileService {
 		this.tracks = JSON.parse(JSON.stringify(tracks));
 		this.project.tracks = JSON.parse(JSON.stringify(tracks));
 
-		const showEditedIndicator = deepCompare(this.tracks, this.projectHistory[this.projectSavedIndexInHistory].tracks) ? '' : '*';
+		const showEditedIndicator = deepCompare(this.tracks, this.projectHistory[this.projectSavedIndexInHistory].tracks) ? "" : "*";
 
 		this.titleService.setTitle(`GraphX - ${showEditedIndicator} ${this.location}`);
 
