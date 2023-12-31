@@ -2,6 +2,7 @@ const http = require("http");
 const { ipcMain } = require("electron");
 const fs = require("fs");
 const { listenForVideoData } = require("../video-processing/ListenForVideoData.js");
+const { Windows } = require("../LoadWindows.js");
 
 let server;
 
@@ -13,17 +14,10 @@ function Server() {
 		socketConnections();
 		ipcMain.on("get-server-port", () => {
 			let port = server.address().port;
-			this.window.webContents.send("server-port", port);
-			if(this.previewWindow) {
-				this.previewWindow.webContents.send("server-port", port);
-			}
+			Windows.sendToMainWindow("server-port", port);
+			Windows.sendToPreviewWindow("server-port", port);
 		});
 	});
-}
-
-Server.prototype.setWindows = function(window, previewWindow) {
-	this.window = window;
-	this.previewWindow = previewWindow;
 }
 
 function socketConnections() {

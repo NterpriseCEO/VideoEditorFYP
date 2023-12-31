@@ -1,11 +1,12 @@
 const fs = require("fs");
 const { dialog, ipcMain } = require("electron");
 const { setExportPath } = require("../globals/Globals");
+const { Windows } = require("../LoadWindows");
 
-exports.listenForExportEvents = function(window) {
+exports.listenForExportEvents = function() {
 
 	ipcMain.on("choose-export-location", (_, __) => {
-		dialog.showSaveDialog(window, {
+		dialog.showSaveDialog(Windows.mainWindow, {
 			properties: ["saveFile"],
 			filters: [
 				{ name: "Video file", extensions: ["webm"] },
@@ -15,7 +16,7 @@ exports.listenForExportEvents = function(window) {
 				return;
 			}
 
-			window.webContents.send("export-location-chosen", result.filePath);
+			Windows.sendToMainWindow("export-location-chosen", result.filePath);
 
 			//Replaces the file name with filename_n.webm
 			result.filePath = result.filePath.substring(0, result.filePath.lastIndexOf(".")) + "_n.webm";
