@@ -1,0 +1,7 @@
+- convert video to mp4 (while also possibly only converting the necessary ammount of seconds) (possibly ffmpeg -ss 00:00:00.50 -i input_video.mp4 -t 61.300 -c:v libx264 -c:a aac -strict experimental output_video.mp4)
+- concat videos together by track
+  - ffmpeg -f lavfi -i color=black:s=1920x1080:r=24000/1001 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 20 empty.mp4
+  - ffmpeg -f concat -safe 0 -i test_export.txt -c copy output.mp4
+- Play these videos in the editor frame by frame while also merging the track layers
+- put each frame into the output file(.webm, .mp4,.mkv etc)
+- lastly, overlay the audio from the previously concatenated videos)

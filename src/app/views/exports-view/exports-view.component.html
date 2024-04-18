@@ -1,17 +1,4 @@
-<div #mediaElements *ngFor = "let track of tracks">
-	<video
-		*ngIf = "track.type !== 'Audio'"
-		class = "w-full flex-grow-1 absolute h-full hidden"
-		muted
-		controls
-	>
-	</video>
-
-	<audio
-		*ngIf = "track.type === 'Audio'"
-		muted
-	>
-	</audio>
+<div #inputVideos>
 </div>
 <div #replaceWithCanvas class = "flex-grow-1 w-full"></div>
 <div class = "flex w-full h-full overflow-hidden">
@@ -54,16 +41,25 @@
 			</p-table>
 		</div>
 	</div>
-	<div class = "w-6 flex align-items-center">
-		<div class = "w-full" #canvasContainer>
-			<canvas
-				#finalCanvas
-				class = "final-canvas w-full"
-				width = "1920"
-				height = "1080"
-			>
-			</canvas>
+	<div class = "w-6 flex align-items-center overflow-hidden h-full">
+		<div class = "flex flex-column w-full h-full overflow-hidden" #canvasContainer>
+			<div>
+				<canvas
+					#finalCanvas
+					class = "final-canvas w-full"
+					width = "1920"
+					height = "1080"
+				>
+				</canvas>
+			</div>
 			<p-progressBar [value] = "exportProgress()"></p-progressBar>
+			<div
+				#exportLogsWrapper
+				id = "export-logs-wrapper"
+				class = "flex-grow-1 overflow-auto p-3"
+				[innerHTML] = "exportLogs"
+			>
+			</div>
 		</div>
 	</div>
 </div>

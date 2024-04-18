@@ -40,7 +40,7 @@ export class TrackZoomComponent {
 		//Checks if the click is inside the tracksNgForList element
 		//and resets the dragged clip if it isn't
 		const clickedInside = this.zoomSliderWrapper.nativeElement.contains(targetElement);
-		if (!clickedInside) {
+		if(!clickedInside) {
 			this.isDragging = false;
 		}
 	}
@@ -55,9 +55,9 @@ export class TrackZoomComponent {
 		this.isDraggingMiddle = false;
 
 		//Checks if the mouse is within the inside the left and right side of the slider
-		if (event.clientX >= rect.right - 20 && event.clientX <= rect.right) {
+		if(event.clientX >= rect.right - 20 && event.clientX <= rect.right) {
 			this.isDraggingRight = true;
-		}else if (event.clientX <= rect.left + 20 && event.clientX >= rect.left) {
+		}else if(event.clientX <= rect.left + 20 && event.clientX >= rect.left) {
 			this.isDraggingLeft = true;
 		}else {
 			this.isDraggingMiddle = true;
@@ -67,7 +67,7 @@ export class TrackZoomComponent {
 	}
 
 	dragSlider(event: MouseEvent) {
-		if (this.isDragging) {
+		if(this.isDragging) {
 			const rect = this.zoomSlider.nativeElement.getBoundingClientRect();
 			const wrapperRect = this.zoomSliderWrapper.nativeElement.getBoundingClientRect();
 			const xPos = event.clientX - wrapperRect.left;
@@ -75,12 +75,12 @@ export class TrackZoomComponent {
 			const percentage = (100 / wrapperRect.width) * xPos;
 
 			//Checks if the mouse is within the left and right side of the slider but not outside the slider
-			if (this.isDraggingRight && percentage >= this.sliderPosition.left + 2 && percentage <= 100 && !this.isDraggingMiddle) {
+			if(this.isDraggingRight && percentage >= this.sliderPosition.left + 2 && percentage <= 100 && !this.isDraggingMiddle) {
 				this.sliderPosition.right = percentage;
-			} else if (this.isDraggingLeft && percentage >= 0 && percentage <= this.sliderPosition.right - 2 && !this.isDraggingMiddle) {
+			}else if(this.isDraggingLeft && percentage >= 0 && percentage <= this.sliderPosition.right - 2 && !this.isDraggingMiddle) {
 				this.sliderPosition.left = percentage;
 				this.sliderPosition.right = this.sliderPosition.left + (this.sliderPosition.right - this.sliderPosition.left);
-			}else if (this.isDraggingMiddle) {
+			}else if(this.isDraggingMiddle) {
 				// Calculate the % change from the center position to the mouse position
 				let change = percentage - this.sliderPosition.center;
 				change = this.sliderPosition.left + change < 0 ? -this.sliderPosition.left : change;

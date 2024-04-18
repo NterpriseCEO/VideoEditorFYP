@@ -38,7 +38,7 @@ module.exports.ImportFiles = class ImportFiles {
 			const time = new Date().getTime();
 			const location = `${clips}${parse.name}-${time}\\`;
 			//Create the above directory if it doesn't exist
-			if (!fs.existsSync(location)) {
+			if(!fs.existsSync(location)) {
 				fs.mkdirSync(location);
 			}
 			cmdExec("ffmpeg", ["-i", `${clip.location}`, "-map", "0", "-c", "copy", "-f", "segment", "-segment_time", "300", "-reset_timestamps", "1", `${location}\\video_%03d${parse.ext}`]).then(() => {
@@ -48,7 +48,7 @@ module.exports.ImportFiles = class ImportFiles {
 			).then(() => {
 				fs.rmdirSync(location, { recursive: true })
 				//mioght need to change this to a different path
-				if (fs.existsSync(`${path.basename(`${clips}${parse.name}-${time}_reversed`, parse.ext)}.png`)) {
+				if(fs.existsSync(`${path.basename(`${clips}${parse.name}-${time}_reversed`, parse.ext)}.png`)) {
 					//Deletes the existing thumbnail
 					fs.rmSync(`${path.basename(file, parse.ext)}.png`);
 				}
@@ -120,7 +120,7 @@ module.exports.ImportFiles = class ImportFiles {
 				{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm", "mp3", "m4a", "wav", "flac"] },
 			],
 		}).then((result) => {
-			if (result.canceled) {
+			if(result.canceled) {
 				return;
 			}
 			this.#files = result.filePaths;
@@ -129,7 +129,7 @@ module.exports.ImportFiles = class ImportFiles {
 			//that have the same name as the video file
 			this.#files.forEach((file) => {
 				const parse = path.parse(file);
-				if (fs.existsSync(`${path.basename(file, parse.ext)}.png`)) {
+				if(fs.existsSync(`${path.basename(file, parse.ext)}.png`)) {
 					//Deletes the thumbnail
 					fs.rmSync(`${path.basename(file, parse.ext)}.png`);
 				}
@@ -151,7 +151,7 @@ module.exports.ImportFiles = class ImportFiles {
 				{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm", "mp3", "m4a", "wav", "flac"] },
 			],
 		}).then((result) => {
-			if (result.canceled) {
+			if(result.canceled) {
 				return;
 			}
 			const file = result.filePaths[0];
@@ -174,7 +174,7 @@ module.exports.ImportFiles = class ImportFiles {
 
 	#extractMetadata(counter, files) {
 		//Checks if there are still files to extract metadata from
-		if (this.#files[counter]) {
+		if(this.#files[counter]) {
 			let file = this.#files[counter];
 			const type = audioExtensions.includes(path.parse(file).ext) ? "Audio" : "Video";
 			//Gets the duration of the video file and continues to the next file
@@ -187,24 +187,24 @@ module.exports.ImportFiles = class ImportFiles {
 				files[counter] = { name: file, duration: 0 };
 				this.#extractMetadata(++counter, files);
 			});
-		} else {
+		}else {
 			//Sends the files to the renderer process
 			this.#extractThumbnails(0, [], files);
 		}
 	}
 
 	#extractThumbnails(counter, thumbnails, files) {
-		if (this.#files[counter]) {
+		if(this.#files[counter]) {
 			let file = this.#files[counter];
 			const parse = path.parse(file);
 			let png = `${path.basename(this.#files[counter], parse.ext)}.png`;
 			//Remove the dash from the beginning of the file name if it exists
-			if (png.charAt(0) === "-") {
+			if(png.charAt(0) === "-") {
 				png = png.substring(1);
 			}
 
 			//Checks if the file is an audio file
-			if (audioExtensions.includes(parse.ext)) {
+			if(audioExtensions.includes(parse.ext)) {
 				//Returns and moves to the next thumbnail
 				this.#extractThumbnails(++counter, thumbnails, files);
 				return;
@@ -212,18 +212,18 @@ module.exports.ImportFiles = class ImportFiles {
 
 			//Extracts the first frame of the video file and converts it to a a png
 			exec(`ffmpeg -i "${file}" -vf "scale=iw*sar:ih,setsar=1" -vframes 1 "${png}"`, (error, stdout, stderr) => {
-				if (error) {
+				if(error) {
 					console.log(`error: ${error.message}`);
 					return;
 				}
-				if (stderr) {
+				if(stderr) {
 					console.log(`error?: ${stderr}`);
 				}
 				const dirname = __dirname.substring(0, __dirname.length - 24);
 				const thumbnail = `${dirname}\\${png}`;
 				const path = `${getProjectPath()}\\project-data\\thumbnails\\`;
 
-				if (!fs.existsSync(path)) {
+				if(!fs.existsSync(path)) {
 					fs.mkdirSync(path, { recursive: true });
 				}
 
@@ -236,7 +236,7 @@ module.exports.ImportFiles = class ImportFiles {
 				//Moves to the next thumnail file
 				this.#extractThumbnails(++counter, thumbnails, files);
 			});
-		} else {
+		}else {
 			//Sends the files to the renderer process once all the thumbnails
 			//have been extracted
 			Windows.sendToMainWindow("imported-files", files);

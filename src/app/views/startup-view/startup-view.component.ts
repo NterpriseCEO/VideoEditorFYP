@@ -33,7 +33,7 @@ export class StartupViewComponent implements OnInit {
 
 	ngOnInit() {
 		let recentProjects = localStorage.getItem("recentProjects");
-		if (recentProjects) {
+		if(recentProjects) {
 			this.recentProjects = JSON.parse(recentProjects);
 		}
 	}

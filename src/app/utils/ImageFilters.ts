@@ -1235,7 +1235,7 @@ export class ImageFilters {
 					// out of the map bounds
 					// copy src to dst
 					srcIndex = dstIndex;
-				} else {
+				}else {
 					// apply map
 					mapIndex = ((y - mapY) * mapWidth + (x - mapX)) << 2;
 

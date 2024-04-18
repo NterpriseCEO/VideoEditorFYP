@@ -9,6 +9,7 @@ const { Server } = require("./globals/HTTPServer");
 const { ImportFiles } = require("./file-management/ImportFiles");
 const { SaveAndLoadProjects } = require("./file-management/SaveAndLoadProjects");
 const { listenForExportEvents } = require("./file-management/ExportFiles");
+const exportVideo = require("./video-processing/ExportVideos");
 
 new StreamingAndFilters();
 

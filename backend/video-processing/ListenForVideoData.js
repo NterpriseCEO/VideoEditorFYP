@@ -20,7 +20,7 @@ exports.listenForVideoData = function(client) {
 
 		exportPath = options?.recordToProjectFolder ? `${getProjectPath()}\\clips\\${date}_n.webm` : getExportPath();
 
-		if (options?.recordToProjectFolder && !fs.existsSync(`${getProjectPath()}\\clips`)) {
+		if(options?.recordToProjectFolder && !fs.existsSync(`${getProjectPath()}\\clips`)) {
 			fs.mkdirSync(`${getProjectPath()}\\clips`);
 		}
 
@@ -65,6 +65,7 @@ exports.listenForVideoData = function(client) {
 				//Is only called when the user is recording a specific track
 				extractMetadataAndImportFile(newFile);
 			}else {
+				// CHANGE THIS!!!!
 				getMainWindow().webContents.send("video-sucessfully-exported");
 			}
 		});

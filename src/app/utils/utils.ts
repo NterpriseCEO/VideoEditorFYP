@@ -49,12 +49,12 @@ export function deepCopy(array: any[]): any[] {
 	let arrayCopy: any[] = [];
 
 	array.forEach(item => {
-		if (Array.isArray(item)) {
+		if(Array.isArray(item)) {
 			arrayCopy.push(deepCopy(item))
-		} else {
-			if (typeof item === "object") {
+		}else {
+			if(typeof item === "object") {
 				arrayCopy.push(deepCopyObject(item))
-			} else {
+			}else {
 				arrayCopy.push(item)
 			}
 		}
@@ -66,12 +66,12 @@ export function deepCopyObject(object: any): any {
 	let temporaryObject: any = {};
 
 	for (let [key, value] of Object.entries(object)) {
-		if (Array.isArray(value)) {
+		if(Array.isArray(value)) {
 			temporaryObject[key] = deepCopy(value);
-		} else {
-			if (typeof value === "object") {
+		}else {
+			if(typeof value === "object") {
 				temporaryObject[key] = deepCopyObject(value);
-			} else {
+			}else {
 				temporaryObject[key] = value
 			}
 		}

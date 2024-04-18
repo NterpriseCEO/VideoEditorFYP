@@ -28,7 +28,7 @@ module.exports.StreamingAndFilters = class StreamingAndFilters {
 
 		ipcMain.on("send-tracks", (_, tracks) => {
 			tracks.forEach((track) => {
-				if (!track.filters) {
+				if(!track.filters) {
 					return;
 				}
 
@@ -67,7 +67,7 @@ module.exports.StreamingAndFilters = class StreamingAndFilters {
 			Windows.sendToPreviewWindow("toggle-playing");
 
 			//Tells the main window that the preview is open and ready to be played
-			Windows.sendToMainWindow("preview-window-is-open", !!this.previewWindow);
+			Windows.sendToMainWindow("preview-window-is-open", !!Windows.previewWindow);
 		});
 
 		ipcMain.on("rewind-to-start", () => {

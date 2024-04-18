@@ -63,8 +63,8 @@ export class TrackContentsComponent extends TrackHelpers implements OnChanges, O
 	listenForEvents() {
 		this.keyboardEventsSubscription.push(this.keys.keypress("keyup.delete").subscribe(() => {
 			//Deletes the selected clip
-			if (this.selectedClip) {
-				if (this.clips.indexOf(this.selectedClip) == -1) {
+			if(this.selectedClip) {
+				if(this.clips.indexOf(this.selectedClip) == -1) {
 					return;
 				}
 				this.clips.splice(this.clips.indexOf(this.selectedClip), 1);

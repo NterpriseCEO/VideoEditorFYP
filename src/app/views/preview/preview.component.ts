@@ -47,9 +47,6 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	canvasElements: any[] = [];
 	textures: any[] = [];
 
-	largestWidth: number = 0;
-	largestHeight: number = 0;
-
 	audioTracks: any[] = [];
 	stream: any;
 
@@ -112,7 +109,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		// 		console.log(`page got message: ${data}`);
 		// 	};
 		// 	this.worker.postMessage("hello");
-		// } else {
+		// }else {
 		// 	// Web Workers are not supported in this environment.
 		// 	// You should add a fallback so that your program still executes correctly.
 		// }
@@ -698,10 +695,10 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 						this.trackVisibilityAtGivenTime[index] = 0;
 					}
 					const visibility = track.isVisible[this.trackVisibilityAtGivenTime[index]];
-					if (visibility) {						
-						if (this.masterTime >= visibility.startTime && this.masterTime <= visibility.startTime + visibility.duration && !visibility.on) {
+					if(visibility) {						
+						if(this.masterTime >= visibility.startTime && this.masterTime <= visibility.startTime + visibility.duration && !visibility.on) {
 							return;
-						} else if (this.masterTime >= visibility.startTime + visibility.duration) {
+						}else if(this.masterTime >= visibility.startTime + visibility.duration) {
 							this.trackVisibilityAtGivenTime[index]++;
 						}
 					}
@@ -709,14 +706,14 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 				if(mediaElement) {
 					//Will not render the canvas if this is an audio track
-					if (mediaElement instanceof HTMLAudioElement) {
+					if(mediaElement instanceof HTMLAudioElement) {
 						return;
 					}
 
 					if(!mediaElement.src && !mediaElement?.srcObject) {
 						return;
 					}
-					if(this.mediaElements[index].paused && this.mediaPlaying) {
+					if(mediaElement.paused && this.mediaPlaying) {
 						return;
 					}
 				}
@@ -1120,11 +1117,12 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 		}else if(this.masterTime >= clip.startTime + clip.duration) {
 			this.currentClip[index]++;
-			if (clip.location === clips[i + 1]?.location) {
+			if(clip.location === clips[i + 1]?.location) {
 				mediaElement.currentTime = clips[i + 1].in / 1000;
 				return;
 			}
 			mediaElement.src = "";
+			mediaElement.removeAttribute("src");
 			const isLiveFootage = [TrackType.SCREEN_CAPTURE, TrackType.WEBCAM].includes(track.type);
 			if(isLiveFootage && (!clips[i + 1] || clips[i + 1]?.startTime >= this.masterTime + 0.5)) {
 				this.setSource(track, mediaElement, index);

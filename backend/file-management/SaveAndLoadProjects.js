@@ -14,7 +14,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 					{ name: "Video Live Set", extensions: ["vls"] }
 				]
 			}).then((result) => {
-				if (result.canceled) {
+				if(result.canceled) {
 					return;
 				}
 
@@ -33,7 +33,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 				//Saves the project to a file
 				//Formtas the JSON with tabs
 				fs.writeFile(project.location, JSON.stringify(project, null, "\t"), (err) => {
-					if (err) {
+					if(err) {
 						console.log(err);
 					}
 					Windows.sendToMainWindow("project-created", project.location);
@@ -47,7 +47,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 					{ name: "Video Live Set", extensions: ["vls"] },
 				]
 			}).then((result) => {
-				if (result.canceled) {
+				if(result.canceled) {
 					return;
 				}
 
@@ -67,7 +67,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 
 				//Saves the project to a file
 				fs.writeFile(project.location, JSON.stringify(project, null, "\t"), (err) => {
-					if (err) {
+					if(err) {
 						console.log(err);
 					}
 					Windows.sendToMainWindow("project-saved", project);
@@ -83,7 +83,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 			let folderName = project.location.substring(0, project.location.lastIndexOf("\\"));
 			setProjectPath(folderName);
 			fs.writeFile(project.location, JSON.stringify(project, null, "\t"), (err) => {
-				if (err) {
+				if(err) {
 					console.log(err);
 				}
 				Windows.sendToMainWindow("project-saved", project);
@@ -97,7 +97,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 					{ name: "Project File", extensions: ["vls"] },
 				],
 			}).then((result) => {
-				if (result.canceled) {
+				if(result.canceled) {
 					return;
 				}
 
@@ -107,7 +107,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 
 				//Load the project from the file
 				fs.readFile(result.filePaths[0], (err, data) => {
-					if (err) {
+					if(err) {
 						console.log(err);
 					}
 
@@ -124,7 +124,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 			let folderName = location.substring(0, location.lastIndexOf("\\"));
 			setProjectPath(folderName);
 			fs.readFile(location, (err, data) => {
-				if (err) {
+				if(err) {
 					console.log(err);
 				}
 

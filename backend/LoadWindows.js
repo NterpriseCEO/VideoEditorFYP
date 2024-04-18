@@ -126,7 +126,7 @@ module.exports.Windows = class Windows {
 	}
 
 	static openManual() {
-		if (Windows.manualWindow) {
+		if(Windows.manualWindow) {
 			Windows.manualWindow.focus();
 			return;
 		}
@@ -146,7 +146,7 @@ module.exports.Windows = class Windows {
 		});
 
 		Windows.manualWindow.setMenu(null);
-		if (Windows.#serve) {
+		if(Windows.#serve) {
 			//Development mode
 			Windows.manualWindow.loadURL("http://localhost:4200/manual");
 		}else {

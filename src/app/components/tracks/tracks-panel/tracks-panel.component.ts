@@ -221,7 +221,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 
 		//fromEvent scrolls the tracksList element when the mouse wheel is scrolled
 		fromEvent(this.tracksList.nativeElement, "scroll").subscribe((event: any) => {
-			if (event.target.offsetWidth + event.target.scrollLeft >= event.target.scrollWidth-100) {
+			if(event.target.offsetWidth + event.target.scrollLeft >= event.target.scrollWidth-100) {
 				//End of scroll
 				return;
 			}
