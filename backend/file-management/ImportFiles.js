@@ -8,6 +8,7 @@ const { getProjectPath, cmdExec } = require("../globals/Globals");
 const { Windows } = require("../LoadWindows");
 
 const audioExtensions = [".mp3", ".m4a", ".wav", ".flac"];
+const imageExtensions = [".png", ".jpg", ".jpeg", ".webp"];
 
 module.exports.ImportFiles = class ImportFiles {
 
@@ -117,7 +118,7 @@ module.exports.ImportFiles = class ImportFiles {
 		dialog.showOpenDialog(Windows.mainWindow, {
 			properties: ["openFile", "multiSelections"],
 			filters: [
-				{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm", "mp3", "m4a", "wav", "flac"] },
+				{ name: "Import clips", extensions: ["mp4", "mpeg4", "ogg", "webm", "mp3", "m4a", "wav", "flac", "png", "jpg", "jpeg", "webp"] },
 			],
 		}).then((result) => {
 			if(result.canceled) {
@@ -148,7 +149,7 @@ module.exports.ImportFiles = class ImportFiles {
 			properties: ["openFile"],
 			title: "Relink Clip previous located at: " + file,
 			filters: [
-				{ name: "Movies", extensions: ["mp4", "mpeg4", "ogg", "webm", "mp3", "m4a", "wav", "flac"] },
+				{ name: "Relink clips", extensions: ["mp4", "mpeg4", "ogg", "webm", "mp3", "m4a", "wav", "flac", "png", "jpg", "jpeg", "webp"] },
 			],
 		}).then((result) => {
 			if(result.canceled) {
@@ -176,7 +177,9 @@ module.exports.ImportFiles = class ImportFiles {
 		//Checks if there are still files to extract metadata from
 		if(this.#files[counter]) {
 			let file = this.#files[counter];
-			const type = audioExtensions.includes(path.parse(file).ext) ? "Audio" : "Video";
+			const type = audioExtensions.includes(path.parse(file).ext) ? "Audio"
+				: imageExtensions.includes(path.parse(file).ext) ? "Image"
+				: "Video";
 			//Gets the duration of the video file and continues to the next file
 			getVideoDurationInSeconds(file).then((duration) => {
 				files[counter] = { name: file, duration: duration * 1000, location: this.#files[counter], type: type };
@@ -184,7 +187,7 @@ module.exports.ImportFiles = class ImportFiles {
 			}).catch((err) => {
 				//Need to figure out how to handle files that don't have duration
 				console.log(err);
-				files[counter] = { name: file, duration: 0 };
+				files[counter] = { name: file, duration: 0, location: this.#files[counter], type: type};
 				this.#extractMetadata(++counter, files);
 			});
 		}else {
@@ -204,7 +207,7 @@ module.exports.ImportFiles = class ImportFiles {
 			}
 
 			//Checks if the file is an audio file
-			if(audioExtensions.includes(parse.ext)) {
+			if([...audioExtensions, ...imageExtensions].includes(parse.ext)) {
 				//Returns and moves to the next thumbnail
 				this.#extractThumbnails(++counter, thumbnails, files);
 				return;
@@ -249,7 +252,7 @@ exports.extractMetadataAndImportFile = function(file) {
 		//The file name
 		let name = path.basename(file);
 		let _file = {name: name, location: file, duration: duration * 1000, totalDuration: duration * 1000};
-		getMainWindow().webContents.send("imported-files", [_file]);
-		getMainWindow().webContents.send("add-clip-to-track", _file);
+		Windows.sendToMainWindow("imported-files", [_file]);
+		Windows.sendToMainWindow("add-clip-to-track", _file);
 	});
 }

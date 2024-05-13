@@ -239,11 +239,17 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			}
 
 			let trackType = track.type.toLocaleLowerCase();
-			trackType = trackType === "audio" ? "audio" : "video";
+			// Used to determine the type of media element to create
+			trackType = trackType === "audio" ? "audio"
+				: trackType === "image" ? "img"
+				: "video";
 
 			let mediaElement = document.createElement(trackType) as HTMLMediaElement;
 			mediaElement.id = "media-" + index;
-			mediaElement.classList.add("media", "w-full", "flex-grow-1", "absolute", "h-full", "opacity-0");
+			mediaElement.classList.add("media", "w-full", "flex-grow-1", "absolute", "opacity-0");
+			if (track.type !== TrackType.IMAGE) {
+				mediaElement.classList.add("h-full");
+			}
 			//Appends the media element after #previewVideo
 			this.renderer.appendChild(this.inputVideos.nativeElement, mediaElement);
 			if(!this.canvasElements[index]) {
@@ -312,6 +318,9 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			this.checkIfClipNeedsChanging(media, track, index);
 			// Checks if the elements is to be rendered
 			this.tracksToBeRendered[index] = !!media.src;
+			if(track.type === TrackType.IMAGE) {
+				return;
+			}
 			// Increases the current time of the media element by 1 frame
 			const currentFrame = Math.floor(media.currentTime.toFixed(5) * 30);
 			media.currentTime = ((currentFrame + 1) / 30) + 0.00001;
@@ -374,26 +383,22 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				return;
 			}
 
-			if(this.tracks[index]!.clips![this.currentClip[index]] === undefined) {
+			if(this.tracks[index]!.clips![this.currentClip[index]] === undefined || this.masterTime < this.tracks[index]!.clips![this.currentClip[index]]!.startTime) {
 				this.tracksToBeRendered[index] = false;
 				this.animationFrames[index] = window.requestAnimationFrame(step);
 				return;
 			}
 
-			if(this.masterTime < this.tracks[index]!.clips![this.currentClip[index]]!.startTime) {
-				this.tracksToBeRendered[index] = false;
-				this.animationFrames[index] = window.requestAnimationFrame(step);
-				return;
-			}
-
-			if(video.currentTime === 0) {
-				this.animationFrames[index] = window.requestAnimationFrame(step);
-				return;
-			}
-
-			if(!video.src || video.readyState < 2) {
-				this.animationFrames[index] = window.requestAnimationFrame(step);
-				return;
+			if(track.type !== TrackType.IMAGE) {
+				if (video.currentTime === 0 || !video.src || video.readyState < 2) {
+					this.animationFrames[index] = window.requestAnimationFrame(step);
+					return;
+				}
+			}else {
+				if(!video.width || !video.height) {
+					this.animationFrames[index] = window.requestAnimationFrame(step);
+					return;
+				}
 			}
 
 			if(!texture && canvas) {
@@ -496,7 +501,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				let mediaElement = this.mediaElements[index];
 				let track = tracks[index];
 
-				if(Array.isArray(track.isVisible)) {
+				if(Array.isArray(track?.isVisible)) {
 					if(!this.trackVisibilityAtGivenTime[index]) {
 						this.trackVisibilityAtGivenTime[index] = 0;
 					}
@@ -608,7 +613,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			}else {
 				//Check if the media element is finished and if so, restart it
 				//This is for looping media elements
-				if(mediaElement.ended) {
+				if(mediaElement.ended && track.type !== TrackType.IMAGE) {
 					mediaElement.currentTime = clip.in / 1000;
 					// Need to check this
 					// mediaElement.play();

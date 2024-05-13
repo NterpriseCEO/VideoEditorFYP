@@ -23,6 +23,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
 	@ViewChild("previewVideo") previewVideo!: ElementRef;
+	@ViewChild("previewImage") previewImage!: ElementRef;
 	@ViewChild("previewContainer") previewContainer!: ElementRef;
 	@ViewChild("canvasContainer") canvasContainer!: ElementRef;
 	@ViewChild("scaler") scaler!: ElementRef;
@@ -86,6 +87,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	resizeSubscription!: Subscription;
 
 	isMouseDown: boolean = false;
+	selectedTrackType: TrackType = TrackType.VIDEO;
 
 	constructor(
 		private changeDetector: ChangeDetectorRef,
@@ -177,29 +179,37 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		}).observe(this.scaler.nativeElement);
 
 		this.previewVideo.nativeElement.onloadeddata = () => {
-			let track = this.tracks![this.selectedTrackIndex];
-			this.previewVideo.nativeElement.startTime = 0;
-			this.isScaling = true;
+			this.initScaler(this.previewVideo.nativeElement);
+		}
 
-			this.calculateScalerSize(track);
-
-			try {
-				let selectedClip = track.clips![this.selectedClipIndex];
-				selectedClip.width = selectedClip.width ?? this.previewVideo.nativeElement.videoWidth;
-				selectedClip.height = selectedClip.height ?? this.previewVideo.nativeElement.videoHeight;
-			}catch(e) {
-				//Tries to set the width and height of the track if there is no clip selected
-				track.width = track.width ?? this.previewVideo.nativeElement.videoWidth;
-				track.height = track.height ?? this.previewVideo.nativeElement.videoHeight;
-			}
-
-			this.isScaling = false;
-			this.changeDetector.detectChanges();
+		this.previewImage.nativeElement.onload = () => {
+			this.initScaler(this.previewImage.nativeElement);
 		}
 	}
 
 	ngOnDestroy() {
 		this.resizeSubscription.unsubscribe();
+	}
+
+	initScaler(element) {
+		let track = this.tracks![this.selectedTrackIndex];
+		element.startTime = 0;
+		this.isScaling = true;
+
+		this.calculateScalerSize(track);
+
+		try {
+			let selectedClip = track.clips![this.selectedClipIndex];
+			selectedClip.width = selectedClip.width ?? element.naturalWidth ?? element.width;
+			selectedClip.height = selectedClip.height ?? element.naturalHeight ?? element.height;
+		} catch (e) {
+			//Tries to set the width and height of the track if there is no clip selected
+			track.width = track.width ?? element.width;
+			track.height = track.height ?? element.height;
+		}
+
+		this.isScaling = false;
+		this.changeDetector.detectChanges();
 	}
 
 	calculateScalerSize(track: Track) {
@@ -213,7 +223,10 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.scalerWidth = this.canvasContainer.nativeElement.clientWidth / canvasContainerToCanvasRatio;
 		//Calultes width to height ratio of the preview video
-		this.scalerRatio = this.previewVideo.nativeElement.videoWidth / this.previewVideo.nativeElement.videoHeight;
+		const width = track.type === TrackType.IMAGE ? "width" : "videoWidth";
+		const height = track.type === TrackType.IMAGE ? "height" : "videoHeight";
+		const element = track.type === TrackType.IMAGE ? this.previewImage : this.previewVideo;
+		this.scalerRatio = element.nativeElement[width] / element.nativeElement[height];
 		this.scaler.nativeElement.style.width = this.scalerWidth + "px";
 		this.scalerHeight = this.scalerWidth / this.scalerRatio;
 
@@ -248,7 +261,6 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			if(this.isRecording) {
 				//Finds the track matching data.track
 				let id = this.tracks.findIndex(track => track.id === data.track.id);
-
 				this.startRecording(this.mediaElements[id].captureStream(), true);
 			}else {
 				this.mediaRecorder.stop();
@@ -305,6 +317,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		window.api.on("set-selected-clip-in-preview", (_, data) => this.ngZone.run(() => {
 			let track = this.tracks![data.trackIndex];
+			this.selectedTrackType = track.type;
 			//Checks if the selected clip / track is the same as the one that is already selected
 			if((this.selectedTrackIndex === data.trackIndex && this.selectedClipIndex === data.clipIndex)) {
 				return;
@@ -365,11 +378,18 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 
 			let trackType = track.type.toLocaleLowerCase();
-			trackType = trackType === "audio" ? "audio" : "video"; 
+			trackType = trackType === "audio" ? "audio"
+				: trackType === "image" ? "img"
+				: "video";
 
 			let mediaElement = document.createElement(trackType) as HTMLMediaElement;
 			mediaElement.id = "media-" + index;
-			mediaElement.classList.add("media", "w-full", "flex-grow-1", "absolute", "h-full", "opacity-0");
+			mediaElement.classList.add("media", "absolute", "opacity-0");
+			// If an image is being displayed, don't add h-full
+			// as it will stretch the image
+			if(track.type !== TrackType.IMAGE) {
+				mediaElement.classList.add("h-full");
+			}
 			//Appends the media element after #previewVideo
 			this.renderer.appendChild(this.previewContainer.nativeElement, mediaElement);
 			this.setSource(track, mediaElement, index);
@@ -421,7 +441,6 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		//in a future revision
 		this.masterTime = 0;
 		this.startTime = 0;
-		this.currentTime = 0;
 		this.duration = 0;
 
 		this.mediaPlaying = false;
@@ -432,7 +451,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.mediaElements.forEach((mediaElement, i) => {
 			//Pauses and rewinds all media elements that are not live streams
-			if(!mediaElement?.srcObject) {
+			if(!mediaElement?.srcObject && this.tracks[i].type !== TrackType.IMAGE) {
 				mediaElement.pause();
 			}
 			mediaElement.currentTime = 0;
@@ -487,6 +506,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 
 			media.src = "";
+			media.removeAttribute("src");
 			media.currentTime = 0;
 
 			let step = async () => {
@@ -577,9 +597,18 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//Measure the time it takes to draw the canvas
 			// let start = window.performance.now();
 
-			if(video.currentTime === 0 || video.videoWidth === 0 || video.videoHeight === 0) {
-				this.animationFrames[index] = window.requestAnimationFrame(step);
-				return;
+			// If it's an image track, it is ignored
+			// since these properties are not available anyway
+			if(track.type !== TrackType.IMAGE) {
+				if(video.currentTime === 0 || video.videoWidth === 0 || video.videoHeight === 0) {
+					this.animationFrames[index] = window.requestAnimationFrame(step);
+					return;
+				}
+			} else {
+				if(!video.width || !video.height) {
+					this.animationFrames[index] = window.requestAnimationFrame(step);
+					return;
+				}
 			}
 
 			if((!video.src && !video?.srcObject) || video.readyState < 2) {
@@ -690,7 +719,8 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				let mediaElement = this.mediaElements[index];
 				let track = tracks[index];
 
-				if(Array.isArray(track.isVisible)) {
+				// Symptom of a bigger problem, need to not use question mark here
+				if(Array.isArray(track?.isVisible)) {
 					if(!this.trackVisibilityAtGivenTime[index]) {
 						this.trackVisibilityAtGivenTime[index] = 0;
 					}
@@ -796,6 +826,10 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.previewSrc = mediaSource;
 			this.previewStream = null;
 			this.changeDetector.markForCheck();
+		}else if(type === TrackType.IMAGE) {
+			this.previewSrc = mediaSource;
+			this.previewStream = null;
+			this.changeDetector.markForCheck();
 		}
 	}
 
@@ -897,6 +931,10 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			if(!this.canvasElements[index]) {
 				this.initPreview(media, track, index);
 			}
+		}else if(type === TrackType.IMAGE) {
+			// Skips the initalsiation of audio for image tracks
+			// as they do not have audio (duh)
+			this.drawCanvas(media as HTMLVideoElement, track, index);
 		}
 	}
 
@@ -923,7 +961,6 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		mediaElement.ontimeupdate = () => {
 			//Updates the time of the media
-			this.currentTime = mediaElement.currentTime;
 			this.changeDetector.detectChanges();
 		}
 	}
@@ -953,7 +990,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.mediaPlaying = !this.mediaPlaying;
 
 		this.mediaElements.forEach((mediaElement, i) => {
-			if(mediaElement?.srcObject || !mediaElement.src) {
+			if(mediaElement?.srcObject || !mediaElement.src || this.tracks[i].type === TrackType.IMAGE) {
 				return;
 			}
 			mediaElement.paused ? mediaElement.play() : mediaElement.pause();
@@ -997,8 +1034,6 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.currentClip = [];
 		this.trackVisibilityAtGivenTime = [];
-
-		this.currentTime = value;
 
 		this.startTime = window.performance.now() - this.masterTime;
 		this.mediaPlayback();
@@ -1055,7 +1090,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 					this.masterTime = time;
 					mediaElement.currentTime = this.calculateMSOfClipPlayed(clip) / 1000;
 
-					if(this.mediaPlaying) {
+					if(this.mediaPlaying && track.type !== TrackType.IMAGE) {
 						mediaElement.play();
 					}
 					return;
@@ -1066,7 +1101,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//Set the media element's source to nothing
 			if(!hasPlayingClip) {
 				mediaElement.removeAttribute("src");
-				if(track.type !== TrackType.VIDEO) {
+				if(![TrackType.VIDEO, TrackType.IMAGE].includes(track.type)) {
 					if(mediaElement?.srcObject) {
 						mediaElement.play();
 						return;
@@ -1109,7 +1144,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}else {
 				//Check if the media element is finished and if so, restart it
 				//This is for looping media elements
-				if(mediaElement.ended) {
+				if(mediaElement.ended && track.type !== TrackType.IMAGE) {
 					mediaElement.currentTime = clip.in / 1000;
 					mediaElement.play();
 					this.changeDetector.detectChanges();

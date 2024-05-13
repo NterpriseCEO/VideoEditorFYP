@@ -358,7 +358,10 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 
 	//A function that checks if clip is audio and track is video and vice versa
 	checkForCllpTrackMismatch(clip: Clip, track: Track) {
-		return (clip.type === TrackType.AUDIO && track.type !== TrackType.AUDIO) || (clip.type !== TrackType.AUDIO && track.type === TrackType.AUDIO);
+		return (clip.type === TrackType.AUDIO && track.type !== TrackType.AUDIO)
+			|| (clip.type !== TrackType.AUDIO && track.type === TrackType.AUDIO)
+			|| (clip.type === TrackType.IMAGE && track.type !== TrackType.IMAGE)
+			|| (clip.type !== TrackType.IMAGE && track.type === TrackType.IMAGE);
 	}
 
 	completeDrag(event, track: Track) {
@@ -399,7 +402,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 		this.checkIfClipOverlaps(track!, clip);
 		if(!clipBeingResized) {
 			//If a new clip is being added
-			if(track && currentClip && [TrackType.VIDEO, TrackType.AUDIO].includes(track.type) && !this.checkForCllpTrackMismatch(currentClip, track)) {
+			if(track && currentClip && [TrackType.VIDEO, TrackType.AUDIO, TrackType.IMAGE].includes(track.type) && !this.checkForCllpTrackMismatch(currentClip, track)) {
 				//Creates an empty array if the track doesn't have any clips
 				if(!track.clips) {
 					track.clips = [];
@@ -484,7 +487,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 
 		//Sets the phantom clip to the current clip or the dragged clip
 		let clip = JSON.parse(JSON.stringify(currentClip || draggedClip));
-		
+
 		if(clip) {
 			this.cs.setPhantomClip(Object.assign(clip, { in: clip.in, startTime: mousePositionInMilliseconds }));
 		}

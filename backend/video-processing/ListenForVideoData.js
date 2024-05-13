@@ -2,8 +2,9 @@ const fs = require("fs");
 const { ipcMain } = require("electron");
 const { exec } = require("child_process");
 
-const { getExportPath, getProjectPath, getMainWindow } = require("../globals/Globals");
+const { getExportPath, getProjectPath } = require("../globals/Globals");
 const { extractMetadataAndImportFile } = require("../file-management/ImportFiles");
+const { Windows } = require("../LoadWindows");
 
 let fileStream;
 
@@ -66,7 +67,8 @@ exports.listenForVideoData = function(client) {
 				extractMetadataAndImportFile(newFile);
 			}else {
 				// CHANGE THIS!!!!
-				getMainWindow().webContents.send("video-sucessfully-exported");
+				console.log("Video Sucessfully Exported");
+				Windows.sendToMainWindow("video-sucessfully-exported");
 			}
 		});
 	});

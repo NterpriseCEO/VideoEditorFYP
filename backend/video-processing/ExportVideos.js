@@ -55,7 +55,7 @@ function mergeAudio(videoPath) {
 	let adelayCommands = "";
 
 	// Merges all tracks into one array of clips
-	const clipsList = allTracks.filter(track => !track.muted).map(track => track.clips).flat(1);
+	const clipsList = allTracks.filter(track => !track.muted && track.type !== "Image").map(track => track.clips).flat(1);
 	clipsList.forEach((clip, clipIndex) => {
 		// Gets the time and removes the date
 		const startTime = new Date(clip.startTime ?? 0).toISOString().substring(11, 22);
@@ -95,6 +95,18 @@ function convertClipsToMp4(tracks, trackIndex = 0, clipIndex = 0) {
 
 	if(nextClipIndex == 0) {
 		nextTrackIndex++;
+	}
+
+	// Skips the image clips and either continues to the
+	// next clip or starts the the frame merging process
+	if(tracks[trackIndex].type === "Image") {
+		if(nextTrackIndex < tracks.length) {
+			convertClipsToMp4(tracks, nextTrackIndex, nextClipIndex);
+		}else {
+			startPipe();
+			Windows.sendToMainWindow("new-clip-paths", tracks);
+		}
+		return;
 	}
 
 	const clipPath = tracks[trackIndex].clips[clipIndex].location;

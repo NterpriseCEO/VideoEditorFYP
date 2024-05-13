@@ -25,6 +25,7 @@
 				<video
 					#previewVideo
 					class = "w-full flex-grow-1 absolute preview-video"
+					[class.hidden] = "selectedTrackType !== 'Video'"
 					[class.h-full] = "!isFullscreen"
 					[class.h-screen] = "isFullscreen"
 					[class.mt-6] = "isFullscreen"
@@ -32,6 +33,12 @@
 					[srcObject] = "previewStream"
 				>
 				</video>
+				<img
+					#previewImage
+					class = "w-full flex-grow-1 absolute"
+					[class.hidden] = "selectedTrackType !== 'Image'"
+					[src] = "previewSrc | sanitiseUrl"
+				>
 				<h1
 					*ngIf = "!getVisibleTracks().length"
 					class = "w-full flex-grow-1 absolute text-center p-component text-4xl"

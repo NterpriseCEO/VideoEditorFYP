@@ -20,14 +20,6 @@ exports.getProjectPath = function() {
 	return projectPath;
 }
 
-exports.setMainWindow = function(window) {
-	mainWindow = window;
-}
-
-exports.getMainWindow = function() {
-	return mainWindow;
-}	
-
 exports.cmdExec = function(cmd, args, dataCallback = () => {}, returnProcess = () => {}) {
 	//Returns a promise
 	return new Promise((resolve, reject) => {

@@ -79,6 +79,13 @@ export class EditorToollbarComponent implements OnInit {
 							command: () => {
 								this.sourceSelector.showDialog();
 							}
+						},
+						{
+							label: "Image",
+							icon: PrimeIcons.PLUS,
+							command: () => {
+								this.tracksService.addTrack(TrackType.IMAGE);
+							}
 						}
 					]
 				},
