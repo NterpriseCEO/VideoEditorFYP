@@ -19,6 +19,7 @@ export class TracksService {
 	trackMuteSubject = new Subject<Track>();
 
 	tracks: Track[] = [];
+	lastAddedTrack: TrackType = TrackType.VIDEO;
 
 	selectedTrack: Track | null = null;
 	selectedTrackIndex: number = 0;
@@ -31,6 +32,8 @@ export class TracksService {
 
 	timelineIntervalGap: number = 5000;
 	zoomSliderScrollSubject: Subject<number> = new Subject<number>();
+
+	sourceSelectorTriggerSubject: Subject<void> = new Subject<void>();
 
 	constructor(
 		private pfService: ProjectFileService,
@@ -151,9 +154,14 @@ export class TracksService {
 		return this.tracks;
 	}
 
-	addTrack(type: TrackType = TrackType.VIDEO, source?: any) {
+	addTrack(type: TrackType = this.lastAddedTrack, source?: any) {
 		//Adds a track with a name of "Track " + the number of tracks in the array
 		// It skips the track number when a track with that number in its name already exists
+
+		if(type === TrackType.SCREEN_CAPTURE && !source) {
+			this.sourceSelectorTriggerSubject.next();
+			return;
+		}
 
 		let number = 0;
 
@@ -189,6 +197,7 @@ export class TracksService {
 
 		//Sends the tracks to the preview window
 		window.api.emit("send-tracks", this.tracks);
+		this.lastAddedTrack = type;
 		// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 	}
 

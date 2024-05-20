@@ -253,6 +253,13 @@ export class EditorToollbarComponent implements OnInit {
 			this.changeDetector.detectChanges();
 		});
 
+		// Is triggered when the source selector is reqested to be shown
+		// from inside the track service
+		this.tracksService.sourceSelectorTriggerSubject.subscribe(() => {
+			this.sourceSelector.showDialog();
+			this.changeDetector.detectChanges();
+		});
+
 		window.api.on("update-play-video-button", (_:any, data: any) => this.ngZone.run(() => {
 			this.isPlaying = data.isPlaying;
 			this.tracksService.previewStateSubject.next({
