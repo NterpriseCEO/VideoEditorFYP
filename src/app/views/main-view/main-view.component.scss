@@ -6,11 +6,6 @@
 .header {
 	padding: 0.1rem 0;
 }
-
-.h-5px {
-	height: calc(100% - 5px) !important;
-}
-
 .reel-edge {
 	height: 20%;
 	background: repeating-linear-gradient(90deg, white, white, transparent 10%, transparent 15%);
@@ -22,12 +17,13 @@
 
 ::ng-deep {
 	.p-tabview-nav-link {
-		padding: 0.75rem !important;
+		padding: 0.64rem !important;
 	}
 
 	& .p-tabview-panels {
 		overflow: hidden;
 		padding: 0 !important;
+		flex-grow: 1;
 
 		& p-tabpanel {
 
@@ -36,4 +32,19 @@
 			}
 		}
 	}
+
+	.p-splitter:not(.flex-column) {
+		border: none;
+	}
+
+	.p-splitter {
+		border-top: 0;
+		border-bottom: 0;
+	}
+}
+
+$top_height: 30px;
+
+#no-tracks {
+	height: calc(100% - $top_height - 0.5rem - 1px);
 }

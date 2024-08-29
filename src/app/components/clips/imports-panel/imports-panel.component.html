@@ -9,7 +9,7 @@
 		styleClass = "w-full h-full flex flex-column"
 	>
 		<ng-template pTemplate = "header">
-			<div class = "flex justify-content-between align-items-center">
+			<div class = "flex justify-content-between align-items-center gap-2">
 				<p-dropdown
 					[options] = "sortOptions"
 					(onChange) = "onSortChange($event)"
@@ -30,40 +30,44 @@
 				</div>
 			</div>
 		</ng-template>
-		<ng-template let-clip pTemplate = "gridItem">
-			<p-contextMenu
-				[target] = "menu"
-				[model] = "clipMenu"
-				appendTo = "body"
-			>
-			</p-contextMenu>
-			<div
-				#menu
-				class = "col-4 p-1 select-none"
-				(click) = "relinkClip(clip)"
-				(mouseup) = "this.selectedClip = clip;"
-			>
-				<div
-					class = "file card border-round cursor-pointer white-space-nowrap text-overflow-ellipsis overflow-hidden w-full"
-					[pTooltip] = "(clip?.needsRelinking ? 'Click to relink: ' : '') + clip.location"
-					(mousedown) = "cs.setCurrentClip(clip)"
-				>
-					<div class = "flex flex-column align-items-center relative">
+		<ng-template pTemplate = "gridItem">
+			<div class = "grid grid-nogutter">
+				<div class = "col-4" *ngFor = "let clip of clips">
+					<p-contextMenu
+						[target] = "menu"
+						[model] = "clipMenu"
+						appendTo = "body"
+					>
+					</p-contextMenu>
+					<div
+						#menu
+						class = "p-1 select-none"
+						(click) = "relinkClip(clip)"
+						(mouseup) = "this.selectedClip = clip;"
+					>
 						<div
-							*ngIf = "clip?.needsRelinking"
-							class = "flex w-full h-4rem absolute justify-content-center align-items-center"
-							style = "z-index: 1"
+							class = "file card border-round cursor-pointer white-space-nowrap text-overflow-ellipsis overflow-hidden w-full"
+							[pTooltip] = "(clip?.needsRelinking ? 'Click to relink: ' : '') + clip.location"
+							(mousedown) = "cs.setCurrentClip(clip)"
 						>
-							<i class = "pi pi-exclamation-triangle text-lg text-yellow-500 bg-red-500 p-2 border-round"></i>
+							<div class = "flex flex-column align-items-center relative">
+								<div
+									*ngIf = "clip?.needsRelinking"
+									class = "flex w-full h-4rem absolute justify-content-center align-items-center"
+									style = "z-index: 1"
+								>
+									<i class = "pi pi-exclamation-triangle text-lg text-yellow-500 bg-red-500 p-2 border-round"></i>
+								</div>
+								<img
+									[src] = "clip.thumbnail | sanitiseUrl"
+									(error) = "clip.thumbnail = brokenImage"
+									class = "w-full h-4rem"
+									[class.opacity-50] = "clip?.needsRelinking"
+									ondragstart = "return false"
+								>
+								<span class = "w-full text-overflow-ellipsis overflow-hidden">{{clip.name}}</span>
+							</div>
 						</div>
-						<img
-							[src] = "clip.thumbnail | sanitiseUrl"
-							(error) = "clip.thumbnail = brokenImage"
-							class = "w-full h-4rem"
-							[class.opacity-50] = "clip?.needsRelinking"
-							ondragstart = "return false"
-						>
-						<span class = "w-full">{{clip.name}}</span>
 					</div>
 				</div>
 			</div>

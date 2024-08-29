@@ -1,15 +1,18 @@
 <div class = "flex w-full h-full overflow-hidden">
-	<div class = "md:w-6 sm:w-12 h-full surface-card flex flex-column">
+	<div class = "md:w-6 sm:w-12 h-full surface-card flex flex-column border-right-1px">
 		<div class = "flex justify-content-center w-full text-center">
-			<p-menubar [model] = "items" [autoDisplay] = "false" styleClass = "w-full" class = "w-full"></p-menubar>
+			<p-menubar
+				[model] = "items"
+				[autoDisplay] = "false"
+				styleClass = "w-full border-none border-noround border-bottom-1"
+				class = "w-full"
+			></p-menubar>
 		</div>
-		<div class = "p-4 flex-grow-1 flex flex-column overflow-hidden">
+		<div class = "flex align-items-center justify-content-between py-3 pl-3 font-bold">
+			<span class = "text-4xl">Recent projects</span>
+		</div>
+		<div class = "flex-grow-1 flex flex-column overflow-hidden overflow-y-auto">
 			<p-table [value] = "recentProjects" responsiveLayout = "scroll">
-				<ng-template pTemplate = "caption">
-					<div class = "flex align-items-center justify-content-between">
-						<span class = "text-4xl">Recent projects</span>
-					</div>
-				</ng-template>
 				<ng-template pTemplate = "header" *ngIf = "recentProjects.length">
 					<tr>
 						<th class = "w-2">Name</th>

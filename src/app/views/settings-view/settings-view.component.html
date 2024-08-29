@@ -1,6 +1,11 @@
 <div class = "w-full h-full flex">
 	<div class = "w-2">
-		<p-menu [model] = "settingsPages" class = "w-full h-full" styleClass = "w-full h-full"></p-menu>
+		<p-menu
+			[model] = "settingsPages"
+			class = "w-full h-full"
+			styleClass = "w-full h-full border-none border-noround border-right-1"
+		>
+		</p-menu>
 	</div>
 	<div class = "flex-grow-1 p-2 text-center" style = "font-family: var(--font-family);">
 		<div *ngIf = "activeSettingsPage == 0">

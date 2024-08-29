@@ -1,23 +1,23 @@
 <div
 	class = "filter-panel h-full inline-block surface-card border-round"
 >
-	<div class = "flex flex-col h-full border-none border-botton-3 border-right-3 surface-border">
+	<div class = "flex flex-col h-full border-right-1px">
 		<div class = "left-drop relative h-full surface-section"></div>
 		<div class = "h-full w-20rem flex-grow-0 flex flex-column">
 			<div class = "filter-header">
-				<div class = "flex align-items-center border-y-1 p-0 surface-border header">
+				<div class = "flex align-items-center p-0 header" style = "border-bottom: 1px solid #3f3f46">
 					<div
-						class = "flex-grow-1 cursor-auto overflow-hidden text-overflow-ellipsis pl-3 draggable"
+						class = "flex-grow-1 cursor-auto overflow-hidden text-overflow-ellipsis p-2 draggable"
 						[pTooltip] = "filter.displayName"
 						tooltipPosition = "top"
 					>
 						{{filter.displayName}}
 					</div>
-					<div class = "w-4">
+					<div>
 						<button
 							pButton
 							icon = "pi pi-ellipsis-v"
-							class = "p-button-text p-button-sm"
+							class = "p-button-text p-button-sm p-button-secondary"
 							(click) = "menu.toggle($event)"
 							pTooltip = "Filter options"
 						>
@@ -26,7 +26,7 @@
 						<button
 							pButton
 							[pTooltip] = "(filter.enabled ? 'Disable' : 'Enable')+ ' filter'"
-							class = "p-button-text p-button-sm"
+							class = "p-button-text p-button-sm p-button-secondary"
 							(click) = "toggleFilter.emit()"
 							[icon] = "'pi pi-circle' + (filter.enabled ? '-fill' : '')"
 						>

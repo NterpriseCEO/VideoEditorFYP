@@ -18,13 +18,12 @@ video, canvas {
 
 ::-webkit-scrollbar-thumb {
 	height: 9px;
-	background: #0b213f;
+	background: #3f3f46;
 	border-radius: 3px;
 }
 
 .p-splitter {
 	border-radius: 0 !important;
-	border: none !important;
 }
 
 //makes the corner netween 2 scrollbars transparent
@@ -32,10 +31,17 @@ video, canvas {
 	background: transparent;
 }
 
-.p-toolbar {
-	padding: 0.1rem 0rem 0.1rem 1.5rem!important;
-}
+// .p-toolbar {
+// 	padding: 0.1rem 0rem 0.1rem 1.5rem!important;
+// }
 
-.p-toast {
-	z-index: 100000;
+// .p-toast {
+// 	z-index: 100000;
+// }
+
+.border-right-1px {
+	border-right: 1px solid #3f3f46;
+}
+.border-bottom-1px {
+	border-bottom: 1px solid #3f3f46;
 }

@@ -88,13 +88,10 @@ export class TrackZoomComponent {
 				this.sliderPosition.left += change;
 				this.sliderPosition.right += change;
 			}
-			console.log(this.sliderPosition);
 
 			this.sliderPosition.center = (this.sliderPosition.left + this.sliderPosition.right) / 2;
 
 			this.changeDetector.markForCheck();
-			
-			
 			this.sliderWidth = this.sliderPosition.right - this.sliderPosition.left;
 			this.tracksService.zoomSliderResizeSubject.next(this.sliderPosition);
 		}

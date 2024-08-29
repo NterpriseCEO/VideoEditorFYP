@@ -220,7 +220,7 @@ module.exports.ImportFiles = class ImportFiles {
 					return;
 				}
 				if(stderr) {
-					console.log(`error?: ${stderr}`);
+					console.log(`error: ${stderr}`);
 				}
 				const dirname = __dirname.substring(0, __dirname.length - 24);
 				const thumbnail = `${dirname}\\${png}`;

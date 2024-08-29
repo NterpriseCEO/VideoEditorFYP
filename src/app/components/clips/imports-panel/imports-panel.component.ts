@@ -62,6 +62,8 @@ export class ImportsPanelComponent implements OnInit {
         ];
 
 		this.listenForEvents();
+
+		this.clips = this.pfService.clips;
 	}
 
 	listenForEvents() {
@@ -88,8 +90,7 @@ export class ImportsPanelComponent implements OnInit {
 			//Update the clips array to trigger change detection
 			this.clips = [...this.clips];
 
-			this.pfService.updateClips(this.clips);			
-
+			this.pfService.updateClips(this.clips);
 			this.changeDetector.detectChanges();
 		}));
 

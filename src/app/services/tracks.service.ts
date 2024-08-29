@@ -11,7 +11,7 @@ export class TracksService {
 	
 	//Subject to add filter to the current track
 	public filtersChangedSubject = new Subject<boolean>();
-	public tracksSubject = new Subject<any[]>();
+	public tracksSubject = new Subject<{tracks: Track[], projectId?: number}>();
 	public tracksLoadedFromProjectFileSubject = new Subject<Track[]>();
 	public selectedTrackChangedSubject = new Subject<Track | null>();
 	public previewStateSubject = new Subject<{isPlaying: boolean, isFinishedPlaying: boolean, currentTime?: number}>();
@@ -44,19 +44,19 @@ export class TracksService {
 
 	listenForEvents() {
 		let interval;
-		this.pfService.loadTracksSubject.subscribe((tracks: Track[]) => {
-			this.tracks = tracks;
+		this.pfService.loadTracksSubject.subscribe((data: any) => {
+			this.tracks = data.tracks;
 			this.selectedTrack = this.tracks.find(track => track.id === this.selectedTrack?.id) ?? this.tracks[0];
 			this.selectedTrackIndex = this.tracks.findIndex(track => track.id === this.selectedTrack?.id);
 			this.selectedTrackChangedSubject.next(this.selectedTrack);
-			this.tracksSubject.next(this.tracks);
+			this.tracksSubject.next({tracks: this.tracks, projectId: data.projectId});
 			this.tracksLoadedFromProjectFileSubject.next(this.tracks);
 			this.filtersChangedSubject.next(false);
 			interval = setInterval(() => {
 				//Waits until the preview window is
 				//open to send the tracks to it
 				if(this.canSendTracks) {
-					window.api.emit("send-tracks", this.tracks);
+					window.api.emit("send-tracks", { tracks: this.tracks, resetPreview: data?.resetPreview });
 					// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 					clearInterval(interval);
 					interval = null;
@@ -67,7 +67,7 @@ export class TracksService {
 		window.api.on("preview-opened", () => this.ngZone.run(() => {
 			this.canSendTracks = true;
 			if(!interval) {
-				window.api.emit("send-tracks", this.tracks);
+				window.api.emit("send-tracks", { tracks: this.tracks });
 			}
 		}));
 
@@ -93,7 +93,7 @@ export class TracksService {
 			});
 			this.currentlyRecordingTrack!.clips = [...this.currentlyRecordingTrack!.clips];
 
-			this.tracksSubject.next(this.tracks);
+			this.tracksSubject.next({tracks: this.tracks, projectId: this.pfService.activeProject});
 			this.pfService.updateTracks(this.tracks);
 			window.api.emit("update-track-clips", this.currentlyRecordingTrack);
 		}));
@@ -112,14 +112,12 @@ export class TracksService {
 				enabled: filter.enabled
 			}
 		}) as FilterInstance[];
-		
 		window.api.emit("update-filters", track);
 	}
 
 	addFilter(filter: Filter) {
 		//Creates a new instance of the filter and sets it to enabled
 		let instance: FilterInstance = Object.assign({}, filter, {enabled: true});
-		
 		//Adds the filter to the selected track
 		if(!this.selectedTrack!.filters) {
 			this.selectedTrack!.filters = [];
@@ -186,7 +184,7 @@ export class TracksService {
 
 		// Adds the track to the array
 		this.tracks.push(track);
-		this.tracksSubject.next(this.tracks);
+		this.tracksSubject.next({tracks: this.tracks, projectId: this.pfService.activeProject});
 		this.selectedTrack = track;
 
 		this.selectedTrackChangedSubject.next(this.selectedTrack);
@@ -196,7 +194,7 @@ export class TracksService {
 		this.pfService.updateTracks(this.tracks);
 
 		//Sends the tracks to the preview window
-		window.api.emit("send-tracks", this.tracks);
+		window.api.emit("send-tracks", { tracks: this.tracks });
 		this.lastAddedTrack = type;
 		// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 	}
@@ -225,8 +223,8 @@ export class TracksService {
 		let track = this.tracks.find(t => t.id === trackID);
 		if(track) {
 			track.source = source;
-			this.tracksSubject.next(this.tracks);
-			window.api.emit("send-tracks", this.tracks);
+			this.tracksSubject.next({tracks: this.tracks, projectId: this.pfService.activeProject});
+			window.api.emit("send-tracks", { tracks: this.tracks });
 			// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 			this.pfService.updateTracks(this.tracks);
 		}
@@ -241,7 +239,7 @@ export class TracksService {
 			//The previous tracks is selected
 			//if the currently selected track is deleted
 			try {
-				this.selectedTrack = this.tracks[trackIndex - 1 ?? 0];
+				this.selectedTrack = this.tracks[trackIndex - 1];
 				this.selectedTrackIndex = trackIndex - 1;
 			}catch(error) {
 				this.selectedTrack = null;
@@ -251,12 +249,12 @@ export class TracksService {
 
 			this.filtersChangedSubject.next(false);
 		}
-		this.tracksSubject.next(this.tracks);
+		this.tracksSubject.next({tracks: this.tracks, projectId: this.pfService.activeProject});
 
 		//Updates the project file object
 		this.pfService.updateTracks(this.tracks);
 
-		window.api.emit("send-tracks", this.tracks);
+		window.api.emit("send-tracks", { tracks: this.tracks });
 		// this.tracks.forEach(track => this._hack(JSON.parse(JSON.stringify(track))));
 	}
 
@@ -266,9 +264,9 @@ export class TracksService {
 
 	toggleTrackVisibility(track: Track) {
 		track.isVisible = !track.isVisible;
-		this.tracksSubject.next(this.tracks);
+		this.tracksSubject.next({tracks: this.tracks, projectId: this.pfService.activeProject});
 		this.pfService.updateTracks(this.tracks);
-		window.api.emit("send-tracks", this.tracks);
+		window.api.emit("send-tracks", { tracks: this.tracks });
 		// this._hack(JSON.parse(JSON.stringify(track)));
 	}
 
@@ -284,7 +282,7 @@ export class TracksService {
 
 	toggleTrackMute(track: Track) {
 		track.muted = !track.muted;
-		this.tracksSubject.next(this.tracks);
+		this.tracksSubject.next({tracks: this.tracks, projectId: this.pfService.activeProject});
 		this.pfService.updateTracks(this.tracks);
 		window.api.emit("mute-track", track);
 
@@ -295,7 +293,6 @@ export class TracksService {
 		//Uses the delta to select the previous or next track and
 		//modulo to loop back to the start or end of the array
 		const newIndex = (index + delta + this.tracks.length) % (this.tracks.length);
-		console.log(newIndex);
 		this.setSelectedTrack(this.tracks[newIndex]);
 	}
 

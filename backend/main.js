@@ -8,6 +8,7 @@ const { StreamingAndFilters } = require("./StreamingAndFilters");
 const { Server } = require("./globals/HTTPServer");
 const { ImportFiles } = require("./file-management/ImportFiles");
 const { SaveAndLoadProjects } = require("./file-management/SaveAndLoadProjects");
+const { ZipProject } = require("./file-management/zip-project");
 const { listenForExportEvents } = require("./file-management/ExportFiles");
 const exportVideo = require("./video-processing/ExportVideos");
 
@@ -15,6 +16,7 @@ new StreamingAndFilters();
 
 new ImportFiles();
 new SaveAndLoadProjects();
+new ZipProject();
 listenForExportEvents(Windows.mainWindow);
 
 new Server();

@@ -74,7 +74,6 @@ export class TrackDetailsComponent implements OnInit, OnChanges, OnDestroy {
 	ngOnChanges(changes: SimpleChanges) {
 		if(changes["track"]) {
 			this.titleColour = getHexBrightness(changes["track"].currentValue?.colour) > 100 ? "black" : "white";
-			
 			//If the track variable is being set for the first time
 			if(changes["track"].firstChange) {
 				//Remove the "Change source" menu item if the track is not
@@ -137,7 +136,6 @@ export class TrackDetailsComponent implements OnInit, OnChanges, OnDestroy {
 		//Finds the "Mute track" menu item and sets its label to "Unmute track" or vice versa
 		this.menuItems.filter(({ label }) => ["Mute track", "Unmute track"].includes(label!))[0]
 			.label = isMuted ? "Unmute track" : "Mute track";
-		
 		this.menuItems = [...this.menuItems];
 	}
 }

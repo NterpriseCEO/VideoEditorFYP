@@ -14,7 +14,7 @@
 	id = "secondary-router"
 	class = "absolute w-full h-full top-0 overflow-hidden flex flex-column surface-ground"
 	*ngIf = "isNotPopup()">
-	<div class = "w-full p-1 border-bottom-1 surface-border">
+	<div class = "w-full p-1 surface-card">
 		<button
 			pButton
 			icon = "pi pi-arrow-left"
@@ -23,7 +23,7 @@
 		>
 		</button>
 	</div>
-	<div class = "flex-grow-1 overflow-auto">
+	<div class = "flex-grow-1 overflow-auto border-1 surface-border">
 		<router-outlet name = "panelOutlet"></router-outlet>
 	</div>
 </div>

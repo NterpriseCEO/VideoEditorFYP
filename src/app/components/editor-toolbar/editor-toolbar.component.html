@@ -1,10 +1,10 @@
-<p-menubar [model] = "items" [autoDisplay] = "true" styleClass = "p-0 border-none border-noround">
+<p-menubar [model] = "items" [autoDisplay] = "true" styleClass = "p-0 border-none border-noround border-bottom-1">
 	<ng-template pTemplate = "end">
 		<div class = "w-full flex">
 			<div class = "flex-grow-1 flex justify-content-center align-items-center">
 				<button
 					pButton
-					class = "p-button-text"
+					class = "p-button-text p-button-secondary"
 					icon = "pi pi-fast-backward"
 					tooltipPosition = "left"
 					pTooltip = "Rewind to start"
@@ -22,7 +22,7 @@
 				</button>
 				<button
 					pButton
-					class = "p-button-text"
+					class = "p-button-text p-button-secondary"
 					[icon] = "'pi pi-' + (isPlaying ? 'pause' : 'play')"
 					tooltipPosition = "left"
 					[pTooltip] = "isPlaying ? 'Pause' : 'Play'"
@@ -34,6 +34,7 @@
 				<input
 					type = "text"
 					[(ngModel)] = "projectName"
+					class = "border-none border-noround border-left-1"
 					(change) = "updateProjectName()"
 					pTooltip = "Change the project name"
 					pInputText
@@ -42,6 +43,7 @@
 					pButton
 					icon = "pi pi-cog"
 					pTooltip = "Project settings"
+					class = "border-noround"
 				>
 				</button>
 			</div>

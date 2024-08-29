@@ -39,7 +39,7 @@ export class AppComponent implements OnInit {
 	listenForEvents() {
 		window.api.on("check-if-can-exit", () => this.ngZone.run(() => {
 			//If there are no unsaved changes, exit the app
-			if(!this.pfService.isProjectDirty() || this.router.url === "/startup") {
+			if(!this.pfService.areProjectsDirty() || this.router.url === "/startup") {
 				window.api.emit("exit");
 				return;
 			}

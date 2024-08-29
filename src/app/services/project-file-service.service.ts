@@ -22,6 +22,9 @@ export class ProjectFileService {
 	clips: Clip[] = [];
 	tracks: Track[] = [];
 
+	projects: Project[] = [];
+	activeProject: number = -1;
+
 	project: Project = {
 		name: this.name,
 		dateCreated: this.dateCreated,
@@ -31,13 +34,14 @@ export class ProjectFileService {
 		tracks: this.tracks
 	};
 
-	projectSavedIndexInHistory: number = 0;
+	projectSavedIndexInHistory: number[] = [];
 
-	projectHistory: Project[] = [];
-	historyIndex: number = 0;
+	projectHistory: any[][] = [];
+	historyIndexes: number[] = [];
 
 	loadClipsSubject: Subject<Clip[]> = new Subject<Clip[]>();
-	loadTracksSubject: Subject<Track[]> = new Subject<Track[]>();
+	loadTracksSubject: Subject<{ resetPreview?: boolean, tracks: Track[], projectId?: number }>
+		= new Subject<{ resetPreview?: boolean, tracks: Track[], projectId?: number }>();
 	loadProjectNameSubject: Subject<string> = new Subject<string>();
 	projectSavedSubject: Subject<any> = new Subject<any>();
 
@@ -58,21 +62,19 @@ export class ProjectFileService {
 		this.allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.IMAGE_FILTERS})) as Filter[])
 			.sort((a, b) => a.category.localeCompare(b.category));
 
-		this.projectHistory.push(JSON.parse(JSON.stringify(this.project)));
-
 		this.listenForEvents();
 	}
 
 	listenForEvents() {
 		window.api.on("project-loaded", (_: any, project: Project) => {
-			this.intitaliseProject(project);
+			this.initialiseProject(project);
 		});
 
 		window.api.on("project-saved", (_: any, project: Project) => this.ngZone.run(() => {
 			this.messageService.add({severity:"success", summary:"Project saved!"});
 
 			//Updates the project location
-			this.project.location = project.location;
+			this.projects[this.activeProject].location = project.location;
 			this.location = project.location;
 
 			this.titleService.setTitle(`GraphX - ${this.location}`);
@@ -88,7 +90,8 @@ export class ProjectFileService {
 		}));
 
 		window.api.on("update-track-in-history", (_: any, track: Track) => {
-			this.project.tracks = this.project.tracks.map(t => {
+			const activeProject = this.projects[this.activeProject];
+			activeProject.tracks = activeProject.tracks.map(t => {
 				if(t.id === track.id) {
 					if(track.width && track.height) {
 						t.width = track.width;
@@ -99,27 +102,33 @@ export class ProjectFileService {
 				}
 				return t;
 			});
-			this.tracks = this.project.tracks;
-			this.loadTracksSubject.next(this.tracks);
+			this.tracks = activeProject.tracks;
+			this.loadTracksSubject.next({tracks: this.tracks, projectId: this.activeProject});
 
 			this.titleService.setTitle(`GraphX - * ${this.location}`);
+		});
+
+		window.api.on("project-unzipped", (_: any, project: Project) => {
+			this.initialiseProject(project);
 		});
 	}
 
 	checkIfClipsExists() {
 		const lisOfClips = this.clips.map(clip => clip.location);
+		const activeProject = this.projects[this.activeProject];
 		window.api.emit("check-if-clips-need-relinking", lisOfClips);
-		window.api.on("clips-that=need-relinking", (_: any, clips: boolean[]) => {
-			this.clips = this.project.clips = this.clips.map((clip, index) => {
+		window.api.once("clips-that=need-relinking", (_: any, clips: boolean[]) => {
+			this.clips = activeProject.clips = this.clips.map((clip, index) => {
 				clip.needsRelinking = !clips[index];
 				return clip;
 			});
-			this.loadClipsSubject.next(this.project.clips);
+			this.loadClipsSubject.next(activeProject.clips);
 		});
 	}
 
-	intitaliseProject(project: Project) {
-		this.project = JSON.parse(JSON.stringify(project));
+	initialiseProject(project: Project) {
+		this.activeProject = this.projects.length;
+		this.projects[this.activeProject] = JSON.parse(JSON.stringify(project));
 		this.name = project.name;
 		this.dateCreated = project.dateCreated;
 		this.lastModifiedDate = project.lastModifiedDate;
@@ -134,15 +143,14 @@ export class ProjectFileService {
 		this.tracks = JSON.parse(JSON.stringify(project.tracks));
 
 		this.projectLoaded = true;
-
 		//Tells other components that the project has been loaded
 		//and that they should load these clips and tracks
-		this.loadTracksSubject.next(project.tracks);
+		this.loadTracksSubject.next({ tracks: project.tracks, resetPreview: true, projectId: this.activeProject });
 		this.loadProjectNameSubject.next(project.name);
 
-		this.projectHistory = [];
-		this.historyIndex = 0;
-		this.projectHistory.push(JSON.parse(JSON.stringify(this.project)));
+		this.projectHistory[this.activeProject] = [JSON.parse(JSON.stringify(project))];
+		this.historyIndexes[this.activeProject] = 0;
+		this.projectSavedIndexInHistory[this.activeProject] = 0;
 
 		this.addProjectToRecentProjects();
 	}
@@ -159,7 +167,7 @@ export class ProjectFileService {
 			if(!projectExists) {
 				//Checks if the list is full (max 5)
 				//and removes the first item if it is
-				if(recentProjectsArray.length === 5) {
+				if(recentProjectsArray.length === 10) {
 					recentProjectsArray.shift();
 				}
 				recentProjectsArray.push({name: this.name, location: this.location});
@@ -194,9 +202,11 @@ export class ProjectFileService {
 		}
 
 		this.tracks = JSON.parse(JSON.stringify(tracks));
-		this.project.tracks = JSON.parse(JSON.stringify(tracks));
+		this.projects[this.activeProject].tracks = JSON.parse(JSON.stringify(tracks));
+		this.project = JSON.parse(JSON.stringify(this.projects[this.activeProject]))
+		const history = this.projectHistory[this.activeProject][this.historyIndexes[this.activeProject]];
 
-		const showEditedIndicator = deepCompare(this.tracks, this.projectHistory[this.projectSavedIndexInHistory].tracks) ? "" : "*";
+		const showEditedIndicator = deepCompare(this.tracks, history.tracks) ? "" : "*";
 
 		this.titleService.setTitle(`GraphX - ${showEditedIndicator} ${this.location}`);
 
@@ -212,36 +222,41 @@ export class ProjectFileService {
 		//This prevents the clips from being lost when the user
 		//undoes a project change
 		//Should only track changes to the tracks in the future
-		this.project.clips = JSON.parse(JSON.stringify(clips));
-		this.projectHistory.forEach(project => {
+		this.projects[this.activeProject].clips = JSON.parse(JSON.stringify(clips));
+		const history = this.projectHistory[this.activeProject];
+		history.forEach(project => {
 			project.clips = JSON.parse(JSON.stringify(clips));
 		});
 	}
 
 	saveProject() {
-		this.project.lastModifiedDate = new Date();
+		const project = this.projects[this.activeProject];
+		project.lastModifiedDate = new Date();
 		//If a project is loaded, save it instead of creating a new one
-		this.projectSavedIndexInHistory = this.historyIndex;
+		this.projectSavedIndexInHistory[this.activeProject] = this.historyIndexes[this.activeProject];
 		if(this.projectLoaded) {
-			window.api.emit("save-project", this.project);
+			window.api.emit("save-project", project);
 		}else {
-			window.api.emit("save-project-as", this.project);
+			window.api.emit("save-project-as", project);
 		}
 	}
 
 	saveProjectAs() {
-		this.project.lastModifiedDate = new Date();
-		this.projectSavedIndexInHistory = this.historyIndex;
-		window.api.emit("save-project-as", this.project);
+		const project = this.projects[this.activeProject];
+		project.lastModifiedDate = new Date();
+		this.projectSavedIndexInHistory[this.activeProject] = this.historyIndexes[this.activeProject];
+		window.api.emit("save-project-as", project);
 	}
 
-	isProjectDirty() {
-		const projectAtSavedIndex = deepCopyObject(this.projectHistory[this.projectSavedIndexInHistory]);
-		const projectNow = deepCopyObject(this.project);
-		delete projectAtSavedIndex.lastModifiedDate;
-		delete projectNow.lastModifiedDate;
+	areProjectsDirty() {
+		return this.projectHistory.filter((project, i) => {
+			const projectAtSavedIndex = deepCopyObject(project[this.projectSavedIndexInHistory[i]] || {});
+			const projectNow = deepCopyObject(this.projects[i] || {});
+			delete projectAtSavedIndex.lastModifiedDate;
+			delete projectNow.lastModifiedDate;
 
-		return !deepCompare(projectAtSavedIndex, projectNow);
+			return !deepCompare(projectAtSavedIndex, projectNow);
+		}).length > 0;
 	}
 
 	createBlankProject() {
@@ -257,28 +272,30 @@ export class ProjectFileService {
 		window.api.emit("create-blank-project", project);
 
 		window.api.on("project-created", (_:any, location: string) => this.ngZone.run(() => {
-			this.project = project;
-			this.project.location = location;
+			this.activeProject = this.projects.length;
+			this.projects[this.activeProject] = project;
+			const activeProject = this.projects[this.activeProject];                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+			activeProject.location = location;
 			this.location = this.project.location;
 
 			this.titleService.setTitle("GraphX - " + this.location);
 
-			this.name = this.project.name;
-			this.dateCreated = this.project.dateCreated;
-			this.lastModifiedDate = this.project.lastModifiedDate;
-			this.clips = this.project.clips;
-			this.tracks = this.project.tracks;
+			this.name = activeProject.name;
+			this.dateCreated = activeProject.dateCreated;
+			this.lastModifiedDate = activeProject.lastModifiedDate;
+			this.clips = activeProject.clips;
+			this.tracks = activeProject.tracks;
 
 			this.projectLoaded = true;
 
 			this.addProjectToRecentProjects();
 
 			this.projectHistory = [];
-			this.historyIndex = 0;
-			this.projectSavedIndexInHistory = 0;
+			this.historyIndexes[this.activeProject] = 0;
+			this.projectSavedIndexInHistory[this.activeProject] = 0;
 
 			this.loadClipsSubject.next(this.clips);
-			this.loadTracksSubject.next(this.tracks);
+			this.loadTracksSubject.next({ tracks: this.tracks, projectId: this.activeProject });
 			this.loadProjectNameSubject.next(this.name);
 		}));
 	}
@@ -286,62 +303,70 @@ export class ProjectFileService {
 	addProjectToHistory(project: Project) {
 		//Adds the project to the history at the historyIndex
 		//and remove all projects after the historyIndex
-		this.historyIndex++;
+		this.historyIndexes[this.activeProject]++;
 
+		if(!this.projectHistory[this.activeProject]) this.projectHistory[this.activeProject] = [];
+		const history = this.projectHistory[this.activeProject];
 		//Set the length of the array to the historyIndex
-		this.projectHistory.length = this.historyIndex;
+		history.length = this.historyIndexes[this.activeProject];
 
-		this.projectHistory.push(JSON.parse(JSON.stringify(project)));	
+		history.push(JSON.parse(JSON.stringify(project)));
+
+		if(deepCompare(project, history[this.projectSavedIndexInHistory[this.activeProject]])) {
+			this.titleService.setTitle(`GraphX - ${this.location}`);
+		}
 	}
 
 	undo() {
-		this.historyIndex--;
-		if(this.historyIndex < 0) {
-			this.historyIndex = 0;
+		this.historyIndexes[this.activeProject]--;
+		if(this.historyIndexes[this.activeProject] < 0) {
+			this.historyIndexes[this.activeProject] = 0;
 		}
 
 		this.updateFromHistory();
 	}
 
 	redo() {
-		this.historyIndex++;
-		if(this.historyIndex > this.projectHistory.length - 1) {
-			this.historyIndex = this.projectHistory.length - 1;
+		this.historyIndexes[this.activeProject]++;
+		if(this.historyIndexes[this.activeProject] > this.projectHistory[this.activeProject].length - 1) {
+			this.historyIndexes[this.activeProject] = this.projectHistory[this.activeProject].length - 1;
 		}
 
 		this.updateFromHistory();
 	}
 
 	updateFromHistory() {
+		const history = this.projectHistory[this.activeProject];
 		//Skips the update if the prject is the same as the one in the history
-		if(deepCompare(this.project, this.projectHistory[this.historyIndex])) {
+		if(deepCompare(this.projects[this.activeProject], history[this.historyIndexes[this.activeProject]])) {
 			return;
 		}else {
 			this.titleService.setTitle(`GraphX - * ${this.location}`);
 		}
-
-		if(this.historyIndex === this.projectSavedIndexInHistory) {
+		
+		if(this.historyIndexes[this.activeProject] === this.projectSavedIndexInHistory[this.activeProject]) {
 			this.titleService.setTitle(`GraphX - ${this.location}`);
 		}
 
-		this.project = JSON.parse(JSON.stringify(this.projectHistory[this.historyIndex]));
+		this.projects[this.activeProject] = JSON.parse(JSON.stringify(history[this.historyIndexes[this.activeProject]]));
+		const activeProject = this.projects[this.activeProject];
 
-		this.loadClipsSubject.next(this.project.clips);
-		this.clips = JSON.parse(JSON.stringify(this.project.clips));
-		this.loadTracksSubject.next(this.project.tracks);
-		this.tracks = JSON.parse(JSON.stringify(this.project.tracks));
+		this.loadClipsSubject.next(activeProject.clips);
+		this.clips = JSON.parse(JSON.stringify(activeProject.clips));
+		this.loadTracksSubject.next({ tracks: activeProject.tracks, projectId: this.activeProject });
+		this.tracks = JSON.parse(JSON.stringify(activeProject.tracks));
 	}
 
 	setProjectName(name: string) {
 		this.name = name;
-		this.project.name = name;
+		this.projects[this.activeProject].name = name;
 
 		this.titleService.setTitle(`GraphX - * ${this.location}`);
 
 		//add the project name to all projects in the history
 		//This prevents the project name from being lost when the user
 		//undoes a project change
-		this.projectHistory.forEach(project => {
+		this.projectHistory[this.activeProject].forEach(project => {
 			project.name = name;
 		});
 	}
@@ -366,7 +391,7 @@ export class ProjectFileService {
 				}
 				return c;
 			});
-			this.project.clips = this.clips;
+			this.projects[this.activeProject].clips = this.clips;
 			this.loadClipsSubject.next(this.clips);
 
 			//loop through all tracks and update the clips
@@ -376,7 +401,6 @@ export class ProjectFileService {
 				}
 				track.clips = track.clips.map((c: ClipInstance) => {
 					if(c.location === currentLocation) {
-						console.log("relinking clip", c);
 						c.needsRelinking = false;
 						c.location = newClipData.path;
 
@@ -388,14 +412,62 @@ export class ProjectFileService {
 					}
 					return c;
 				});
-				console.log(track);
 				return track;
 			});
 
 			this.titleService.setTitle(`GraphX - * ${this.location}`);
 
-			this.project.tracks = this.tracks;
-			this.loadTracksSubject.next(this.tracks);
+			this.projects[this.activeProject].tracks = this.tracks;
+			this.loadTracksSubject.next({ tracks: this.tracks, projectId: this.activeProject });
 		});
+	}
+
+	setActiveProject(index: number) {
+		this.activeProject = index;
+		this.project = this.projects[index];
+		this.clips = this.projects[index].clips;
+		this.tracks = this.projects[index].tracks;
+		this.loadClipsSubject.next(this.clips);
+		this.loadTracksSubject.next({ tracks: this.tracks, resetPreview: true, projectId: this.activeProject });
+		this.loadProjectNameSubject.next(this.projects[index].name);
+		this.location = this.projects[index].location;
+		this.titleService.setTitle(`GraphX - ${this.location}`);
+	}
+
+	zipProject() {
+		window.api.emit("zip-project", this.projects[this.activeProject]);
+		window.api.once("project-zipped", (_: any, location: string) => {
+			this.messageService.add({severity:"success", summary:"Project zipped!"});
+		});
+	}
+
+	unzipProject() {
+		window.api.emit("unzip-project");
+	}
+
+	// Same as areProjectsDirty but for a specific project
+	isProjectDirty(projectIndex: number) {
+		const projectAtSavedIndex = deepCopyObject(this.projectHistory[projectIndex][this.projectSavedIndexInHistory[projectIndex]] || {});
+		const projectNow = deepCopyObject(this.projects[projectIndex] || {});
+		delete projectAtSavedIndex.lastModifiedDate;
+		delete projectNow.lastModifiedDate;
+
+		return !deepCompare(projectAtSavedIndex, projectNow);
+	}
+
+	closeProject(projectIndex: number) {
+		this.projects.splice(projectIndex, 1);
+		this.projectHistory.splice(projectIndex, 1);
+		this.historyIndexes.splice(projectIndex, 1);
+		this.projectSavedIndexInHistory.splice(projectIndex, 1);
+
+		if(this.activeProject === -1) {
+			return;
+		}
+
+		if(this.activeProject === projectIndex) {
+			this.activeProject--;
+			this.setActiveProject(this.activeProject);
+		}
 	}
 }

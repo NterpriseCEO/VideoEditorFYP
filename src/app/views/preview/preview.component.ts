@@ -6,11 +6,11 @@ import { Title } from "@angular/platform-browser";
 import { FilterLibrary, TrackType } from "../../utils/constants";
 import { ClipInstance, Filter, FilterInstance, Track } from "../../utils/interfaces";
 import { ImageFilters } from "src/app/utils/ImageFilters";
-import { deepCompare } from "src/app/utils/utils";
+import { deepCompare, deepCopy } from "src/app/utils/utils";
 // import * as GPU from "../../utils/gpu.js";
 // const GPU = require("../../utils/gpu.js");
 
-const fx = require("glfx-es6");
+import * as fx from "glfx-es6";
 
 @Component({
 	selector: "video-preview",
@@ -132,7 +132,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		//Used to send live media data to the server
 		window.api.emit("get-server-port");
 		window.api.once("server-port", (_: any, port: number) => {
-			//Sets the socket connection to the server			
+			//Sets the socket connection to the server
 			this.socket = io("http://localhost:" + port);
 		});
 
@@ -278,9 +278,13 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 		}));
 
-		window.api.on("tracks", (_, tracks: Track[]) => this.ngZone.run(() => {
-			//Gets all the new tracks
-			this.tracks = [...tracks.filter(track => track.isVisible)];
+		window.api.on("tracks", (_, data: any) => this.ngZone.run(() => {
+			if(data.resetPreview) {
+				// reset the master time
+				this.rewindToStart();
+			}
+
+			this.tracks = [...data.tracks.filter(track => track.isVisible)];
 			this.calculateDuration();
 			this.generateMediaElements();
 		}));
@@ -356,14 +360,16 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 			//Removes each media element from the preview container
 			this.renderer.removeChild(this.previewContainer.nativeElement, this.mediaElements[id]);
-			this.mediaElements[id] = null;
-			this.audioTracks[id] = null;
+			delete this.mediaElements[id];
+			delete this.audioTracks[id];
 			//And cancels the animation frames and time animation frames
 			window.cancelAnimationFrame(this.timeAnimationFrames[id]);
 			window.cancelAnimationFrame(this.animationFrames[id]);
 			this.animationFrames[id] = null;
 			//Removes the canvases as well
-			this.renderer.removeChild(this.canvasContainer.nativeElement, this.canvasElements[id]);
+			if(this.canvasElements[id]) {
+				this.renderer.removeChild(this.canvasContainer.nativeElement, this.canvasElements[id]);
+			}
 			delete this.canvasElements[id];
 			this.textures[id]?.destroy();
 			this.textures[id] = null;
@@ -441,7 +447,6 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		//in a future revision
 		this.masterTime = 0;
 		this.startTime = 0;
-		this.duration = 0;
 
 		this.mediaPlaying = false;
 
@@ -452,7 +457,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.mediaElements.forEach((mediaElement, i) => {
 			//Pauses and rewinds all media elements that are not live streams
 			if(!mediaElement?.srcObject && this.tracks[i].type !== TrackType.IMAGE) {
-				mediaElement.pause();
+				mediaElement?.pause();
 			}
 			mediaElement.currentTime = 0;
 		});
@@ -465,6 +470,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	calculateDuration() {
+		this.duration = 0;
 		//Find the duration from start to the end of the last clip
 		this.tracks.forEach(track => {
 			//gets the duration of the last clip
@@ -552,6 +558,13 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.renderer.removeChild(this.canvasContainer, canvas);
 		});
 		this.canvasElements = [];
+	}
+
+	deleteMediaElements() {
+		this.mediaElements.forEach((mediaElement) => {
+			this.renderer.removeChild(this.previewContainer.nativeElement, mediaElement);
+		});
+		this.mediaElements = [];
 	}
 
 	drawCanvas(video: HTMLVideoElement, track: Track, index: number) {
@@ -725,7 +738,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 						this.trackVisibilityAtGivenTime[index] = 0;
 					}
 					const visibility = track.isVisible[this.trackVisibilityAtGivenTime[index]];
-					if(visibility) {						
+					if(visibility) {
 						if(this.masterTime >= visibility.startTime && this.masterTime <= visibility.startTime + visibility.duration && !visibility.on) {
 							return;
 						}else if(this.masterTime >= visibility.startTime + visibility.duration) {

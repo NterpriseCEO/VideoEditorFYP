@@ -8,6 +8,11 @@
 	& .p-dataview-content {
 		flex-grow: 1;
 		overflow: auto;
+
+		// target the second div
+		& > div:nth-child(2) {
+			height: 100%;
+		}
 	}
 
 	& .p-grid, .p-dataview-emptymessage {

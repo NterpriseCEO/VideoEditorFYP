@@ -217,7 +217,7 @@ module.exports.Windows = class Windows {
 			Windows.mainWindow.webContents.send("preview-exited");
 			Windows.mainWindow.webContents.send("update-play-video-button", { isPlaying: false, isFinishedPlaying: true, currentTime: 0 });
 		});
-		
+
 		//Tells the main window that the preview window has loaded
 		//And is ready to receive data
 		Windows.previewWindow.webContents.once("did-finish-load", () => {

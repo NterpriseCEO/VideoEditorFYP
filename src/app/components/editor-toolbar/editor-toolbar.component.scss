@@ -1,3 +1,9 @@
-::ng-deep .p-menubar-end {
-	width: 100%;
+::ng-deep {
+	& .p-menubar-end {
+		width: 100%;
+	}
+
+	& .p-menubar-root-list {
+		flex-wrap: nowrap;
+	}
 }

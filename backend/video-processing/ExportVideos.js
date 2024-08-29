@@ -123,8 +123,6 @@ function convertClipsToMp4(tracks, trackIndex = 0, clipIndex = 0) {
 	//if it does, skips the re-encoding
 	if(fs.existsSync(`${exportPath}\\temp_export\\${newClipName}`)) {
 		Windows.sendToMainWindow("export-console-log", `skipping "${exportPath}\\temp_export\\${newClipName}" as it already exists\n`);
-		console.log(nextTrackIndex, tracks.length - 1, nextClipIndex, tracks[trackIndex].clips.length, "\n\n\n");
-		console.log('\n\n\nit exists!\n------------------------\n\n\n');
 		if(nextTrackIndex < tracks.length) {
 			convertClipsToMp4(tracks, nextTrackIndex, nextClipIndex);
 		}else {

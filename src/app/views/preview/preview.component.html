@@ -57,7 +57,7 @@
 				<div class = "w-full surface-50">
 					<button
 						pButton
-						class = "p-button-text"
+						class = "p-button-text p-button-secondary"
 						[icon] = "'pi pi-' + (!previewVideo.paused ? 'pause' : 'play')"
 						(click) = "previewVideo.paused ? previewVideo.play() : previewVideo.pause()"
 					></button>
@@ -103,14 +103,14 @@
 			<div class = "w-full surface-50 flex flex-row justify-content-between">
 				<button
 					pButton
-					class = "p-button-text"
+					class = "p-button-text p-button-secondary"
 					[icon] = "'pi pi-' + (mediaPlaying ? 'pause' : 'play')"
 					(click) = "playPauseMedia()"
 				></button>
 				<span class = "align-self-center text-lg">{{convertTime(masterTime)}}</span>
 				<button
 					pButton
-					class = "p-button-text"
+					class = "p-button-text p-button-secondary"
 					icon = "pi pi-window-maximize"
 					(click) = "toggleFullscreen()"
 				></button>

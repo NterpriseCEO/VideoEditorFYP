@@ -120,7 +120,7 @@ export class TrackContentsComponent extends TrackHelpers implements OnChanges, O
 			while(!parentNode.classList.contains("tracks-list")) {
 				parentNode = parentNode.parentNode as HTMLElement;
 			}
-			
+
 			//Gets the distance between the mouse and the start of the clips panel
 			let x = this.getMousePosition(event, parentNode);
 			let clipStart = this.cs.getPhantomClip()!.startTime;

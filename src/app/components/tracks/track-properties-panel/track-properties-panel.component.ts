@@ -115,8 +115,6 @@ export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked {
 
 		// If the dragged filter is not null, then reorder the filters
 		if(this.draggedFilter) {
-			console.log("reorder", scroll, dropIndex);
-			
 			// Remove the dragged filter at the old position
 			this.filters.splice(this.draggedFilterIndex, 1);
 
@@ -124,8 +122,7 @@ export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked {
 			this.filters.splice(dropIndex, 0, this.draggedFilter);
 			// Gets a list of all the filters that are enabled
 			this.enabledFilters = this.filters.filter(filter => filter.enabled);
-			this.draggedFilter = null;			
-
+			this.draggedFilter = null;
 			// Emit the new list of filters to the main process
 			this.changeFilters();
 		}

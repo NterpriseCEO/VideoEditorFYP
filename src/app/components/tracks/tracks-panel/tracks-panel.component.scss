@@ -63,3 +63,7 @@ $top_height: 30px;
 	width: 175px;
 	height: $top_height;
 }
+
+#tracks > div:nth-child(4n-7):not(.selected-track) {
+	background: rgba(0, 0, 0, 0.2);
+}

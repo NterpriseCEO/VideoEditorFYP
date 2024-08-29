@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, ViewChild } from "@angular/core";
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, ViewChild } from "@angular/core";
 import { TracksService } from "src/app/services/tracks.service";
 import { Clip, ClipInstance, Track } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
@@ -20,6 +20,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 	@ViewChild("tracksList") tracksList!: ElementRef;
 	@ViewChild("tracksDetails") tracksDetails!: ElementRef;
 	@ViewChild("tracksNgForList") tracksNgForList!: ElementRef;
+	@Input() projectId: number = 0;
 
 	tracks: Track[] = [];
 	tracksCount: number = 0;
@@ -85,6 +86,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 	}
 
 	ngAfterViewInit() {
+		this.renderTracksPanel(this.tracksService.getTracks());
 		this.listenForEvents();
 		this.setTimeNumbers();
 	}
@@ -154,32 +156,9 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			this.setTimeNumbers();
 		});
 		//Subscribes to the addTrackSubject in the tracks service
-		this.tracksService.tracksSubject.subscribe((tracks: Track[]) => {
-			//Checks if a track is being added not removed
-			this.addingTrack = this.tracksCount < tracks.length;
-			this.tracksCount = tracks.length;
-			this.tracks = tracks;
-
-			this.projectDuration = this.tracksService.getProjectDuration();
-			//Sends the project duration to anything that subscribes to the projectDurationSubject
-			const projectDuration = this.determineProjectDurationFromTrackWidth();
-			
-			this.projectDuration = projectDuration > this.projectDuration ? projectDuration : this.projectDuration;
-			this.pfService.projectDurationSubject.next(this.projectDuration);
-
-			//Calculates the number of milliseconds of the project that are visible
-			this.numberOfMillisecondsShown = this.projectDuration * this.percentageOfTracksVisible;
-			this.numberOfMillisecondsShown = this.numberOfMillisecondsShown < 1000*135 ? 1000*135 : this.numberOfMillisecondsShown;
-
-			this.tracksService.timelineIntervalGap = Math.round(this.numberOfMillisecondsShown / (this.calculateNumberOfIntervals()-0.5));			
-
-			//timeline interval position should be the current time in milliseconds / timelineIntervalGap
-			// this.timelineIndicatorPosition = this.current
-
-			this.setTimeNumbers();
-			this.updateTracksPanelDimensions();
-
-			this.changeDetector.detectChanges();
+		this.tracksService.tracksSubject.subscribe((data: any) => {
+			if(data.projectId !== this.projectId) return;
+			this.renderTracksPanel(data.tracks);
 		});
 
 		this.tracksService.selectedTrackChangedSubject.subscribe(() => {
@@ -232,6 +211,35 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			this.tracksService.zoomSliderScrollSubject.next(percentageScrolled*100);
 			this.changeDetector.detectChanges();
 		});
+	}
+
+	renderTracksPanel(tracks: Track[]) {
+		//Checks if a track is being added not removed
+		this.addingTrack = this.tracksCount < tracks.length;
+		this.tracksCount = tracks.length;
+		this.tracks = tracks;
+
+		this.projectDuration = this.tracksService.getProjectDuration();
+		//Sends the project duration to anything that subscribes to the projectDurationSubject
+		const projectDuration = this.determineProjectDurationFromTrackWidth();
+		this.projectDuration = projectDuration > this.projectDuration ? projectDuration : this.projectDuration;
+		this.pfService.projectDurationSubject.next(this.projectDuration);
+
+		//Calculates the number of milliseconds of the project that are visible
+		this.numberOfMillisecondsShown = this.projectDuration * this.percentageOfTracksVisible;
+		this.numberOfMillisecondsShown = this.numberOfMillisecondsShown < 1000 * 135 ? 1000 * 135 : this.numberOfMillisecondsShown;
+
+		const timer = setInterval(() => {
+			if(this.tracksList.nativeElement.clientWidth > 0) {
+				clearInterval(timer);
+				this.tracksService.timelineIntervalGap = Math.round(this.numberOfMillisecondsShown / (this.calculateNumberOfIntervals() - 0.5));
+		
+				this.setTimeNumbers();
+				this.updateTracksPanelDimensions();
+		
+				this.changeDetector.detectChanges();
+			}
+		}, 10);
 	}
 
 	setTimlineIndicatorPosition() {

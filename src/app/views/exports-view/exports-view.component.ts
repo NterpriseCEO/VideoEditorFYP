@@ -8,7 +8,7 @@ import { deepCompare } from "src/app/utils/utils";
 import { MenuItem } from "primeng/api";
 import { TracksService } from "src/app/services/tracks.service";
 
-const fx = require("glfx-es6");
+import * as fx from "glfx-es6";
 
 @Component({
 	selector: "app-exports-view",
@@ -182,7 +182,6 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				}
 				return track;
 			});
-			console.log("new clip paths", this.tracks);
 			this.generateMediaElements();
 		}));
 
@@ -195,7 +194,6 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 
 		// Called when a frame has been piped to the main process
 		window.api.on("frame-processed", (_: any, data: any) => this.ngZone.run(() => {
-			console.log("frame done");
 			this.mediaPlayback();
 		}));
 	}
@@ -247,7 +245,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			let mediaElement = document.createElement(trackType) as HTMLMediaElement;
 			mediaElement.id = "media-" + index;
 			mediaElement.classList.add("media", "w-full", "flex-grow-1", "absolute", "opacity-0");
-			if (track.type !== TrackType.IMAGE) {
+			if(track.type !== TrackType.IMAGE) {
 				mediaElement.classList.add("h-full");
 			}
 			//Appends the media element after #previewVideo
@@ -305,7 +303,6 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 		}
 
 		this.needToProcessFrame = true;
-		
 		this.tracks.filter(track => track.type !== TrackType.AUDIO).forEach((track: Track, index) => {
 			let elapsedTime = 0;
 
@@ -390,7 +387,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			}
 
 			if(track.type !== TrackType.IMAGE) {
-				if (video.currentTime === 0 || !video.src || video.readyState < 2) {
+				if(video.currentTime === 0 || !video.src || video.readyState < 2) {
 					this.animationFrames[index] = window.requestAnimationFrame(step);
 					return;
 				}
@@ -547,7 +544,6 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			});
 
 			if(this.needToProcessFrame) {
-				console.log("frame", frames);
 				this.needToProcessFrame = false;
 				window.api.emit("frame", finalCanvas.toDataURL("image/jpeg"));
 			}

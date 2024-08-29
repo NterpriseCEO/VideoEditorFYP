@@ -27,7 +27,7 @@ export class EditorToollbarComponent implements OnInit {
 					label: "New Project",
 					icon: PrimeIcons.PLUS,
 					command: () => {
-						if(this.pfService.isProjectDirty()) {
+						if(this.pfService.areProjectsDirty()) {
 							this.confirmationService.confirm({
 								message: "Do you want to save this project first?",
 								icon: "pi pi-exclamation-triangle",
@@ -93,26 +93,7 @@ export class EditorToollbarComponent implements OnInit {
 					label: "Open Project",
 					icon: PrimeIcons.FILE,
 					command: () => {
-						if(this.pfService.isProjectDirty()) {
-							this.confirmationService.confirm({
-								message: "Do you want to save this project first?",
-								icon: "pi pi-exclamation-triangle",
-								accept: () => {
-									this.pfService.saveProject();
-									this.pfService.projectSavedSubject.subscribe(() => {
-										this.pfService.projectSavedSubject.unsubscribe();
-										this.pfService.loadProject();
-									});
-								},
-								reject: (type: ConfirmEventType) => {
-									if(type === ConfirmEventType.REJECT) {
-										this.pfService.loadProject();
-									}
-								}
-							});
-						}else {
-							this.pfService.loadProject();
-						}
+						this.pfService.loadProject();
 					}
 				},
 				{
@@ -130,10 +111,24 @@ export class EditorToollbarComponent implements OnInit {
 					}
 				},
 				{
+					label: "Zip Project",
+					icon: PrimeIcons.DOWNLOAD,
+					command: () => {
+						this.pfService.zipProject();
+					}
+				},
+				{
+					label: "Unzip Project",
+					icon: PrimeIcons.UPLOAD,
+					command: () => {
+						this.pfService.unzipProject();
+					}
+				},
+				{
 					label: "Exit to start view",
 					icon: PrimeIcons.SIGN_OUT,
 					command: () => {
-						if(this.pfService.isProjectDirty()) {
+						if(this.pfService.areProjectsDirty()) {
 							this.confirmationService.confirm({
 								message: "Do you want to save this project first?",
 								icon: "pi pi-exclamation-triangle",
@@ -162,7 +157,7 @@ export class EditorToollbarComponent implements OnInit {
 					label: "Exit",
 					icon: PrimeIcons.SIGN_OUT,
 					command: () => {
-						if(this.pfService.isProjectDirty()) {
+						if(this.pfService.areProjectsDirty()) {
 							this.confirmationService.confirm({
 								message: "Do you want to save this project first?",
 								icon: "pi pi-exclamation-triangle",
@@ -267,7 +262,6 @@ export class EditorToollbarComponent implements OnInit {
 				isFinishedPlaying: data.isFinishedPlaying,
 				currentTime: data?.currentTime
 			});
-			console.log("update-play-video-button", data);
 			this.changeDetector.detectChanges();
 		}));
 	}
@@ -294,7 +288,6 @@ export class EditorToollbarComponent implements OnInit {
 			if(!isOpen) {
 				this.isPlaying = false;
 			}
-			
 			this.tracksService.previewStateSubject.next({
 				isPlaying: this.isPlaying,
 				isFinishedPlaying: false

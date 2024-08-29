@@ -26,8 +26,8 @@ module.exports.StreamingAndFilters = class StreamingAndFilters {
 			});
 		});
 
-		ipcMain.on("send-tracks", (_, tracks) => {
-			tracks.forEach((track) => {
+		ipcMain.on("send-tracks", (_, data) => {
+			data.tracks.forEach((track) => {
 				if(!track.filters) {
 					return;
 				}
@@ -41,7 +41,7 @@ module.exports.StreamingAndFilters = class StreamingAndFilters {
 					}
 				});
 			});
-			Windows.sendToPreviewWindow("tracks", tracks);
+			Windows.sendToPreviewWindow("tracks", data);
 		});
 		ipcMain.on("mute-track", (_, track) => {
 			Windows.sendToPreviewWindow("mute-track", track);

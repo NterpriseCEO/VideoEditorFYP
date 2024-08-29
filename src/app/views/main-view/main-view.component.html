@@ -101,13 +101,45 @@
 							</p-tabView>
 						</div>
 						<div class = "h-full" panel2>
-							<app-tracks-panel class = "w-full h-full" [class.hidden] = "!tracksPanelIsVisible"></app-tracks-panel>
+							<p-tabView
+								#projectsTabs
+								[controlClose] = "true"
+								(onClose) = "closeProject($event.index)"
+								(onChange) = "pfService.setActiveProject($event.index)"
+								class = "h-full block"
+								styleClass = "h-full flex flex-column"
+							>
+								<div
+									*ngIf = "pfService.projects.length === 0"
+									id = "no-tracks"
+									class = "flex w-full align-items-center justify-content-center"
+								>
+									<h1 class = "text-center select-none">No projects open</h1>
+								</div>
+								<p-tabPanel
+									*ngFor = "let project of pfService.projects; let i = index"
+									[header] = "project.name"
+									[closable]="true"
+									class = "h-full"
+									[selected] = "i === pfService.activeProject"
+								>
+									<app-tracks-panel
+										[projectId] = "i"
+										class = "w-full h-full"
+										[class.hidden] = "!tracksPanelIsVisible"
+									>
+									</app-tracks-panel>
+								</p-tabPanel>
+								<ng-template pTemplate = "header">
+									<button pButton type = "button" icon = "pi pi-plus" label = "Add Tab" (click) = "addTab()"></button>
+								</ng-template>
+							</p-tabView>
 						</div>
 					</app-custom-splitter>
 				</div>
 				<div class = "flex overflow-hidden w-full h-full" panel2>
-					<app-info-panel [(isVisible)] = "infoPanelIsVisible" class = "h-5px" [class.w-2] = "infoPanelIsVisible"></app-info-panel>
-					<app-track-properties-panel class = "w-full h-5px" [class.w-10] = "infoPanelIsVisible" [class.hidden] = "!tracksPropertiesPanelIsVisible"></app-track-properties-panel>
+					<app-info-panel [(isVisible)] = "infoPanelIsVisible" [class.w-2] = "infoPanelIsVisible"></app-info-panel>
+					<app-track-properties-panel class = "w-full" [class.w-10] = "infoPanelIsVisible" [class.hidden] = "!tracksPropertiesPanelIsVisible"></app-track-properties-panel>
 				</div>
 			</app-custom-splitter>
 		</div>

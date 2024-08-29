@@ -1,19 +1,22 @@
-<div class = "w-full h-full">
+<div class = "w-full h-full border-right-1px">
 	<div class = "flex flex-column h-full">
-		<div class = "flex align-items-center border-1 p-0 surface-border header">
-			<span class = "inline-block w-11 pl-3" *ngIf = "isVisible">
+		<div
+			class = "flex align-items-center header border-bottom-1px"
+			[style.paddingBottom.px] = "isVisible ? 0 : 1"
+		>
+			<span class = "inline-block w-11 p-2" *ngIf = "isVisible">
 				Title
 			</span>
 			<button
 				pButton
-				class = "p-button-sm p-button-text"
+				class = "p-button-sm p-button-text p-button-secondary p-2"
 				[pTooltip] = "(isVisible ? 'Hide' : 'Show') + ' info panel'"
 				(click) = "toggleInfoPanel()"
 				[icon] = "isVisible ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"
 			></button>
 		</div>
-		<div class = "border-right-1 surface-border flex-grow-1 overflow-auto">
-			<div class = "p-2" *ngIf = "isVisible">
+		<div class = "flex-grow-1 overflow-auto">
+			<div class = "p-2 text-justify" *ngIf = "isVisible">
 				Lorem ipsum dolor sit amet consectetur adipisicing elit. Eius provident excepturi tempora
 				praesentium et rerum deleniti perspiciatis ea, doloremque nihil id iste neque possimus optio
 				asperiores,adipisci explicabo itaque assumenda!

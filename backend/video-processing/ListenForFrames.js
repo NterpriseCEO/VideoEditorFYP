@@ -33,7 +33,7 @@ parentPort.on("message", message => {
 //It then deletes the old video and continues from the beginning
 function saveFrames() {
 	//Runs at approximately 30fps
-	setInterval(() => {		
+	setInterval(() => {
 		//Skip if no frame is available
 		if(currentFrame == null) {
 			return;
@@ -99,7 +99,7 @@ function mergeFrames(name, callback, range) {
 			return;
 		}
 		if(stderr) {
-			console.log(`error?: ${stderr}`);
+			console.log(`error: ${stderr}`);
 			// return;
 		}
 		console.log(`stdout: ${stdout}`);

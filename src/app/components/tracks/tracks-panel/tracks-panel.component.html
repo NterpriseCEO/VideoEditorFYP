@@ -82,7 +82,7 @@
 				>
 					<ng-container *ngFor = "let track of tracks; let i = index">
 						<div
-							class = "flex h-full"
+							class = "flex h-full track"
 							(mousedown) = "setOriginTrack(track, $event)"
 							(mousemove) = "$event.button != 1 && onDrag($event, track)"
 							(mouseup) = "$event.button != 1 && completeDrag($event, track)"

@@ -1,4 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { AfterViewInit, Component, OnInit, ViewChild } from "@angular/core";
+import { ConfirmationService, ConfirmEventType } from "primeng/api";
+import { TabView } from "primeng/tabview";
 import { ClipService } from "src/app/services/clip.service";
 import { KeyboardEventsService } from "src/app/services/keyboard-events.service";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
@@ -9,7 +11,9 @@ import { TracksService } from "src/app/services/tracks.service";
 	templateUrl: "./main-view.component.html",
 	styleUrls: ["./main-view.component.scss"]
 })
-export class MainViewComponent implements OnInit {
+export class MainViewComponent implements OnInit, AfterViewInit {
+	
+	@ViewChild("projectsTabs") projectsTabs: any;
 
 	insertPanelVisible = true;
 	tracksPanelIsVisible = true;
@@ -23,9 +27,10 @@ export class MainViewComponent implements OnInit {
 
 	constructor(
 		private keys: KeyboardEventsService,
-		private pfService: ProjectFileService,
+		protected pfService: ProjectFileService,
 		private trackService: TracksService,
-		private cs: ClipService
+		private cs: ClipService,
+		private confirmationService: ConfirmationService
 	) {}
 
 	ngOnInit() {
@@ -41,6 +46,20 @@ export class MainViewComponent implements OnInit {
 		this.infoPanelIsVisible = infoPanelIsVisible === null ? true : infoPanelIsVisible === "true";
 
 		this.listenForEvents();
+	}
+
+	ngAfterViewInit() {
+		// Accesses the tabview component and adds a button to at the end of the tabs
+		const nav_header = (this.projectsTabs.content.nativeElement as HTMLElement).firstChild;
+		const button = document.createElement("button");
+		button.innerHTML = "+";
+		button.classList.add("p-button", "p-button-text");
+		button.onclick = () => {
+			this.addTab();
+			// Unfocuses the button
+			button.blur();
+		};
+		nav_header?.appendChild(button);
 	}
 	
 	listenForEvents() {
@@ -72,6 +91,9 @@ export class MainViewComponent implements OnInit {
 		window.api.on("preview-exited", (_, __) => {
 			this.previewWindowIsVisible = false;
 		});
+	}
+	addTab() {
+		this.pfService.loadProject();
 	}
 
 	atLeastOnePanelIsVisible(): boolean {
@@ -113,5 +135,28 @@ export class MainViewComponent implements OnInit {
 		//This will stop the clip from being addable to the timeline
 		this.cs.setCurrentClip(null);
 		this.showFileRepresentation = false;
+	}
+
+	closeProject(projectIndex: number) {
+		if(this.pfService.isProjectDirty(projectIndex)) {
+			this.confirmationService.confirm({
+				message: "Do you want to save this project first?",
+				icon: "pi pi-exclamation-triangle",
+				accept: () => {
+					// TODO: Adding saving check for multiple projects
+					this.pfService.saveProject();
+					this.pfService.projectSavedSubject.subscribe(() => {
+						this.pfService.closeProject(projectIndex);
+					});
+				},
+				reject: (type: ConfirmEventType) => {
+					if(type === ConfirmEventType.REJECT) {
+						this.pfService.closeProject(projectIndex);
+					}
+				}
+			});
+		}else {
+			this.pfService.closeProject(projectIndex);
+		}
 	}
 }
