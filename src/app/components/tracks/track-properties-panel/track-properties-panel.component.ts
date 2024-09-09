@@ -149,13 +149,6 @@ export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked {
 		let filtersToChange = JSON.parse(JSON.stringify(this.enabledFilters));
 
 		// Map the filters from property definitions to property values only
-		this.enabledFilters = this.enabledFilters.map((filter: Filter, index: number) => {
-			return {
-				function: filter.function,
-				properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
-				type: filter.type
-			}
-		}) as FilterInstance[];
 
 		this.enabledFilters = [...this.enabledFilters];
 

@@ -60,8 +60,7 @@
 								</div>
 								<img
 									[src] = "clip.thumbnail | sanitiseUrl"
-									(error) = "clip.thumbnail = brokenImage"
-									class = "w-full h-4rem"
+									class = "w-full h-4rem surface-ground"
 									[class.opacity-50] = "clip?.needsRelinking"
 									ondragstart = "return false"
 								>

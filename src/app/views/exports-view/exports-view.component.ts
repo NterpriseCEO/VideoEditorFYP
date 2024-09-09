@@ -82,6 +82,11 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 	ngOnInit() {
 		this.titleService.setTitle("GraphX - Exports");
 
+		let recents = localStorage.getItem("recentExports");
+		if(recents) {
+			this.recentExports = JSON.parse(recents);
+		}
+
 		this.listenForEvents();
 	}
 
@@ -94,16 +99,12 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 			this.exportLogs = "";
 
 			//Reads recent-exports from localstorage
-			let recents = localStorage.getItem("recentExports");
 			const newExport = {
 				name: path.substring(path.lastIndexOf("\\") + 1),
 				path: path,
 				date: new Date()
 			};
 			//Adds the new export to recent exports
-			if(recents) {
-				this.recentExports = JSON.parse(recents);
-			}
 			this.recentExports.push(newExport);
 			localStorage.setItem("recentExports", JSON.stringify(this.recentExports));
 
@@ -120,12 +121,12 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				}
 				//Filters out disabled filters
 				track.filters =
-					track!.filters?.filter(filter => filter.enabled).map((filter: Filter) => {
+					track!.filters?.filter(filter => filter.enabled).map((filter: FilterInstance) => {
 						//Converts the filter properties to
 						//an array of values
 						return {
 							function: filter.function,
-							properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
+							properties: filter.properties ? Object.keys(filter.properties).map(key => filter.properties[key]) : [],
 							type: filter.type
 						}
 					}) as FilterInstance[];
@@ -538,7 +539,7 @@ export class ExportsViewComponent implements OnInit, AfterViewInit {
 				let x = (finalCanvas.width / 2) - (width / 2);
 				let y = (finalCanvas.height / 2) - (height / 2);
 
-				let func = track?.layerFilter?.function;
+				let func = track?.layerFilter;
 				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 				this.ctx.drawImage(canvas, x, y, width, height);
 			});

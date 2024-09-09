@@ -3,6 +3,7 @@ import { Subject } from "rxjs";
 import { TrackType } from "../utils/constants";
 import { ClipInstance, Filter, FilterInstance, Track, ZoomSliderPosition } from "../utils/interfaces";
 import { ProjectFileService } from "./project-file-service.service";
+import { deepCopyObject } from "../utils/utils";
 
 @Injectable({
 	providedIn: "root"
@@ -99,25 +100,32 @@ export class TracksService {
 		}));
 	}
 
-	_hack(track: Track) {
-		//This was a hack to fix the bug where the webcam stream is not shown in the preview window
-		//I'm leaving it here in case it happens again and I want a quick fix
-		track.filters = track.filters?.map((filter: FilterInstance, index: number) => {
-			return {
-				function: filter.function,
-				category: filter.category,
-				displayName: filter.displayName,
-				properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
-				type: filter.type,
-				enabled: filter.enabled
-			}
-		}) as FilterInstance[];
-		window.api.emit("update-filters", track);
-	}
+	// _hack(track: Track) {
+	// 	//This was a hack to fix the bug where the webcam stream is not shown in the preview window
+	// 	//I'm leaving it here in case it happens again and I want a quick fix
+	// 	track.filters = track.filters?.map((filter: FilterInstance, index: number) => {
+	// 		return {
+	// 			function: filter.function,
+	// 			category: filter.category,
+	// 			displayName: filter.displayName,
+	// 			properties: filter.properties ? filter.properties.map(prop => prop.value ?? prop.defaultValue) : [],
+	// 			type: filter.type,
+	// 			enabled: filter.enabled
+	// 		}
+	// 	}) as FilterInstance[];
+	// 	window.api.emit("update-filters", track);
+	// }
 
-	addFilter(filter: Filter) {
+	addFilter(filter: FilterInstance) {
 		//Creates a new instance of the filter and sets it to enabled
-		let instance: FilterInstance = Object.assign({}, filter, {enabled: true});
+		const instance: FilterInstance = {
+			function: filter.function,
+			enabled: true,
+			type: filter.type,
+			// Map properties to object with key = name and value = defaultValue
+			properties: filter.properties.map((prop) => ({ [prop.name]: prop.defaultValue })).reduce((acc, prop) => ({ ...acc, ...prop }), {})
+		};
+
 		//Adds the filter to the selected track
 		if(!this.selectedTrack!.filters) {
 			this.selectedTrack!.filters = [];

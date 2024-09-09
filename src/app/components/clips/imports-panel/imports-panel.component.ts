@@ -77,9 +77,10 @@ export class ImportsPanelComponent implements OnInit {
 				let n = nme.substring(nme.lastIndexOf(nme.includes("/") ? "/" : "\\") + 1);
 				if(!this.clips.find(({name}) => name === n)) {
 					this.clips.push({
+						id: this.clips.length,
 						name: n,
 						location: file.location,
-						thumbnail: "local-resource://getMediaFile/" + file.thumbnail,
+						thumbnail: file.thumbnail,
 						duration: file.duration,
 						totalDuration: file.duration,
 						type: file.type ?? TrackType.VIDEO

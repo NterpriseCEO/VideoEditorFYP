@@ -4,11 +4,8 @@ const path = require("path");
 const sharp = require("sharp");
 const { exec } = require("child_process");
 const { getVideoDurationInSeconds } = require("get-video-duration");
-const { getProjectPath, cmdExec } = require("../globals/Globals");
+const { getProjectPath, cmdExec, audioExtensions, imageExtensions } = require("../globals/Globals");
 const { Windows } = require("../LoadWindows");
-
-const audioExtensions = [".mp3", ".m4a", ".wav", ".flac"];
-const imageExtensions = [".png", ".jpg", ".jpeg", ".webp"];
 
 module.exports.ImportFiles = class ImportFiles {
 
@@ -200,45 +197,43 @@ module.exports.ImportFiles = class ImportFiles {
 		if(this.#files[counter]) {
 			let file = this.#files[counter];
 			const parse = path.parse(file);
-			let png = `${path.basename(this.#files[counter], parse.ext)}.png`;
-			//Remove the dash from the beginning of the file name if it exists
-			if(png.charAt(0) === "-") {
-				png = png.substring(1);
-			}
-
-			//Checks if the file is an audio file
-			if([...audioExtensions, ...imageExtensions].includes(parse.ext)) {
+			//Checks if the file is an image file
+			if(imageExtensions.includes(parse.ext)) {
 				//Returns and moves to the next thumbnail
 				this.#extractThumbnails(++counter, thumbnails, files);
 				return;
 			}
 
-			//Extracts the first frame of the video file and converts it to a a png
-			exec(`ffmpeg -i "${file}" -vf "scale=iw*sar:ih,setsar=1" -vframes 1 "${png}"`, (error, stdout, stderr) => {
-				if(error) {
-					console.log(`error: ${error.message}`);
-					return;
-				}
-				if(stderr) {
-					console.log(`error: ${stderr}`);
-				}
-				const dirname = __dirname.substring(0, __dirname.length - 24);
-				const thumbnail = `${dirname}\\${png}`;
-				const path = `${getProjectPath()}\\project-data\\thumbnails\\`;
-
-				if(!fs.existsSync(path)) {
-					fs.mkdirSync(path, { recursive: true });
-				}
-
-				//Moves the thumbnail to project_path/project-data/thumbnails
-				const newPath = path + png;
-				fs.renameSync(thumbnail, newPath);
-
-				files[counter].thumbnail = newPath;
-
-				//Moves to the next thumnail file
+			// Checks if the file is an audio file
+			if (audioExtensions.includes(parse.ext)) {
+				clip.thumbnail = "assets/icon.png";
 				this.#extractThumbnails(++counter, thumbnails, files);
-			});
+				return;
+			}
+
+			//Extracts the first frame of the video file and converts it to a a png
+			cmdExec(
+				"ffmpeg",
+				[
+					'-i', file,
+					'-vf', 'select=eq(n\\,0)', // select the first frame
+					'-vsync', 'vfr',
+					'-frames:v', '1', // number of frames to decode I think
+					'-q:v', '31', // quality
+					'-f', 'image2pipe',
+					'-'
+				],
+				() => { },
+				(process) => {
+					process.stdout.on('data', (data) => {
+						// Converts the buffer to a base64 string
+						data = `data:image/png;base64,${Buffer.from(data, "base64").toString('base64')}`;
+						files[counter].thumbnail = data;
+						process.stdout.removeAllListeners('data');
+						this.#extractThumbnails(++counter, thumbnails, files);
+					});
+				}
+			);
 		}else {
 			//Sends the files to the renderer process once all the thumbnails
 			//have been extracted

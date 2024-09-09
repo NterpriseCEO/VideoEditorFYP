@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { TreeNode } from "primeng/api";
 import { FilterLibrary } from "src/app/utils/constants";
-import { Filter } from "src/app/utils/interfaces";
+import { Filter, FilterInstance } from "src/app/utils/interfaces";
 import GLFX_Filters from "./filter-definitions/GLFX_Filters.json";
 import ImageFilters from "./filter-definitions/ImageFilters.json";
 import { TracksService } from "src/app/services/tracks.service";
@@ -22,12 +22,12 @@ export class FilterSelectorComponent implements OnInit {
 	ngOnInit() {
 		//Applies the type GLFX_Filters to the GLFX_Filters
 		//This may or may not be necessary
-		GLFX_Filters.filters = GLFX_Filters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX}));
+		const glfx_filters = GLFX_Filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX})) as Filter[];
 
 		let allFilters;
 
 		//Concatenates the two filter lists and sorts them by category
-		allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, { type: FilterLibrary.IMAGE_FILTERS })) as Filter[])
+		allFilters = glfx_filters.concat(ImageFilters.map((filter) => Object.assign(filter, { type: FilterLibrary.IMAGE_FILTERS })) as Filter[])
 			.sort((a, b) => a.category.localeCompare(b.category));
 
 		let filterCategories = allFilters.map((filter) => filter.category);
@@ -51,7 +51,7 @@ export class FilterSelectorComponent implements OnInit {
 		this.filters = mappedFilters;
 	}
 
-	addFilter(option: Filter) {
+	addFilter(option: FilterInstance) {
 		//Sends the filter to the track service which sends it to the tracks panel
 		this.trackService.addFilter(option);
 	}

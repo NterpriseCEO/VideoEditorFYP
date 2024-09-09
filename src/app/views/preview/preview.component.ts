@@ -6,7 +6,7 @@ import { Title } from "@angular/platform-browser";
 import { FilterLibrary, TrackType } from "../../utils/constants";
 import { ClipInstance, Filter, FilterInstance, Track } from "../../utils/interfaces";
 import { ImageFilters } from "src/app/utils/ImageFilters";
-import { deepCompare, deepCopy } from "src/app/utils/utils";
+import { deepCompare } from "src/app/utils/utils";
 // import * as GPU from "../../utils/gpu.js";
 // const GPU = require("../../utils/gpu.js");
 
@@ -235,20 +235,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	listenForEvents() {
 		window.api.on("update-filters", (_, track: Track) => this.ngZone.run(() => {
-			//Maps the filters to an array of filter property values
-			let matchingTrack = this.tracks.find(({ id }) => id === track.id);
-
-			if(!matchingTrack!.filters) {
-				matchingTrack!.filters = [];
-			}
-			matchingTrack!.filters = track!.filters?.filter(filter => filter.enabled).map((filter: Filter, index: number) => {
-				return {
-					function: filter.function,
-					properties: filter.properties ? filter.properties.map(prop => isNaN(prop) ? (prop.value ?? prop.defaultValue) : prop) : [],
-					type: filter.type
-				}
-			}) as FilterInstance[];
-			this.changeDetector.detectChanges();
+			this.updateTrackFilters(track);
 		}));
 
 		window.api.on("update-layer-filter", (_, track: Track) => this.ngZone.run(() => {
@@ -285,6 +272,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			}
 
 			this.tracks = [...data.tracks.filter(track => track.isVisible)];
+			this.tracks.forEach((track) => this.updateTrackFilters(track));
 			this.calculateDuration();
 			this.generateMediaElements();
 		}));
@@ -338,6 +326,24 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		window.api.on("rewind-to-start", () => this.ngZone.run(() => {
 			this.rewindToStart();
 		}));
+	}
+
+	updateTrackFilters(track: Track) {
+		//Maps the filters to an array of filter property values
+		let matchingTrack = this.tracks.find(({ id }) => id === track.id);
+
+		if (!matchingTrack!.filters) {
+			matchingTrack!.filters = [];
+		}
+		matchingTrack!.filters = track!.filters?.filter(filter => filter.enabled).map((filter: FilterInstance, index: number) => {
+			return {
+				function: filter.function,
+				//Mmaps the properties (an object with keys) to an array of key values
+				properties: filter.properties ? Object.keys(filter.properties).map(key => filter.properties[key]) : [],
+				type: filter.type
+			}
+		}) as FilterInstance[];
+		this.changeDetector.detectChanges();
 	}
 
 	generateMediaElements() {
@@ -673,7 +679,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				track.filters?.forEach((filter: FilterInstance, index: any) => {
 					//Applies the GLFX filters here
 					if(filter.type === FilterLibrary.GLFX) {
-						//Calls the filter function by name and applies the properties
+						//Calls the filter function by name and applies the properties						
 						draw = draw[filter.function](...(filter.properties ?? []));
 
 						//Draws the filters to the canvas if the next filter is not an ImageFilters filter
@@ -688,7 +694,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 							let imageToDraw = index === 0 ? video : canvas;
 							ifTexture.texture(imageToDraw);
 						}
-
+						
 						imageFilters = imageFilters[filter.function](...(filter.properties ?? []));
 
 						//Draws the filters to the visible canvas if the next filter is not an ImageFilters filter
@@ -777,7 +783,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				let x = (finalCanvas.width / 2) - (width / 2);
 				let y = (finalCanvas.height / 2) - (height / 2);
 
-				let func = track?.layerFilter?.function;
+				let func = track?.layerFilter;
 				this.ctx.globalCompositeOperation = (func != undefined && func != "") ? func : "source-over";
 				this.ctx.drawImage(canvas, x, y, width, height);
 			});

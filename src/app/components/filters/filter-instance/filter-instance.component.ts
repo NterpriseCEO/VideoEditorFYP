@@ -1,14 +1,17 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from "@angular/core";
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from "@angular/core";
 import { MenuItem } from "primeng/api";
 import { debounceTime, Subject } from "rxjs";
-import { FilterInstance } from "src/app/utils/interfaces";
+import { Filter, FilterInstance } from "src/app/utils/interfaces";
+import GLFX_Filters from "../filter-selector/filter-definitions/GLFX_Filters.json";
+import ImageFilters from "../filter-selector/filter-definitions/ImageFilters.json";
+import { FilterLibrary } from "src/app/utils/constants";
 
 @Component({
 	selector: "app-filter",
 	templateUrl: "./filter-instance.component.html",
 	styleUrls: ["./filter-instance.component.scss"]
 })
-export class FilterInstanceComponent implements OnInit {
+export class FilterInstanceComponent implements OnInit, OnChanges {
 
 	@Input() filter!: FilterInstance;
 	@Output() filterChange = new EventEmitter<FilterInstance>();
@@ -16,29 +19,48 @@ export class FilterInstanceComponent implements OnInit {
 	@Output() onRemove = new EventEmitter();
 	@Output() toggleFilter = new EventEmitter();
 
+	filterDefinition!: Filter;
+	allFilters: Filter[] = [];
+
 	dropdownItems: MenuItem[] = [];
 
 	modelChanged: Subject<[any, any]> = new Subject();
 
-	constructor() {}
+	constructor() {
+		const glfx_filters = GLFX_Filters.map((filter) => Object.assign(filter, { type: FilterLibrary.GLFX })) as Filter[];
+
+		//Concatenates the two filter lists and sorts them by category
+		this.allFilters = glfx_filters.concat(ImageFilters.map((filter) => Object.assign(filter, { type: FilterLibrary.IMAGE_FILTERS })) as Filter[])
+			.sort((a, b) => a.category.localeCompare(b.category));
+	}
+
+	ngOnChanges(changes: SimpleChanges) {
+		if(changes["filter"]) {
+			this.filterDefinition = this.allFilters.find((f) => f.function === this.filter.function)!;
+		}
+	}
 
 	ngOnInit() {
 		this.listenForEvents();
 
-		this.dropdownItems = [
-			{
-				label: "Reset",
-				icon: "pi pi-refresh",
-				disabled: !this.filter?.properties,
-				command: () => {
-					//Sets the value of the filter properties to their default values
-					//This is done to reset the filter
-					this.filter.properties.forEach((property) => {
-						property.value = property.defaultValue;
-					});
-					this.filterChange.emit(this.filter);
+		this.dropdownItems = !this.filter?.properties ? [] :
+			[
+				{
+					label: "Reset",
+					icon: "pi pi-refresh",
+					command: () => {
+						//Sets the value of the filter properties to their default values
+						//This is done to reset the filter
+						this.filterDefinition.properties.forEach((property) => {
+							this.filter.properties[property.name] = property.defaultValue;
+						});
+						this.filterChange.emit(this.filter);
+					}
 				}
-			},
+			];
+
+		this.dropdownItems = [
+			...this.dropdownItems,
 			{
 				label: "Remove",
 				icon: "pi pi-trash",
@@ -50,8 +72,8 @@ export class FilterInstanceComponent implements OnInit {
 			return;
 		}
 		//Sets the initial value of the filter properties to their default values
-		this.filter.properties.forEach((property) => {
-			property.value = property.value ?? property.defaultValue;
+		this.filterDefinition.properties.forEach((property) => {
+			this.filter.properties[property.name] = this.filter.properties[property.name] ?? property.defaultValue;
 		});
 	}
 

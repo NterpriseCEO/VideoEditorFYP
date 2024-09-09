@@ -4,7 +4,7 @@ export interface Filter {
 	function: string;
 	category: string;
 	displayName: string;
-	properties: any[];
+	properties: FilterProperty[];
 	type: FilterLibrary;
 }
 
@@ -14,25 +14,24 @@ export interface Filter {
 // 	properties: any[];
 // }
 
-export interface FilterInstance extends Filter {
+export interface FilterInstance {
 	enabled: boolean;
+	type: FilterLibrary;
+	function: string;
 	index?: number;
-	properties: FilterPropertyInstance[];
+	properties: any;
 }
 
 export interface FilterProperty {
 	name: string;
+	displayName: string;
 	propertyType: string;
 	defaultValue: any;
-	slot: number;
+	slot?: number;
 	min?: number;
 	max?: number;
 	step?: number;
 	options?: any[];
-}
-
-export interface FilterPropertyInstance extends FilterProperty {
-	value: any;
 }
 
 export interface Track {
@@ -57,6 +56,7 @@ export interface TrackVisibility {
 }
 
 export interface Clip {
+	id: number;
 	name: string;
 	location: string;
 	totalDuration: number;

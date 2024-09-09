@@ -8,10 +8,10 @@
 				<div class = "flex align-items-center p-0 header" style = "border-bottom: 1px solid #3f3f46">
 					<div
 						class = "flex-grow-1 cursor-auto overflow-hidden text-overflow-ellipsis p-2 draggable"
-						[pTooltip] = "filter.displayName"
+						[pTooltip] = "filterDefinition.displayName"
 						tooltipPosition = "top"
 					>
-						{{filter.displayName}}
+						{{filterDefinition.displayName}}
 					</div>
 					<div>
 						<button
@@ -37,20 +37,20 @@
 			<div class = "flex-grow-1 p-2">
 				<div
 					class = "flex flex-wrap h-full justify-content-center align-items-center"
-					[class.flex-column] = "filter.properties.length < 3"
+					[class.flex-column] = "filterDefinition.properties.length < 3"
 				>
-					<ng-container *ngIf = "filter.properties.length > 0">
+					<ng-container *ngIf = "filterDefinition.properties.length > 0">
 						<div
-							*ngFor = "let property of filter.properties"
+							*ngFor = "let property of filterDefinition.properties"
 							class = "flex flex-column align-items-center"
-							[class.w-4] = "filter.properties.length > 3"
-							[class.w-6] = "filter.properties.length < 4"
+							[class.w-4] = "filterDefinition.properties.length > 3"
+							[class.w-6] = "filterDefinition.properties.length < 4"
 						>
 							<p-knob
 								*ngIf = "property.propertyType == 'number'"
-								[ngModel] = "property.value"
+								[ngModel] = "filter.properties[property.name]"
 								(ngModelChange) = "debounceFilterChange($event, property)"
-								[size] = "filter.properties.length < 3 ? 225 / filter.properties.length : 75"
+								[size] = "filterDefinition.properties.length < 3 ? 225 / filterDefinition.properties.length : 75"
 								[strokeWidth] = "5"
 								[step] = "property.step ?? 1"
 								[min] = "property.min ?? 0"
@@ -58,8 +58,8 @@
 							></p-knob>
 							<p-checkbox
 								*ngIf = "property.propertyType == 'boolean'"
-								[(ngModel)] = "property.value"
-								[label] = "property.name"
+								[(ngModel)] = "filter.properties[property.name]"
+								[label] = "property.displayName"
 								[binary] = "true"
 								(onChange) = "filterChange.emit(filter)"
 							>
@@ -67,7 +67,7 @@
 							<p-dropdown
 								*ngIf = "property.propertyType == 'enum'"
 								[options] = "property.options ?? []"
-								[(ngModel)] = "property.value"
+								[(ngModel)] = "filter.properties[property.name]"
 								(onChange) = "filterChange.emit(filter)"
 								optionLabel = "name"
 								optionValue = "value"
@@ -75,22 +75,22 @@
 							</p-dropdown>
 							<input
 								type = "text"
-								[ngModel] = "property.value"
+								[ngModel] = "filter.properties[property.name]"
 								(ngModelChange) = "debounceFilterChange($event, property)"
 								*ngIf = "property.propertyType == 'array'"
 							>
-							<span *ngIf = "property.propertyType != 'boolean' && property.propertyType != 'number'">{{property.name}}</span>
+							<span *ngIf = "property.propertyType != 'boolean' && property.propertyType != 'number'">{{property.displayName}}</span>
 							<p-inplace
 								*ngIf = "property.propertyType == 'number'"
 								[closable] = "true"
 								closeIcon = "pi pi-check"
 							>
 								<ng-template pTemplate = "display">
-									{{property.name}}
+									{{property.displayName}}
 								</ng-template>
 								<ng-template pTemplate = "content">
 									<p-inputNumber
-										[ngModel] = "property.value"
+										[ngModel] = "filter.properties[property.name]"
 										(ngModelChange) = "debounceFilterChange($event, property)"
 										mode = "decimal"
 										[min] = "property.min ?? 0"
@@ -106,7 +106,7 @@
 							</p-inplace>
 						</div>
 					</ng-container>
-					<h1 *ngIf = "filter.properties.length == 0" class = "w-full align-self-center text-xl text-center">
+					<h1 *ngIf = "filterDefinition.properties.length == 0" class = "w-full align-self-center text-xl text-center">
 						This filter has no properties
 					</h1>
 				</div>

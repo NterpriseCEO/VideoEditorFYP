@@ -56,10 +56,10 @@ export class ProjectFileService {
 		private ngZone: NgZone,
 		private titleService: Title
 	) {
-		GLFX_Filters.filters = GLFX_Filters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX}));
+		const glfx_filters = GLFX_Filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX})) as Filter[];
 
 		//Concatenates the two filter lists and sorts them by category
-		this.allFilters = GLFX_Filters.filters.concat(ImageFilters.filters.map((filter) => Object.assign(filter, {type: FilterLibrary.IMAGE_FILTERS})) as Filter[])
+		this.allFilters = glfx_filters.concat(ImageFilters.map((filter) => Object.assign(filter, {type: FilterLibrary.IMAGE_FILTERS})) as Filter[])
 			.sort((a, b) => a.category.localeCompare(b.category));
 
 		this.listenForEvents();
@@ -113,7 +113,7 @@ export class ProjectFileService {
 		});
 	}
 
-	checkIfClipsExists() {
+	checkIfClipsExist() {
 		const lisOfClips = this.clips.map(clip => clip.location);
 		const activeProject = this.projects[this.activeProject];
 		window.api.emit("check-if-clips-need-relinking", lisOfClips);
@@ -128,6 +128,9 @@ export class ProjectFileService {
 
 	initialiseProject(project: Project) {
 		this.activeProject = this.projects.length;
+
+		project = this.prepareLoadFile(project);
+
 		this.projects[this.activeProject] = JSON.parse(JSON.stringify(project));
 		this.name = project.name;
 		this.dateCreated = project.dateCreated;
@@ -138,7 +141,7 @@ export class ProjectFileService {
 		this.titleService.setTitle(`GraphX - ${this.location}`);
 
 		//Loops through the clips and check if they need to be relinked
-		this.checkIfClipsExists();
+		this.checkIfClipsExist();
 
 		this.tracks = JSON.parse(JSON.stringify(project.tracks));
 
@@ -230,8 +233,9 @@ export class ProjectFileService {
 	}
 
 	saveProject() {
-		const project = this.projects[this.activeProject];
+		const project = deepCopyObject(this.projects[this.activeProject]);
 		project.lastModifiedDate = new Date();
+		this.prepareSaveFile(project);
 		//If a project is loaded, save it instead of creating a new one
 		this.projectSavedIndexInHistory[this.activeProject] = this.historyIndexes[this.activeProject];
 		if(this.projectLoaded) {
@@ -244,14 +248,15 @@ export class ProjectFileService {
 	saveProjectAs() {
 		const project = this.projects[this.activeProject];
 		project.lastModifiedDate = new Date();
+
 		this.projectSavedIndexInHistory[this.activeProject] = this.historyIndexes[this.activeProject];
-		window.api.emit("save-project-as", project);
+		window.api.emit("save-project-as", this.prepareSaveFile(project));
 	}
 
 	areProjectsDirty() {
 		return this.projectHistory.filter((project, i) => {
-			const projectAtSavedIndex = deepCopyObject(project[this.projectSavedIndexInHistory[i]] || {});
-			const projectNow = deepCopyObject(this.projects[i] || {});
+			const projectAtSavedIndex = this.prepareSaveFile(deepCopyObject(project[this.projectSavedIndexInHistory[i]] || {}));
+			const projectNow = this.prepareSaveFile(deepCopyObject(this.projects[i] || {}));
 			delete projectAtSavedIndex.lastModifiedDate;
 			delete projectNow.lastModifiedDate;
 
@@ -452,7 +457,7 @@ export class ProjectFileService {
 		delete projectAtSavedIndex.lastModifiedDate;
 		delete projectNow.lastModifiedDate;
 
-		return !deepCompare(projectAtSavedIndex, projectNow);
+		return !deepCompare(projectAtSavedIndex, this.prepareSaveFile(projectNow));
 	}
 
 	closeProject(projectIndex: number) {
@@ -469,5 +474,78 @@ export class ProjectFileService {
 			this.activeProject--;
 			this.setActiveProject(this.activeProject);
 		}
+	}
+
+	prepareSaveFile(project) {
+		project.clips = project.clips.map(clip => ({
+			location: clip.location,
+			duration: clip.duration,
+			type: clip.type,
+		}));
+
+		project.tracks.forEach(track => {
+			delete track.id;
+
+			// Deletes default values
+			if(track.isVisible || track.isVisible?.length === 0) delete track.isVisible;
+			if(!track.muted || track.muted?.length === 0) delete track.muted;
+			if(track.layerFilter === "") delete track.layerFilter;
+			if(track.clips.length === 0) delete track.clips;
+
+			track.clips?.forEach(clip => {
+				delete clip.name;
+				delete clip.totalDuration;
+				delete clip.location;
+				delete clip.needsRelinking;
+				delete clip.thumbnail;
+				delete clip.type;
+			});
+
+			if(track.filters) {
+				track.filters = track?.filters.map(filter => ({
+					function: filter.function,
+					enabled: filter.enabled === true ? undefined : false,
+					properties: filter.properties ?? undefined,
+				}));
+			}
+
+			if(track.filters?.length === 0) delete track.filters;
+		});
+		return project;
+	}
+
+	prepareLoadFile(project) {
+		project.clips.forEach((clip, id) => {
+			clip.id = id;
+			clip.name = clip.location.substring(clip.location.lastIndexOf(clip.location.includes("/") ? "/" : "\\") + 1);
+			clip.totalDuration = clip.duration;
+		});
+		project.tracks.forEach((track, id) => {
+			track.id = id;
+			track.clips?.forEach((clip) => {
+				// Finds the clip in the project clips so that the clip can be updated
+				// This prevente unnecessary duplication of clip info in any track
+				// that uses the same clip
+				const matchingClip = project.clips.find(c => c.id === clip.id);
+				clip.location = matchingClip?.location || "";
+				clip.name = clip.location.substring(clip.location.lastIndexOf(clip.location.includes("/") ? "/" : "\\") + 1);
+				clip.type = track.type;
+				clip.totalDuration = matchingClip?.duration || 0;
+				clip.thumbnail = matchingClip?.thumbnail || "";
+			});
+
+			if(track.isVisible === undefined) track.isVisible = true;
+
+			if(!track.layerFilter) track.layerFilter = "";
+
+			track.filters?.forEach((filter, id) => {
+				if(filter.enabled === undefined) filter.enabled = true;
+				// Finds the filter in the filter library
+				const filterLibrary = this.allFilters.find(f => f.function === filter.function);
+				filter.type = filterLibrary?.type;
+			});
+		});
+
+		return project;
 	}
 }

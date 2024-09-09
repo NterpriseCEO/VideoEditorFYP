@@ -4,6 +4,10 @@ let exportPath = "";
 let projectPath = "";
 let mainWindow;
 
+exports.audioExtensions = [".mp3", ".m4a", ".wav", ".flac"];
+exports.imageExtensions = [".png", ".jpg", ".jpeg", ".webp"];
+
+
 exports.setExportPath = function(path) {
 	exportPath = path;
 }

@@ -20,7 +20,7 @@ module.exports.StreamingAndFilters = class StreamingAndFilters {
 			//Gets screenshare options
 			desktopCapturer.getSources({ types: ["window", "screen"] }).then(sources => {
 				sources.map((source) => {
-					source.thumbnail = source.thumbnail.toDataURL();
+					source.thumbnail = source?.thumbnail?.toDataURL();
 				});
 				Windows.sendToMainWindow("screenshare-options", sources);
 			});
@@ -31,15 +31,6 @@ module.exports.StreamingAndFilters = class StreamingAndFilters {
 				if(!track.filters) {
 					return;
 				}
-
-				//Maps the filters to a format that the preview window can understand
-				track.filters = track.filters?.filter(filter => filter.enabled).map((filter, index) => {
-					return {
-						function: filter.function,
-						properties: filter.properties ? filter.properties.map(prop => isNaN(prop) ? (prop.value ?? prop.defaultValue) : prop) : [],
-						type: filter.type
-					}
-				});
 			});
 			Windows.sendToPreviewWindow("tracks", data);
 		});
