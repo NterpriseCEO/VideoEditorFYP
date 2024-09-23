@@ -116,7 +116,7 @@ export class TracksService {
 	// 	window.api.emit("update-filters", track);
 	// }
 
-	addFilter(filter: FilterInstance) {
+	addFilter(filter: Filter) {
 		//Creates a new instance of the filter and sets it to enabled
 		const instance: FilterInstance = {
 			function: filter.function,
