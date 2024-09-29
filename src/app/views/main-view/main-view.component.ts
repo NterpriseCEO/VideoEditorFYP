@@ -112,9 +112,7 @@ export class MainViewComponent implements OnInit, AfterViewInit {
 	}
 
 	showPreviewWindow() {
-		if(!this.previewWindowIsVisible) {
-			window.api.emit("open-preview-window");
-		}
+		window.api.emit("open-preview-window");
 		this.previewWindowIsVisible = true;
 	}
 

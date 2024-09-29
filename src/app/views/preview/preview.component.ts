@@ -11,6 +11,7 @@ import { deepCompare } from "src/app/utils/utils";
 // const GPU = require("../../utils/gpu.js");
 
 import * as fx from "glfx-es6";
+import { MessageService } from "primeng/api";
 
 @Component({
 	selector: "video-preview",
@@ -93,7 +94,8 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		private changeDetector: ChangeDetectorRef,
 		private ngZone: NgZone,
 		private renderer: Renderer2,
-		private titleService: Title
+		private titleService: Title,
+		private messageService: MessageService
 	) {}
 
 	ngOnInit() {
@@ -326,6 +328,10 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		window.api.on("rewind-to-start", () => this.ngZone.run(() => {
 			this.rewindToStart();
 		}));
+
+		window.api.on("cancel-frame-export", () => {
+			window.api.removeAllListeners("cancel-frame-export");
+		});
 	}
 
 	updateTrackFilters(track: Track) {
@@ -1196,5 +1202,24 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		let secondsString = seconds < 10 ? "0" + seconds : seconds;
 
 		return hoursString + ":" + minutesString + ":" + secondsString;
+	}
+
+	exportCurrentFrame() {
+		console.log(this.finalCanvas.nativeElement.toDataURL());
+
+		// Tells the main process that a frame export is requested
+		window.api.emit("export-frame")
+
+		// Gets triggered after the folder/file name is selected
+		window.api.once("frame-requested", (_: any, extension: string) => {
+			// Allows the data to be sent to the main process with the correct headers automatically
+			// by settings the extension
+			window.api.emit("frame-data-received", this.finalCanvas.nativeElement.toDataURL("image/" + extension));
+		});
+
+		window.api.once("frame-saved", (_:any, extension: string) => {
+			// Displayed once the frame is fully saved
+			this.messageService.add({ severity: "success", summary: "Frame saved!" });
+		});
 	}
 }

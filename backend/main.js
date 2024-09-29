@@ -12,6 +12,8 @@ const { ZipProject } = require("./file-management/zip-project");
 const { listenForExportEvents } = require("./file-management/ExportFiles");
 const exportVideo = require("./video-processing/ExportVideos");
 
+require("./file-management/save-video-frame");
+
 new StreamingAndFilters();
 
 new ImportFiles();

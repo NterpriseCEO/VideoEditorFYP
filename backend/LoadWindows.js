@@ -127,9 +127,12 @@ module.exports.Windows = class Windows {
 
 	static openManual() {
 		if(Windows.manualWindow) {
-			Windows.manualWindow.focus();
+			Windows.manualWindow.focus({
+				steal: true
+			});
 			return;
 		}
+
 		Windows.manualWindow = new BrowserWindow({
 			titlebarStyle: "hidden",
 			width: 600,
@@ -181,6 +184,14 @@ module.exports.Windows = class Windows {
 	}
 
 	static createPreviewWindow() {
+		if(Windows.previewWindow) {
+			Windows.previewWindow.focus({
+				steal: true
+			});
+			Windows.mainWindow.webContents.send("preview-opened");
+			return;
+		}
+
 		Windows.previewWindow = new BrowserWindow({
 			titlebarStyle: "hidden",
 			width: 600,

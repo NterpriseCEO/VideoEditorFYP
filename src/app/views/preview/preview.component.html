@@ -108,12 +108,23 @@
 					(click) = "playPauseMedia()"
 				></button>
 				<span class = "align-self-center text-lg">{{convertTime(masterTime)}}</span>
-				<button
-					pButton
-					class = "p-button-text p-button-secondary"
-					icon = "pi pi-window-maximize"
-					(click) = "toggleFullscreen()"
-				></button>
+				<div>
+					<button
+						pButton
+						[disabled] = "mediaPlaying"
+						class = "p-button-text p-button-secondary"
+						pTooltip = "Export current frame"
+						tooltipPosition="top"
+						icon = "pi pi-images"
+						(click) = "exportCurrentFrame()"
+					></button>
+					<button
+						pButton
+						class = "p-button-text p-button-secondary"
+						icon = "pi pi-window-maximize"
+						(click) = "toggleFullscreen()"
+					></button>
+				</div>
 			</div>
 		</div>
 	</div>
