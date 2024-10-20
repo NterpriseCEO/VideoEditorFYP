@@ -1,0 +1,27 @@
+[
+	{
+		"title": "Info Panel",
+		"selector": "#info-panel",
+		"description": "This panel displays a description of whatever panel your are currently hovering over"
+	},
+	{
+		"title": "Track Filters",
+		"selector": "#filters",
+		"description": "This panel displays the filters assigned to the currently selected track"
+	},
+	{
+		"title": "Tracks List",
+		"selector": ".project-tabs",
+		"description": "This is the list of tracks associated the current project. It includes track clips as well. Tracks and clips can be visually manipulated here."
+	},
+	{
+		"title": "Imports",
+		"selector": "#imports-list",
+		"description": "This shows panel shows a list of imported clips and allows you to import and relink new clips"
+	},
+	{
+		"title": "Filters List",
+		"selector": "#filters-list",
+		"description": "Filters cane be selected from here and they will get added to the currently selected track"
+	}
+]

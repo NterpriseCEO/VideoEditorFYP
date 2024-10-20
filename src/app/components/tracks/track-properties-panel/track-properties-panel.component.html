@@ -7,7 +7,7 @@
 			(layerFilterChange) = "updateLayerFilter($event)"
 		></app-layer-filter>
 	</div>
-	<div class = "flex-grow-1 overflow-y-hidden">
+	<div id = "filters" class = "flex-grow-1 overflow-y-hidden">
 		<div
 			#dropzone
 			class = "flex-grow-1 h-full overflow-auto overflow-y-hidden white-space-nowrap"
@@ -15,7 +15,7 @@
 			(drop) = "reorderFilters($event)"
 		>
 			<div *ngIf = "!filters.length" class = "flex w-full h-full align-items-center justify-content-center select-none">
-				<h1>No Filters</h1>
+				<h1>No filters</h1>
 			</div>
 			<app-filter
 				*ngFor = "let filter of filters; let i = index"
