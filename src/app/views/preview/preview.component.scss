@@ -52,3 +52,7 @@ video:not(.preview-video) {
 	bottom: 0;
 	cursor: nw-resize;
 }
+
+#preview-not-playing {
+	z-index: 100000;
+}

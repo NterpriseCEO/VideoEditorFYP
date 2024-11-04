@@ -21,7 +21,7 @@
 				[class.flex-column] = "!isFullscreen"
 				[class.w-full] = "!isFullscreen"
 			>
-				<div class = "flex-grow-1 w-full"></div>
+				<div class = "flex-grow-1 w-full" [class.hidden] = "selectedTrackType === 'Audio'"></div>
 				<video
 					#previewVideo
 					class = "w-full flex-grow-1 absolute preview-video"
@@ -33,33 +33,52 @@
 					[srcObject] = "previewStream"
 				>
 				</video>
+				<div
+					id = "preview-not-playing"
+					*ngIf = "previewVideo?.paused && selectedTrackType !== 'Image'"
+					class = "w-full h-full absolute flex align-items-center justify-content-center"
+				>
+					<span>{{ previewSrc === null ? 'Preview not loaded' : 'Preview not playing'}}</span>
+				</div>
+				<canvas
+					#audioPreview
+					[class.hidden] = "selectedTrackType !== 'Audio'"
+					class = "w-full h-full absolute"
+				></canvas>
 				<img
 					#previewImage
 					class = "w-full flex-grow-1 absolute"
 					[class.hidden] = "selectedTrackType !== 'Image'"
 					[src] = "previewSrc | sanitiseUrl"
 				>
-				<h1
-					*ngIf = "!getVisibleTracks().length"
-					class = "w-full flex-grow-1 absolute text-center p-component text-4xl"
-				>
-					This project has no visible tracks
-				</h1>
 			</div>
 			<div class = "w-full">
 				<div>
 					<p-slider
-						[(ngModel)] = "previewVideo.currentTime"
-						[max] = "duration"
-						[step] = "0.01"
+						[(ngModel)] = "previewTime"
+						[max] = "previewDuration * 1000"
+						[step] = "1"
+						(ngModelChange) = "seekPreviewMedia($event)"
 					></p-slider>
 				</div>
-				<div class = "w-full surface-50">
+				<div class = "w-full surface-50 flex flex-row justify-content-between">
 					<button
 						pButton
 						class = "p-button-text p-button-secondary"
+						[class.opacity-0] = "selectedTrackType === 'Image'"
 						[icon] = "'pi pi-' + (!previewVideo.paused ? 'pause' : 'play')"
 						(click) = "previewVideo.paused ? previewVideo.play() : previewVideo.pause()"
+					></button>
+					<span
+						[class.opacity-0] = "selectedTrackType === 'Image'"
+						class = "align-self-center text-lg"
+					>
+						{{convertTime(previewTime)}}
+					</span>
+					<button
+						pButton
+						class = "p-button-text p-button-secondary"
+						icon = "pi pi-window-maximize"
 					></button>
 				</div>
 			</div>

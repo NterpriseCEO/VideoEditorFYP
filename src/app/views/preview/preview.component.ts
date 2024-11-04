@@ -22,6 +22,7 @@ import { MessageService } from "primeng/api";
 export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 	@ViewChild("replaceWithCanvas") replaceWithCanvas!: ElementRef;
+	@ViewChild("audioPreview") audioPreview!: ElementRef;
 	@ViewChild("finalCanvas") finalCanvas!: ElementRef;
 	@ViewChild("previewVideo") previewVideo!: ElementRef;
 	@ViewChild("previewImage") previewImage!: ElementRef;
@@ -66,6 +67,9 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	currentTime: number = 0;
 	masterTime: number = 0;
 	duration: number = 0;
+
+	previewTime: number = 0;
+	previewDuration: number = 0;
 
 	socket: any;
 
@@ -129,6 +133,14 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				this.calculateScalerSize(track);
 				this.isScaling = false;
 			}
+
+			if(this.selectedTrackType === TrackType.AUDIO) {
+				// Resizes the canvas element
+				const canvas = this.audioPreview.nativeElement;
+				const dimensions = this.previewContainer.nativeElement.getBoundingClientRect();
+				canvas.width = dimensions.width;
+				canvas.height = dimensions.height;
+			}
 		})
 		//Gets the localhost server port.
 		//Used to send live media data to the server
@@ -140,6 +152,8 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 		this.initAudio();
 		this.finalRender();
+
+		this.audioPreviewRender();
 
 		new ResizeObserver((mutations) => {
 			let dimensions = mutations[0].contentRect;
@@ -181,10 +195,18 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		}).observe(this.scaler.nativeElement);
 
 		this.previewVideo.nativeElement.onloadeddata = () => {
+			this.previewDuration = this.previewVideo.nativeElement.duration;
+			if(this.selectedTrackType === TrackType.AUDIO) return;
 			this.initScaler(this.previewVideo.nativeElement);
+		}
+		
+		this.previewVideo.nativeElement.ontimeupdate = () => {
+			this.previewTime = this.previewVideo.nativeElement.currentTime * 1000;
+			this.changeDetector.markForCheck();
 		}
 
 		this.previewImage.nativeElement.onload = () => {
+			if(this.selectedTrackType === TrackType.AUDIO) return;
 			this.initScaler(this.previewImage.nativeElement);
 		}
 	}
@@ -312,6 +334,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		window.api.on("set-selected-clip-in-preview", (_, data) => this.ngZone.run(() => {
 			let track = this.tracks![data.trackIndex];
 			this.selectedTrackType = track.type;
+			console.log(this.selectedTrackType);
 			//Checks if the selected clip / track is the same as the one that is already selected
 			if((this.selectedTrackIndex === data.trackIndex && this.selectedClipIndex === data.clipIndex)) {
 				return;
@@ -319,7 +342,11 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			this.setPreviewSource("local-resource://getMediaFile/" + data.location, track);
 			this.selectedTrackIndex = data.trackIndex;
 			this.selectedClipIndex = data.clipIndex;
-			this.calculateScalerSize(track);
+
+			// Resizes the red clip scaler if its not an audio clip
+			if(this.selectedTrackType !== TrackType.AUDIO) {
+				this.calculateScalerSize(track);
+			}
 		}));
 
 		window.api.on("toggle-playing", () => this.ngZone.run(() => {
@@ -800,6 +827,59 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.stream = finalCanvas.captureStream();
 	}
 
+	audioPreviewRender() {
+		const canvas = this.audioPreview.nativeElement;
+		const ctx = canvas.getContext("2d");
+		const audioCtx = new AudioContext();
+		const analyser = audioCtx.createAnalyser();
+		let source = audioCtx.createMediaElementSource(this.previewVideo.nativeElement);
+
+		source.connect(analyser);
+		source.connect(audioCtx.destination);
+
+		let barWidth = 0;
+		let barHeight = 0;
+
+		let data = new Uint8Array(analyser.frequencyBinCount);
+		const dimensions = this.previewContainer.nativeElement.getBoundingClientRect();
+		canvas.width = dimensions.width;
+		canvas.height = dimensions.height;
+
+		barWidth = (canvas.width / 80);
+		
+		let canvasHeight = canvas.height,
+			x = 0,
+			y = 0,
+			y_end = 0;
+
+		ctx.strokeStyle = "white";
+		const step = async () => {
+			ctx.fillStyle = "black";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			analyser.getByteFrequencyData(data);
+
+			if(this.selectedTrackType !== TrackType.AUDIO || this.previewVideo.nativeElement.paused) {
+				requestAnimationFrame(step);
+				return;
+			}
+
+			for (var i = 0; i < 80; i++) {
+				barHeight = (canvasHeight / 255) * data[i];
+				x = i * (barWidth + 1);
+				y = canvasHeight;
+				y_end = y - barHeight;
+
+				ctx.lineWidth = barWidth;
+				ctx.beginPath();
+				ctx.moveTo(x, y);
+				ctx.lineTo(x, y_end);
+				ctx.stroke();
+			}
+			requestAnimationFrame(step);
+		}
+		requestAnimationFrame(step);
+	}
+
 	setPreviewSource(mediaSource: string, track: Track) {
 		let type = track.type;
 		let source = track?.source;
@@ -847,11 +927,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 					this.changeDetector.markForCheck();
 				});
 			}));
-		}else if(type === TrackType.VIDEO) {
-			this.previewSrc = mediaSource;
-			this.previewStream = null;
-			this.changeDetector.markForCheck();
-		}else if(type === TrackType.IMAGE) {
+		}else if([TrackType.VIDEO, TrackType.IMAGE, TrackType.AUDIO].includes(type)) {
 			this.previewSrc = mediaSource;
 			this.previewStream = null;
 			this.changeDetector.markForCheck();
@@ -1066,6 +1142,11 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		//Seeks the media at the current time value
 		this.getClipAtTime(value);
 		window.api.emit("update-play-video-button", { isPlaying: this.mediaPlaying, isFinishedPlaying: false, currentTime: value });
+	}
+
+	seekPreviewMedia(value: number) {
+		this.previewVideo.nativeElement.currentTime = value/1000;
+		this.changeDetector.markForCheck();
 	}
 
 	//Calculates how much of a clip has been played
