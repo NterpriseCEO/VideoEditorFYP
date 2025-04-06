@@ -20,6 +20,7 @@ module.exports.StreamingAndFilters = class StreamingAndFilters {
 			//Gets screenshare options
 			desktopCapturer.getSources({ types: ["window", "screen"] }).then(sources => {
 				sources.map((source) => {
+					if(!source?.thumbnail?.toDataURL) return;
 					source.thumbnail = source?.thumbnail?.toDataURL();
 				});
 				Windows.sendToMainWindow("screenshare-options", sources);

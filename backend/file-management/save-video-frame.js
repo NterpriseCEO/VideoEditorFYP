@@ -22,14 +22,14 @@ ipcMain.on("export-frame", (_, data) => {
 
 		location = filePath;
 		// Gets the file extension excluding the period
-		const extension = path.extname(filePath).split('.');
+		const extension = path.extname(filePath).split(".");
 
 		Windows.sendToPreviewWindow("frame-requested", extension.at(-1));
 	});
 
 	ipcMain.once("frame-data-received", (_, data) => {
 		// Once the actual frame data is received, saves the file to the requested location
-		fs.writeFile(location, data.split(',')[1], "base64", (error) => {
+		fs.writeFile(location, data.split(",")[1], "base64", (error) => {
 			if(error) {
 				console.log(error);
 				Windows.sendToPreviewWindow("cancel-frame-export");

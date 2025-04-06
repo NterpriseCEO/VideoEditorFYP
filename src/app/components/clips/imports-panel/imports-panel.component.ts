@@ -71,6 +71,8 @@ export class ImportsPanelComponent implements OnInit {
 			//Checks if the clips array has any items matching the names
 			//of the files being imported
 			//if not, adds them to the array
+			let newClips = 0;
+			let isRelinkingClips = false;
 			files.forEach((file: any) => {
 				//Gets everything after the last slash (the file name)
 				let nme = file.name;
@@ -85,8 +87,14 @@ export class ImportsPanelComponent implements OnInit {
 						totalDuration: file.duration,
 						type: file.type ?? TrackType.VIDEO
 					});
+					newClips++;
+				}else {
+					isRelinkingClips = true;
+					this.clips.find(({name}) => name === n)!.needsRelinking = false;
 				}
 			});
+
+			if(newClips === 0 && !isRelinkingClips) return;
 
 			//Update the clips array to trigger change detection
 			this.clips = [...this.clips];

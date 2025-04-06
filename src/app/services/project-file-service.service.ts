@@ -111,22 +111,32 @@ export class ProjectFileService {
 		window.api.on("project-unzipped", (_: any, project: Project) => {
 			this.initialiseProject(project);
 		});
-	}
 
-	checkIfClipsExist() {
-		const lisOfClips = this.clips.map(clip => clip.location);
-		const activeProject = this.projects[this.activeProject];
-		window.api.emit("check-if-clips-need-relinking", lisOfClips);
-		window.api.once("clips-that=need-relinking", (_: any, clips: boolean[]) => {
-			this.clips = activeProject.clips = this.clips.map((clip, index) => {
-				clip.needsRelinking = !clips[index];
-				return clip;
-			});
+		window.api.on("clips-that-need-relinking", (_: any, clips: boolean[] | string) => {
+			const activeProject = this.projects[this.activeProject];
+			const singleClip = this.clips.find(clip => clip.location === clips);
+
+			if(typeof clips === "string" && singleClip) {
+				singleClip.needsRelinking = true;
+				activeProject.clips.find(clip => clip.location === clips)!.needsRelinking = true;
+			}else {
+				this.clips = activeProject.clips = this.clips.map((clip, index) => {
+					clip.needsRelinking = !clips[index];
+					return clip;
+				});
+			}
+
 			this.loadClipsSubject.next(activeProject.clips);
 		});
 	}
 
+	checkIfClipsExist() {
+		const lisOfClips = this.clips.map(clip => clip.location);
+		window.api.emit("check-if-clips-need-relinking", lisOfClips);
+	}
+
 	initialiseProject(project: Project) {
+		window.api.emit("listen-for-project-changes");
 		this.activeProject = this.projects.length;
 
 		project = this.prepareLoadFile(project);

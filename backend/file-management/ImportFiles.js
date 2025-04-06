@@ -1,15 +1,16 @@
 const { dialog, ipcMain } = require("electron");
 const fs = require("fs");
 const path = require("path");
-const sharp = require("sharp");
-const { exec } = require("child_process");
 const { getVideoDurationInSeconds } = require("get-video-duration");
 const { getProjectPath, cmdExec, audioExtensions, imageExtensions } = require("../globals/Globals");
 const { Windows } = require("../LoadWindows");
+const chokidar = require("chokidar");
 
 module.exports.ImportFiles = class ImportFiles {
 
 	#files = [];
+
+	#previousWatchers = [];
 
 	constructor() {
 		this.#listenForEvents();
@@ -21,7 +22,7 @@ module.exports.ImportFiles = class ImportFiles {
 		});
 
 		ipcMain.on("check-if-clips-need-relinking", (_, clips) => {
-			Windows.sendToMainWindow("clips-that=need-relinking", clips.map(clip => fs.existsSync(clip)));
+			Windows.sendToMainWindow("clips-that-need-relinking", clips.map(clip => fs.existsSync(clip)));
 		});
 
 		ipcMain.on("relink-clip", (_, file) => {
@@ -60,6 +61,56 @@ module.exports.ImportFiles = class ImportFiles {
 					console.log("\n\nerror\n\n");
 					console.log(err);
 				});
+		});
+
+		ipcMain.on("listen-for-project-changes", () => {
+			this.#previousWatchers.push(chokidar.watch(
+				getProjectPath() + "\\clips",
+				{ 
+					persistent: true,
+					followSymlinks: false,
+					usePolling: true,
+					depth: undefined,
+					interval: 100,
+					ignoreInitial: true,
+					ignorePermissionErrors: false
+				}
+			).on("add", path => this.#checkFileCopyComplete(path)
+				.then(() => {
+					console.log(path, "was copied over");
+					this.#files = [path];
+					this.#extractMetadata(0, [...this.#files]);
+				})
+				.catch(error => console.error(error))
+			)
+			.on("unlink", path => {
+				console.log("file was unlinked", path);
+				Windows.sendToMainWindow("clips-that-need-relinking", path);
+			}));
+		});
+
+		ipcMain.on("exit-to-start-view", () => {
+			this.#previousWatchers.forEach(wather => wather?.close());
+		});
+	}
+
+	#checkFileCopyComplete(path, previous) {
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				fs.stat(path, (error, stat) => {
+					if (error) {
+						reject();
+						throw error;
+					}
+
+					if (previous && stat.mtime.getTime() === previous.mtime.getTime()) {
+						resolve();
+					} else {
+						return this.#checkFileCopyComplete(path, stat)
+							.then(() => resolve());
+					}
+				});
+			}, 1000);
 		});
 	}
 
@@ -125,6 +176,7 @@ module.exports.ImportFiles = class ImportFiles {
 
 			//Deletes all the thumbnails that are already in the folder
 			//that have the same name as the video file
+			// Likely not needed anymore
 			this.#files.forEach((file) => {
 				const parse = path.parse(file);
 				if(fs.existsSync(`${path.basename(file, parse.ext)}.png`)) {
@@ -200,13 +252,14 @@ module.exports.ImportFiles = class ImportFiles {
 			//Checks if the file is an image file
 			if(imageExtensions.includes(parse.ext)) {
 				//Returns and moves to the next thumbnail
+				files[counter].thumbnail = file;
 				this.#extractThumbnails(++counter, thumbnails, files);
 				return;
 			}
 
 			// Checks if the file is an audio file
 			if (audioExtensions.includes(parse.ext)) {
-				clip.thumbnail = "assets/icon.png";
+				files[counter].thumbnail = "assets/icon.png";
 				this.#extractThumbnails(++counter, thumbnails, files);
 				return;
 			}
@@ -215,21 +268,21 @@ module.exports.ImportFiles = class ImportFiles {
 			cmdExec(
 				"ffmpeg",
 				[
-					'-i', file,
-					'-vf', 'select=eq(n\\,0)', // select the first frame
-					'-vsync', 'vfr',
-					'-frames:v', '1', // number of frames to decode I think
-					'-q:v', '31', // quality
-					'-f', 'image2pipe',
-					'-'
+					"-i", file,
+					"-vf", "select=eq(n\\,0)", // select the first frame
+					"-vsync", "vfr",
+					"-frames:v", "1", // number of frames to decode I think
+					"-q:v", "31", // quality
+					"-f", "image2pipe",
+					"-"
 				],
 				() => { },
 				(process) => {
-					process.stdout.on('data', (data) => {
+					process.stdout.on("data", (data) => {
 						// Converts the buffer to a base64 string
-						data = `data:image/png;base64,${Buffer.from(data, "base64").toString('base64')}`;
+						data = `data:image/png;base64,${Buffer.from(data, "base64").toString("base64")}`;
 						files[counter].thumbnail = data;
-						process.stdout.removeAllListeners('data');
+						process.stdout.removeAllListeners("data");
 						this.#extractThumbnails(++counter, thumbnails, files);
 					});
 				}

@@ -6,7 +6,7 @@ const { setProjectPath, cmdExec, audioExtensions, imageExtensions } = require(".
 const { Windows } = require("../LoadWindows");
 
 module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
-	
+
 	constructor() {
 		ipcMain.on("create-blank-project", (_, project) => {
 			dialog.showSaveDialog(Windows.mainWindow, {
@@ -153,7 +153,9 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 		Promise.all(allThumbnailPromises).then(() => {
 			Windows.sendToMainWindow("project-loaded", project);
 		});
-	};
+	}
+
+	listenForFileChanges() {}
 
 	#extractThumbnail(clip) {
 		return new Promise((resolve, reject) => {
@@ -179,21 +181,21 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 			cmdExec(
 				"ffmpeg",
 				[
-					'-i', location,
-					'-vf', 'select=eq(n\\,0)', // select the first frame
-					'-vsync', 'vfr',
-					'-frames:v', '1', // number of frames to decode I think
-					'-q:v', '31', // quality
-					'-f', 'image2pipe',
-					'-'
+					"-i", location,
+					"-vf", "select=eq(n\\,0)", // select the first frame
+					"-vsync", "vfr",
+					"-frames:v", "1", // number of frames to decode I think
+					"-q:v", "31", // quality
+					"-f", "image2pipe",
+					"-"
 				],
 				() => {},
 				(process) => {
-					process.stdout.on('data', (data) => {
+					process.stdout.on("data", (data) => {
 						// Converts the buffer to a base64 string
-						data = `data:image/png;base64,${Buffer.from(data, "base64").toString('base64') }`;
+						data = `data:image/png;base64,${Buffer.from(data, "base64").toString("base64") }`;
 						clip.thumbnail = data;
-						process.stdout.removeAllListeners('data');
+						process.stdout.removeAllListeners("data");
 						resolve();
 					});
 				}

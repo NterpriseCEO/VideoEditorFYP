@@ -81,7 +81,7 @@ export class FilterInstanceComponent implements OnInit, OnChanges {
 		this.modelChanged.pipe(debounceTime(400)).subscribe((data) => {
 			//Waits 200 milliseconds before applying the filter
 			//This prevents the project history from being spammed with filter changes
-			this.filter!.properties!.find(prop => prop.name == data[1].name)!.value = data[0];
+			this.filter!.properties![data[1].name] = data[0];
 			this.filterChange.emit(this.filter);
 		});
 	}

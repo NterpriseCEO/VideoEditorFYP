@@ -1,4 +1,3 @@
-//import ipcmain from 'electron';
 const { ipcMain } = require("electron");
 const { exec } = require("child_process");
 const fs = require("fs");
@@ -30,14 +29,14 @@ outputNumber = 0;
 ipcMain.on("frame", (_, frame) => {
 	// Converts images to binary data and then stdin it to ffmpeg
 	const data = frame.replace(/^data:image\/\w+;base64,/, "");
-	const buffer = Buffer.from(data, 'base64');
+	const buffer = Buffer.from(data, "base64");
 	const sucess = childProcess.stdin.write(buffer);
 
 	// Only starts the once listener if the write hasn't finished
 	// i.e. the buffer isn't full yet
 	if(!sucess) {
 		// Once the buffer is empty, it will send a message to the main window
-		childProcess.stdin.once('drain', () => {
+		childProcess.stdin.once("drain", () => {
 			Windows.sendToMainWindow("frame-processed");
 		});
 	}else {
