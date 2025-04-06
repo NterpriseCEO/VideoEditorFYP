@@ -23,7 +23,7 @@ contextBridge.exposeInMainWorld("api", {
 	},
 	removeListener: (event) => {
 		const listener = eventsMap.get(event);
-		if (listener) {
+		if(listener) {
 			ipcRenderer.removeListener(event, listener);
 		}
 	},

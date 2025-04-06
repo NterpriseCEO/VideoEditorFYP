@@ -2,26 +2,34 @@ const { spawn } = require("child_process");
 
 let exportPath = "";
 let projectPath = "";
-let mainWindow;
+let projectName = "";
 
 exports.audioExtensions = [".mp3", ".m4a", ".wav", ".flac"];
 exports.imageExtensions = [".png", ".jpg", ".jpeg", ".webp"];
 
 
-exports.setExportPath = function(path) {
+exports.setExportPath = path => {
 	exportPath = path;
 }
 
-exports.getExportPath = function() {
+exports.getExportPath = () => {
 	return exportPath;
 }
 
-exports.setProjectPath = function(path) {
+exports.setProjectPath = path => {
 	projectPath = path;
 }
 
-exports.getProjectPath = function() {
+exports.getProjectPath = () => {
 	return projectPath;
+}
+
+exports.setProjectFileName = name => {
+	projectName = name;	
+}
+
+exports.getProjectFileName = () => {
+	return projectName;
 }
 
 exports.cmdExec = function(cmd, args, dataCallback = () => {}, returnProcess = () => {}) {
@@ -57,4 +65,3 @@ exports.cmdExec = function(cmd, args, dataCallback = () => {}, returnProcess = (
 
 exports.exportPath = exportPath;
 exports.projectPath = projectPath;
-exports.mainWindow = mainWindow;

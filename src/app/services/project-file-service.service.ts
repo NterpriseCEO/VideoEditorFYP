@@ -70,6 +70,18 @@ export class ProjectFileService {
 			this.initialiseProject(project);
 		});
 
+		window.api.on("project-reloaded", (_: any, data: {project: Project, location: string}) => {
+			let projectIndex = this.projects.findIndex(project => project.location === data.location);
+			if(projectIndex > -1) {
+				this.projects[projectIndex] = this.prepareLoadFile(data.project);
+				const project = this.projects[projectIndex];
+				this.loadTracksSubject.next({ tracks: project.tracks, resetPreview: true, projectId: projectIndex });
+				this.loadProjectNameSubject.next(project.name);
+
+				this.projectHistory[projectIndex] = [JSON.parse(JSON.stringify(project))];
+			}
+		});
+
 		window.api.on("project-saved", (_: any, project: Project) => this.ngZone.run(() => {
 			this.messageService.add({severity:"success", summary:"Project saved!"});
 

@@ -2,7 +2,7 @@ const { dialog, ipcMain } = require("electron");
 const fs = require("fs");
 const path = require("path");
 const { getVideoDurationInSeconds } = require("get-video-duration");
-const { getProjectPath, cmdExec, audioExtensions, imageExtensions } = require("../globals/Globals");
+const { getProjectPath, cmdExec, audioExtensions, imageExtensions, getProjectFileName } = require("../globals/Globals");
 const { Windows } = require("../LoadWindows");
 const chokidar = require("chokidar");
 
@@ -10,7 +10,7 @@ module.exports.ImportFiles = class ImportFiles {
 
 	#files = [];
 
-	#previousWatchers = [];
+	#watchers = [];
 
 	constructor() {
 		this.#listenForEvents();
@@ -64,9 +64,9 @@ module.exports.ImportFiles = class ImportFiles {
 		});
 
 		ipcMain.on("listen-for-project-changes", () => {
-			this.#previousWatchers.push(chokidar.watch(
+			this.#watchers.push(chokidar.watch(
 				getProjectPath() + "\\clips",
-				{ 
+				{
 					persistent: true,
 					followSymlinks: false,
 					usePolling: true,
@@ -90,7 +90,7 @@ module.exports.ImportFiles = class ImportFiles {
 		});
 
 		ipcMain.on("exit-to-start-view", () => {
-			this.#previousWatchers.forEach(wather => wather?.close());
+			this.#watchers.forEach(watcher => watcher?.close());
 		});
 	}
 
@@ -98,12 +98,12 @@ module.exports.ImportFiles = class ImportFiles {
 		return new Promise((resolve, reject) => {
 			setTimeout(() => {
 				fs.stat(path, (error, stat) => {
-					if (error) {
+					if(error) {
 						reject();
 						throw error;
 					}
 
-					if (previous && stat.mtime.getTime() === previous.mtime.getTime()) {
+					if(previous && stat.mtime.getTime() === previous.mtime.getTime()) {
 						resolve();
 					} else {
 						return this.#checkFileCopyComplete(path, stat)
@@ -258,7 +258,7 @@ module.exports.ImportFiles = class ImportFiles {
 			}
 
 			// Checks if the file is an audio file
-			if (audioExtensions.includes(parse.ext)) {
+			if(audioExtensions.includes(parse.ext)) {
 				files[counter].thumbnail = "assets/icon.png";
 				this.#extractThumbnails(++counter, thumbnails, files);
 				return;

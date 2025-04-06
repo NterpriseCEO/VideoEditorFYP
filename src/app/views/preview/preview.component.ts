@@ -365,7 +365,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		//Maps the filters to an array of filter property values
 		let matchingTrack = this.tracks.find(({ id }) => id === track.id);
 
-		if (!matchingTrack!.filters) {
+		if(!matchingTrack!.filters) {
 			matchingTrack!.filters = [];
 		}
 		matchingTrack!.filters = track!.filters?.filter(filter => filter.enabled).map((filter: FilterInstance, index: number) => {
