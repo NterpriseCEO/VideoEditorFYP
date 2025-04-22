@@ -187,11 +187,6 @@ export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked {
 		this.changeFilters();
 	}
 
-	// Clamps a number between a max and min value
-	clamp(num: number, max: number, min: number = 0) {
-		return Math.min(Math.max(num, min), max)
-	}
-
 	updateLayerFilter(event: any) {
 		this.trackService.updateLayerFilter(event);
 		this.changeFilters();

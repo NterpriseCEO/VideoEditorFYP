@@ -78,3 +78,8 @@ export function deepCopyObject(object: any): any {
 	}
 	return temporaryObject;
 }
+
+// Clamps a number between a max and min value
+export function clamp(num: number, max: number, min: number = 0) {
+	return Math.min(Math.max(num, min), max)
+}

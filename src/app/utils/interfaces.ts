@@ -84,6 +84,6 @@ export interface Project {
 
 export interface ZoomSliderPosition {
 	left: number;
-	center: number;
 	right: number;
+	width: number;
 }

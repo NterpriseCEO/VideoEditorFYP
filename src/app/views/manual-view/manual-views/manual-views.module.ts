@@ -7,8 +7,8 @@ import { CreatingFilesManualComponent } from "./creating-files-manual/creating-f
 import { AddingTracksManualComponent } from "./adding-tracks-manual/adding-tracks-manual.component";
 import { ModifyingTracksComponent } from "./modifying-tracks/modifying-tracks.component";
 import { NavigatingTheMainScreenManualComponent } from "./navigating-the-main-screen-manual/navigating-the-main-screen-manual.component";
-import { ImportingClipsComponent } from "./importing-clips/importing-clips.component";
 import { NavigatingVideoPreviewComponent } from "./navigating-video-preview/navigating-video-preview.component";
+import { ImportingClipsComponent } from "./importing-clips/importing-clips.component";
 import { WorkingWithFiltersComponent } from "./working-with-filters/working-with-filters.component";
 import { ProjectExporterComponent } from "./project-exporter/project-exporter.component";
 
@@ -18,8 +18,8 @@ import { ProjectExporterComponent } from "./project-exporter/project-exporter.co
 		AddingTracksManualComponent,
 		ModifyingTracksComponent,
 		NavigatingTheMainScreenManualComponent,
-		ImportingClipsComponent,
 		NavigatingVideoPreviewComponent,
+		ImportingClipsComponent,
 		WorkingWithFiltersComponent,
 		ProjectExporterComponent
 	],

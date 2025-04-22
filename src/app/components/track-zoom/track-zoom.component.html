@@ -1,8 +1,6 @@
 <div
 	#zoomSliderWrapper
-	class = "w-full h-2rem surface-overlay pl-3"
-	pTooltip = "Drag to zoom in/out"
-	tooltipPosition = "bottom"
+	class = "w-full h-2rem surface-overlay"
 	(mousedown) = "startDrag($event)"
 	(mousemove) = "dragSlider($event)"
 	(mouseup) = "stopDrag()"
@@ -10,9 +8,11 @@
 	<div
 		#zoomSlider
 		id = "slider"
-		class = "h-full flex justify-content-between"
-		[style.width.%] = "sliderPosition.right-sliderPosition.left"
-		[style.marginLeft.%] = "sliderPosition.left"
+		class = "h-full flex justify-content-between surface-ground hover:surface-card cursor-pointer"
+		[style.width.%] = "slider.width"
+		[style.marginLeft.%] = "slider.left"
+		pTooltip = "Drag to zoom in/out"
+		tooltipPosition = "bottom"
 	>
 		<div
 			class = "handle h-full"

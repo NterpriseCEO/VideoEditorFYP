@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
+import { Router } from "@angular/router";
 import { MenuItem, PrimeIcons } from "primeng/api";
 
 @Component({
@@ -17,7 +18,7 @@ export class ManualViewComponent implements OnInit {
 			icon: "pi pi-file-edit",
 			command: () => {
 				this.activeManualPage = 0;
-				// this.router.navigate([{ outlets: { primary: ["manual"], manualOutlet: ["creating-files"] } }]);
+				this.router.navigate(['/manual', { outlets: { manualOutlet: ["creating-files"] } }]);
 			}
 		},
 		{
@@ -25,7 +26,7 @@ export class ManualViewComponent implements OnInit {
 			icon: PrimeIcons.MAP,
 			command: () => {
 				this.activeManualPage = 1;
-				// this.router.navigate([{ outlets: { primary: ["manual"], manualOutlet: ["navigating-screen"] } }]);
+				this.router.navigate(['/manual', { outlets: { manualOutlet: ["navigating-the-main-screen"] } }]);
 			}
 		},
 		{
@@ -33,6 +34,7 @@ export class ManualViewComponent implements OnInit {
 			icon: PrimeIcons.CAMERA,
 			command: () => {
 				this.activeManualPage = 2;
+				this.router.navigate(['/manual', { outlets: { manualOutlet: ["navigating-the-previewer"] } }]);
 			}
 		},
 		{
@@ -40,6 +42,7 @@ export class ManualViewComponent implements OnInit {
 			icon: PrimeIcons.LIST,
 			command: () => {
 				this.activeManualPage = 3;
+				this.router.navigate(['/manual', { outlets: { manualOutlet: ["adding-tracks"] } }]);
 			}
 		},
 		{
@@ -47,6 +50,7 @@ export class ManualViewComponent implements OnInit {
 			icon: "pi pi-file-import",
 			command: () => {
 				this.activeManualPage = 4;
+				this.router.navigate(['/manual', { outlets: { manualOutlet: ["importing-clips"] } }]);
 			}
 		},
 		{
@@ -54,6 +58,7 @@ export class ManualViewComponent implements OnInit {
 			icon: PrimeIcons.LIST,
 			command: () => {
 				this.activeManualPage = 5;
+				this.router.navigate(['/manual', { outlets: { manualOutlet: ["working-with-tracks"] } }]);
 			}
 		},
 		{
@@ -61,6 +66,7 @@ export class ManualViewComponent implements OnInit {
 			icon: PrimeIcons.SLIDERS_H,
 			command: () => {
 				this.activeManualPage = 6;
+				this.router.navigate(['/manual', { outlets: { manualOutlet: ["working-with-filters"] } }]);
 			}
 		},
 		{
@@ -68,12 +74,14 @@ export class ManualViewComponent implements OnInit {
 			icon: "pi pi-file-export",
 			command: () => {
 				this.activeManualPage = 7;
+				this.router.navigate(['/manual', { outlets: { manualOutlet: ["exporting-projects"] } }]);
 			}
 		}
 	];
 
 	constructor(
-		private titleService: Title
+		private titleService: Title,
+		private router: Router
 	) {}
 
 	ngOnInit() {

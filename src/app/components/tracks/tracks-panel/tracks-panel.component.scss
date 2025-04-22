@@ -1,27 +1,25 @@
-$top_height: 30px;
-
-.pb-9px {
-	padding-bottom: 9px;
+#slider-wrapper {
+	width: calc(100% - 209px);
+	margin-left: 200px;
 }
 
 #time-lines {
-	top: calc($top_height + 0.5rem);
 	left: 200px;
-	min-height: calc(100% - $top_height - 0.5rem);
-	height: calc(100% - $top_height - 0.5rem);
+	min-height: 100%;
+	height: 100%;
 	//linear gradient every 50px;
 	//Represents 5 seconds of time
 	background: repeating-linear-gradient(90deg, transparent 0 48px, var(--surface-50) 48px 50px);
 }
 
-#timeline-numbers {
-	font-size: 0;
+#tracks-panel-ribbon {
+	height: 30px;
 }
 
 .timeline-number {
 	flex: 0 0 100px;
 	width: 100px;
-	height: $top_height;
+	height: 30px;
 	transform: translateX(-50%);
 
 	& span {
@@ -31,13 +29,12 @@ $top_height: 30px;
 
 #timeline-indicator {
 	width: 2px;
-	height: calc(100% - $top_height - 0.5rem);
-	top: calc($top_height + 0.5rem);
+	height: 100%;
 	background: red;
 }
 
 #no-tracks {
-	height: calc(100% - $top_height - 0.5rem - 1px);
+	height: 100%;
 }
 
 .divider {
@@ -51,17 +48,24 @@ $top_height: 30px;
 
 #tracks {
 	left: 200px;
-	top: calc($top_height + 0.5rem);
+	top: 0;
 }
 
 #track-details, #track-details-header {
 	width: 200px;
-	height: calc(100% - $top_height - 0.5rem - 1px);
 }
 
-#track-details-header-inner {
-	width: 175px;
-	height: $top_height;
+#tracks-list-wrapper {
+	height: 100%;
+}
+
+#tracks-wrapper {
+	left: 200px;
+}
+
+#track-details-header {
+	width: 150px;
+	height: 100%;
 }
 
 #tracks > div:nth-child(4n-7):not(.selected-track) {

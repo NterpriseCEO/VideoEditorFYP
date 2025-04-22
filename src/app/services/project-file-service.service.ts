@@ -512,7 +512,7 @@ export class ProjectFileService {
 			if(track.isVisible || track.isVisible?.length === 0) delete track.isVisible;
 			if(!track.muted || track.muted?.length === 0) delete track.muted;
 			if(track.layerFilter === "") delete track.layerFilter;
-			if(track.clips.length === 0) delete track.clips;
+			if(track.clips?.length === 0) delete track.clips;
 
 			track.clips?.forEach(clip => {
 				delete clip.name;

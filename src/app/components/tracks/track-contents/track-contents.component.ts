@@ -136,6 +136,6 @@ export class TrackContentsComponent extends TrackHelpers implements OnChanges, O
 
 	//Finds the clip with the highest start time (not necessarily the last clip in the array)
 	lastClip(): ClipInstance {
-		return this.clips.reduce((prev, current) => (prev.startTime > current.startTime) ? prev : current);
+		return this.clips?.reduce((prev, current) => (prev.startTime > current.startTime) ? prev : current);
 	}
 }
