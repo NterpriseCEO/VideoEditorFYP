@@ -29,6 +29,10 @@ ffbinaries.downloadBinaries(() => {
 	console.log("Downloaded all binaries for current platform.");
 });
 
+process.on('uncaughtException', (err) => {
+	console.error('Uncaught Exception:', err);
+});
+
 Windows.init();
 
 app.whenReady().then(() => Windows.createMainWindow());

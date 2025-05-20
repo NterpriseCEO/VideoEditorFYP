@@ -55,6 +55,7 @@ function mergeAudio(videoPath) {
 
 	// Merges all tracks into one array of clips
 	const clipsList = allTracks.filter(track => !track.muted && track.type !== "Image").map(track => track.clips).flat(1);
+	// TODO: check if clips actually have audio before generating the list
 	clipsList.forEach((clip, clipIndex) => {
 		// Gets the time and removes the date
 		const startTime = new Date(clip.startTime ?? 0).toISOString().substring(11, 22);

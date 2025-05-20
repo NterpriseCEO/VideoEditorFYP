@@ -51,6 +51,8 @@ export class ProjectFileService {
 
 	allFilters: any[] = [];
 
+	projectJustSaved: boolean = false;
+
 	constructor(
 		private messageService: MessageService,
 		private ngZone: NgZone,
@@ -66,11 +68,15 @@ export class ProjectFileService {
 	}
 
 	listenForEvents() {
-		window.api.on("project-loaded", (_: any, project: Project) => {
+		window.api.on("project-loaded", (_: any, project: Project) => this.ngZone.run(() => {
 			this.initialiseProject(project);
-		});
+		}));
 
-		window.api.on("project-reloaded", (_: any, data: {project: Project, location: string}) => {
+		window.api.on("project-reloaded", (_: any, data: {project: Project, location: string}) => this.ngZone.run(() => {
+			if(this.projectJustSaved) {
+				this.projectJustSaved = false;
+				return;
+			}
 			let projectIndex = this.projects.findIndex(project => project.location === data.location);
 			if(projectIndex > -1) {
 				this.projects[projectIndex] = this.prepareLoadFile(data.project);
@@ -80,7 +86,7 @@ export class ProjectFileService {
 
 				this.projectHistory[projectIndex] = [JSON.parse(JSON.stringify(project))];
 			}
-		});
+		}));
 
 		window.api.on("project-saved", (_: any, project: Project) => this.ngZone.run(() => {
 			this.messageService.add({severity:"success", summary:"Project saved!"});
@@ -261,6 +267,7 @@ export class ProjectFileService {
 		//If a project is loaded, save it instead of creating a new one
 		this.projectSavedIndexInHistory[this.activeProject] = this.historyIndexes[this.activeProject];
 		if(this.projectLoaded) {
+			this.projectJustSaved = true;
 			window.api.emit("save-project", project);
 		}else {
 			window.api.emit("save-project-as", project);
@@ -499,13 +506,13 @@ export class ProjectFileService {
 	}
 
 	prepareSaveFile(project) {
-		project.clips = project.clips.map(clip => ({
+		project.clips = project.clips?.map(clip => ({
 			location: clip.location,
 			duration: clip.duration,
 			type: clip.type,
 		}));
 
-		project.tracks.forEach(track => {
+		project.tracks?.forEach(track => {
 			delete track.id;
 
 			// Deletes default values
@@ -567,7 +574,6 @@ export class ProjectFileService {
 				filter.type = filterLibrary?.type;
 			});
 		});
-
 		return project;
 	}
 }

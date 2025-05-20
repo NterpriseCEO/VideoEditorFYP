@@ -113,7 +113,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 
 	@HostListener("document:click", ["$event.target"])
 	public click(targetElement) {
-		//Checks if the click is inside the tracksNgForList element
+		//Checks if the click is inside the tracksContents element
 		//and resets the dragged clip if it isn't
 		const clickedInside = this.tracksContents.nativeElement.contains(targetElement);
 		if(!clickedInside) {
@@ -125,7 +125,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 	}
 
 	listenForEvents() {
-		//Listens for resize events on the tracksList element
+		//Listens for resize events on the tracksContents element
 		this.resizeObserver = new ResizeObserver(() => {
 			this.tracksWidth = this.tracksContents.nativeElement.scrollWidth;
 			const trackCount = this.tracks.length;
@@ -182,7 +182,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 
 			if(state?.currentTime) {
 				//Calculates the position of the timeline indicator based on the current time
-				this.timelineIndicatorPosition = state.currentTime / this.msPerPX();
+				this.timelineIndicatorPosition = state.currentTime;
 				this.changeDetector.detectChanges();
 			}
 		});
@@ -242,17 +242,21 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 	setTimlineIndicatorPosition() {
 		let currentTime = Date.now()-this.playStartTime;
 		//Rounds to the nearest 10px
-		this.timelineIndicatorPosition = Math.floor(currentTime / 100);
+		this.timelineIndicatorPosition = Date.now() - this.playStartTime;
 
 		this.changeDetector.detectChanges();
+	}
+
+	convertIndicatorPositionToPx() {
+		return this.timelineIndicatorPosition / this.msPerPX();
 	}
 
 	moveTimeLineIndicator() {
 		clearInterval(this.timelineInterval);
 		this.timelineInterval = setInterval(() => {
-			this.timelineIndicatorPosition += 100 / (this.tracksService.timelineIntervalGap / 200);
+			this.timelineIndicatorPosition += 100;
 			this.changeDetector.detectChanges();
-		}, 200);
+		}, 100);
 	}
 
 	//window resize event

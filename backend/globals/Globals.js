@@ -35,7 +35,7 @@ exports.getProjectFileName = () => {
 exports.cmdExec = function(cmd, args, dataCallback = () => {}, returnProcess = () => {}) {
 	//Returns a promise
 	return new Promise((resolve, reject) => {
-		console.log(`\n\n\n${cmd} ${args.join(" ")}\n\n\n`);
+		console.log(`\n\n\n\n\n\n\n\n\n\n\n\n${cmd} ${args.join(" ")}\n\n\n\n\n\n\n\n\n\n\n\n`);
 		const s = spawn(cmd, args);
 
 		returnProcess(s);

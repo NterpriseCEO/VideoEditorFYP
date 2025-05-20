@@ -13,7 +13,7 @@ export class TrackHelpers {
 
 	//Gets the mouse poisition relative to the zoom slider's zoom level
 	getMousePosition(event: MouseEvent, parentNode: HTMLElement) {
-		let mousePosition = event.clientX - parentNode.getBoundingClientRect().left + parentNode.scrollLeft - 200;
+		let mousePosition = event.clientX - parentNode.getBoundingClientRect().left + parentNode.scrollLeft;
 		mousePosition = Math.round(mousePosition / 10) * 10;
 
 		//Gets the number of ms between each gap

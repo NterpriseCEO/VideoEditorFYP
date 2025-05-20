@@ -24,8 +24,7 @@ module.exports.SaveAndLoadProjects = class SaveAndLoadProjects {
 
 		// If there are no clips in the project, send the project to the main window
 		if(allThumbnailPromises.length === 0) {
-			Windows.sendToMainWindow("project-loaded", project);
-			return;
+			return Promise.resolve(project);
 		}
 
 		// Wait for all the thumbnails to be extracted before

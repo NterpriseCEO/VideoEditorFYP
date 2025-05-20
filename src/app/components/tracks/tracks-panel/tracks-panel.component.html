@@ -42,13 +42,6 @@
 			[style.left.px] = "200-tracksContents.scrollLeft"
 		>
 		</div>
-		<div
-			id = "timeline-indicator"
-			class = "absolute z-1"
-			[style.left.px] = "200+timelineIndicatorPosition"
-			[style.height.px] = "tracksHeight"
-		>
-		</div>
 		<div id = "track-details" class = "absolute h-full surface-ground flex-shrink-0">
 			<app-track-details
 				*ngFor = "let track of tracks"
@@ -65,6 +58,13 @@
 			[style.width.px] = "tracksList.clientWidth-200"
 			[style.height.px] = "tracksHeight"
 		>
+			<div
+				id = "timeline-indicator"
+				class = "absolute z-1"
+				[style.left.px] = "convertIndicatorPositionToPx()"
+				[style.height.px] = "tracksHeight"
+			>
+			</div>
 			<div
 				id = "tracks"
 				[style.width.px] = "tracksWidth"
