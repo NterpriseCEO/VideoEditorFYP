@@ -3,6 +3,10 @@
 	height: 416px;
 }
 
+#preview-image {
+	object-fit: contain;
+}
+
 .webcam {
 	transform: scaleX(-1);
 }
@@ -11,11 +15,8 @@
 	top: -100vh;
 }
 
-.fullscreen {
-	position: absolute;
-	top: 0;
-	width: 100vw !important;
-	height: 100vh !important;
+.black {
+	background-color: black;
 }
 
 .h-2screen {

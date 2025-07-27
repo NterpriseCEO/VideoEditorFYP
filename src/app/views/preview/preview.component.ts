@@ -4,7 +4,7 @@ import { fromEvent, Observable, Subscription } from "rxjs";
 import { Title } from "@angular/platform-browser";
 
 import { FilterLibrary, TrackType } from "../../utils/constants";
-import { ClipInstance, Filter, FilterInstance, Track } from "../../utils/interfaces";
+import { ClipInstance, FilterInstance, Track } from "../../utils/interfaces";
 import { ImageFilters } from "src/app/utils/ImageFilters";
 import { deepCompare } from "src/app/utils/utils";
 // import * as GPU from "../../utils/gpu.js";
@@ -30,7 +30,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	@ViewChild("canvasContainer") canvasContainer!: ElementRef;
 	@ViewChild("scaler") scaler!: ElementRef;
 
-	mediaElements: any[] = [];
+	mediaElements: HTMLMediaElement[] = [];
 
 	mediaRecorder: any;
 
@@ -54,9 +54,10 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	stream: any;
 
 	animationFrames: any[] = [];
-	timeAnimationFrames: number[] = [];
+	timeAnimationFrame!: number;
 
 	isFullscreen: boolean = false;
+	previewIsFullscreen: boolean = false;
 	mediaPlaying: boolean = false;
 	isRecording: boolean = false;
 
@@ -272,7 +273,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			if(this.isRecording) {
 				//Finds the track matching data.track
 				let id = this.tracks.findIndex(track => track.id === data.track.id);
-				this.startRecording(this.mediaElements[id].captureStream(), true);
+				this.startRecording((this.mediaElements[id] as any).captureStream(), true);
 			}else {
 				this.mediaRecorder.stop();
 				this.socket.emit("stop-recording");
@@ -309,7 +310,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//prevents live streams from being unmuted
 			//which causes audio feedback
 			if(track.type === TrackType.VIDEO) {
-				this.mediaElements[id].muted = track.muted;
+				this.mediaElements[id].muted = track.muted ?? false;
 			}
 			this.tracks[id].muted = track.muted;
 
@@ -402,7 +403,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			delete this.mediaElements[id];
 			delete this.audioTracks[id];
 			//And cancels the animation frames and time animation frames
-			window.cancelAnimationFrame(this.timeAnimationFrames[id]);
+			window.cancelAnimationFrame(this.timeAnimationFrame);
 			window.cancelAnimationFrame(this.animationFrames[id]);
 			this.animationFrames[id] = null;
 			//Removes the canvases as well
@@ -535,43 +536,53 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 		this.finalCanvas.nativeElement.style.transform = "translateY(-50%)";
 	}
 
+	togglePreviewFullScreen() {
+		this.previewIsFullscreen = !this.previewIsFullscreen;
+	}
+
 	mediaPlayback() {
 		this.startTime = window.performance.now() - this.masterTime;
-		this.tracks.forEach((track: Track, index) => {
-			let elapsedTime = 0;
+		this.tracks.filter(track => track.isVisible || track.isVisible === undefined)
+			.forEach((track: Track, index) => {
+				let media;
 
-			let media;
+				if(this.mediaElements[index]) {
+					media = this.mediaElements[index];
+				}
 
-			if(this.mediaElements[index]) {
-				media = this.mediaElements[index];
-			}
+				media.src = "";
+				media.removeAttribute("src");
+				media.currentTime = 0;
+			});
 
-			if(!track.isVisible) {
-				return;
-			}
-
+		this.mediaElements.forEach(media => {
 			media.src = "";
 			media.removeAttribute("src");
 			media.currentTime = 0;
+		})
 
-			let step = async () => {
-				if(this.mediaPlaying) {
-					let currentTime = window.performance.now();
-					this.masterTime = currentTime - this.startTime;
+		let timeStep = async () => {
+			if(this.mediaPlaying) {
+				let currentTime = window.performance.now();
+				this.masterTime = currentTime - this.startTime;
 
-					this.checkIfClipNeedsChanging(media, track, index);
+				this.tracks.filter(track => track.isVisible || track.isVisible === undefined)
+					.forEach((track: Track, index) => {
+						if (this.mediaElements[index]) {
+							this.checkIfClipNeedsChanging(this.mediaElements[index], track, index);
+						}
+					});
 
-					if(this.masterTime >= this.duration) {
-						this.mediaPlaying = false;
-						this.masterTime = 0;
-						window.api.emit("update-play-video-button", { isPlaying: false, isFinishedPlaying: true });
-					}
+				if (this.masterTime >= this.duration) {
+					this.mediaPlaying = false;
+					this.masterTime = 0;
+					window.api.emit("update-play-video-button", { isPlaying: false, isFinishedPlaying: true });
 				}
 				this.changeDetector.markForCheck();
-				this.timeAnimationFrames[index] = requestAnimationFrame(step);
 			}
-			requestAnimationFrame(step);
-		});
+			this.timeAnimationFrame = requestAnimationFrame(timeStep);
+		}
+		requestAnimationFrame(timeStep);
 	}
 
 	//Not even used anymore but is incredibly useful
@@ -1111,11 +1122,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 			//Resets everything when a user plays the media
 			//after it it has played all the way through
 			//This will basically restart the media from the beginning
-			this.timeAnimationFrames.forEach((frame) => {
-				window.cancelAnimationFrame(frame);
-			});
-
-			this.timeAnimationFrames = [];
+			window.cancelAnimationFrame(this.timeAnimationFrame);
 
 			this.currentClip = [];
 
@@ -1127,11 +1134,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 	}
 
 	seekMedia(value: number) {
-		this.timeAnimationFrames.forEach((frame) => {
-			window.cancelAnimationFrame(frame);
-		});
-
-		this.timeAnimationFrames = [];
+		window.cancelAnimationFrame(this.timeAnimationFrame);
 
 		this.currentClip = [];
 		this.trackVisibilityAtGivenTime = [];
@@ -1206,14 +1209,14 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 
 			//Set the media element's source to nothing
 			if(!hasPlayingClip) {
+				mediaElement.src = "";
 				mediaElement.removeAttribute("src");
-				if(![TrackType.VIDEO, TrackType.IMAGE].includes(track.type)) {
+				if([TrackType.WEBCAM, TrackType.SCREEN_CAPTURE].includes(track.type)) {
+					this.setSource(track, mediaElement, i);
 					if(mediaElement?.srcObject) {
 						mediaElement.play();
 						return;
 					}
-
-					this.setSource(track, mediaElement, i);
 				}
 			}
 		});

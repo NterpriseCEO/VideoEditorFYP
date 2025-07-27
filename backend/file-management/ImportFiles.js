@@ -230,15 +230,19 @@ module.exports.ImportFiles = class ImportFiles {
 				: imageExtensions.includes(path.parse(file).ext) ? "Image"
 				: "Video";
 			//Gets the duration of the video file and continues to the next file
-			getVideoDurationInSeconds(file).then((duration) => {
-				files[counter] = { name: file, duration: duration * 1000, location: this.#files[counter], type: type };
+			if(type === "Image") {
+				files[counter] = { name: file, duration: 10000, location: this.#files[counter], type: type };
 				this.#extractMetadata(++counter, files);
-			}).catch((err) => {
-				//Need to figure out how to handle files that don't have duration
-				console.log(err);
-				files[counter] = { name: file, duration: 0, location: this.#files[counter], type: type};
-				this.#extractMetadata(++counter, files);
-			});
+			}else {
+				getVideoDurationInSeconds(file).then((duration) => {
+					files[counter] = { name: file, duration: duration * 1000, location: this.#files[counter], type: type };
+					this.#extractMetadata(++counter, files);
+				}).catch((err) => {
+					console.log(err);
+					files[counter] = { name: file, duration: 0, location: this.#files[counter], type: type};
+					this.#extractMetadata(++counter, files);
+				});
+			}
 		}else {
 			//Sends the files to the renderer process
 			this.#extractThumbnails(0, [], files);
@@ -252,7 +256,7 @@ module.exports.ImportFiles = class ImportFiles {
 			//Checks if the file is an image file
 			if(imageExtensions.includes(parse.ext)) {
 				//Returns and moves to the next thumbnail
-				files[counter].thumbnail = file;
+				files[counter].thumbnail = "local-resource://getMediaFile/" + file;
 				this.#extractThumbnails(++counter, thumbnails, files);
 				return;
 			}

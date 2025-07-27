@@ -5,40 +5,33 @@
 >
 	<div
 		class = "h-full flex"
-		[class.flex-row] = "isFullscreen"
-		[class.flex-wrap-reverse] = "isFullscreen"
-		[class.h-2screen] = "isFullscreen"
 	>
 		<div
-			class = "video-container flex flex-column justify-content-center border-right-1 surface-border relative w-full"
-			[class.w-full] = "isFullscreen"
-			[class.h-6] = "isFullscreen"
-			[class.h-full] = "!isFullscreen"
+			class = "video-container flex flex-column justify-content-center border-right-1 surface-border relative h-full"
+			[class.flex] = "!isFullscreen"
+			[class.hidden] = "isFullscreen"
+			[class.w-full] = "previewIsFullscreen"
 		>
 			<div
 				#previewContainer
-				class = "align-self-center flex-grow-1 flex justify-content-center relative"
-				[class.flex-column] = "!isFullscreen"
-				[class.w-full] = "!isFullscreen"
+				class = "align-self-center w-full flex-grow-1 flex justify-content-center overflow-hidden relative"
+				[class.black] = "previewIsFullscreen"
 			>
 				<div class = "flex-grow-1 w-full" [class.hidden] = "selectedTrackType === 'Audio'"></div>
 				<video
 					#previewVideo
-					class = "w-full flex-grow-1 absolute preview-video"
+					class = "w-full h-full flex-grow-1 absolute preview-video"
 					[class.hidden] = "selectedTrackType !== 'Video'"
-					[class.h-full] = "!isFullscreen"
-					[class.h-screen] = "isFullscreen"
-					[class.mt-6] = "isFullscreen"
 					[src] = "previewSrc | sanitiseUrl"
 					[srcObject] = "previewStream"
 				>
 				</video>
 				<div
 					id = "preview-not-playing"
-					*ngIf = "previewVideo?.paused && selectedTrackType !== 'Image'"
+					*ngIf = "previewSrc === null"
 					class = "w-full h-full absolute flex align-items-center justify-content-center"
 				>
-					<span>{{ previewSrc === null ? 'Preview not loaded' : 'Preview not playing'}}</span>
+					<span>Preview not loaded</span>
 				</div>
 				<canvas
 					#audioPreview
@@ -47,7 +40,8 @@
 				></canvas>
 				<img
 					#previewImage
-					class = "w-full flex-grow-1 absolute"
+					id = "preview-image"
+					class = "w-full h-full flex-grow-1 absolute"
 					[class.hidden] = "selectedTrackType !== 'Image'"
 					[src] = "previewSrc | sanitiseUrl"
 				>
@@ -79,16 +73,17 @@
 						pButton
 						class = "p-button-text p-button-secondary"
 						icon = "pi pi-window-maximize"
+						(click) = "togglePreviewFullScreen()"
 					></button>
 				</div>
 			</div>
 		</div>
 	
 		<div
-			class = "video-container flex flex-column justify-content-center border-left-1 surface-border"
+			class = "video-container h-full flex-column justify-content-center border-left-1 surface-border"
+			[class.flex] = "!previewIsFullscreen"
+			[class.hidden] = "previewIsFullscreen"
 			[class.w-full] = "isFullscreen"
-			[class.h-screen] = "isFullscreen"
-			[class.h-full] = "!isFullscreen"
 		>
 			<div
 				class = "align-self-center flex-grow-1 flex justify-content-center relative w-full"
