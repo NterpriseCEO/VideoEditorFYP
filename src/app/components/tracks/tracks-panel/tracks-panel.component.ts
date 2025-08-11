@@ -5,7 +5,7 @@ import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
 import { deepCompare } from "src/app/utils/utils";
-import { fromEvent } from "rxjs";
+import { fromEvent, Subscription } from "rxjs";
 import { TrackHelpers } from "../track-helpers";
 import { MenuItem } from "primeng/api/menuitem";
 
@@ -50,6 +50,8 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 	numberOfIntervals: number = 0;
 	numberOfMillisecondsShown: number = 0;
 	numbersPosition: number = 0;
+	
+	subscriptions: Subscription[] = [];
 
 	tracksContentsMenu: MenuItem[] = [
 		{
@@ -106,9 +108,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			this.resizeObserver.disconnect();
 		}
 
-		this.tracksService.tracksSubject.unsubscribe();
-		this.tracksService.selectedTrackChangedSubject.unsubscribe();
-		this.tracksService.previewStateSubject.unsubscribe();
+		this.subscriptions.forEach(subscription => subscription.unsubscribe());
 	}
 
 	@HostListener("document:click", ["$event.target"])
@@ -140,7 +140,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 
 		this.resizeObserver.observe(this.tracksContents.nativeElement);
 
-		this.tracksService.zoomSliderResizeSubject.subscribe(slider => {
+		this.subscriptions.push(this.tracksService.zoomSliderResizeSubject.subscribe(slider => {
 			//Calculates the percentage of the tracks that are visible
 			this.percentageOfTracksVisible = parseFloat((slider.width/100).toFixed(4));
 			if (this.percentageOfTracksVisible > 0.99) this.percentageOfTracksVisible = 1;
@@ -152,18 +152,18 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			this.tracksContents.nativeElement.scrollLeft = this.tracksContents.nativeElement.scrollWidth * (slider.left / 100);
 
 			this.setTimeNumbers();
-		});
+		}));
 		//Subscribes to the addTrackSubject in the tracks service
-		this.tracksService.tracksSubject.subscribe((data: any) => {
+		this.subscriptions.push(this.tracksService.tracksSubject.subscribe((data: any) => {
 			if(data.projectId !== this.projectId) return;
 			this.renderTracksPanel(data.tracks);
-		});
+		}));
 
-		this.tracksService.selectedTrackChangedSubject.subscribe(() => {
+		this.subscriptions.push(this.tracksService.selectedTrackChangedSubject.subscribe(() => {
 			this.changeDetector.detectChanges();
-		});
+		}));
 
-		this.tracksService.previewStateSubject.subscribe(state => {
+		this.subscriptions.push(this.tracksService.previewStateSubject.subscribe(state => {
 			if(state?.isPlaying) {
 				this.playStartTime = Date.now();
 				this.moveTimeLineIndicator();
@@ -185,7 +185,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 				this.timelineIndicatorPosition = state.currentTime;
 				this.changeDetector.detectChanges();
 			}
-		});
+		}));
 		//Listens for the window visibility change event
 		//so that it's position can be updated when the window is visible
 		document.addEventListener("visibilitychange", () => {
@@ -197,7 +197,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 		}, false);
 
 		//fromEvent scrolls the tracksContents element when the mouse wheel is scrolled
-		fromEvent(this.tracksContents.nativeElement, "scroll").subscribe((event: any) => {
+		this.subscriptions.push(fromEvent(this.tracksContents.nativeElement, "scroll").subscribe((event: any) => {
 			if(event.target.offsetWidth + event.target.scrollLeft >= event.target.scrollWidth) {
 				//End of scroll
 				return;
@@ -207,7 +207,7 @@ export class TracksPanelComponent extends TrackHelpers implements AfterViewCheck
 			//Calculates the percentage that the scrollbar is scrolled
 			const percentageScrolled = event.target.scrollLeft / (event.target.scrollWidth - event.target.offsetWidth);
 			this.changeDetector.detectChanges();
-		});
+		}));
 	}
 
 	renderTracksPanel(tracks: Track[]) {

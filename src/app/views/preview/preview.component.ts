@@ -142,7 +142,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				canvas.width = dimensions.width;
 				canvas.height = dimensions.height;
 			}
-		})
+		});
 		//Gets the localhost server port.
 		//Used to send live media data to the server
 		window.api.emit("get-server-port");
@@ -555,11 +555,12 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 				media.currentTime = 0;
 			});
 
+		// Resets all media elements
 		this.mediaElements.forEach(media => {
 			media.src = "";
 			media.removeAttribute("src");
 			media.currentTime = 0;
-		})
+		});
 
 		let timeStep = async () => {
 			if(this.mediaPlaying) {
@@ -573,6 +574,7 @@ export class PreviewComponent implements OnInit, AfterViewInit, OnDestroy {
 						}
 					});
 
+				// The playback is finished if this is true
 				if (this.masterTime >= this.duration) {
 					this.mediaPlaying = false;
 					this.masterTime = 0;

@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Subject } from "rxjs";
 import { Title } from "@angular/platform-browser";
-import { MessageService } from "primeng/api";
+import { ConfirmationService, MessageService } from "primeng/api";
 
 import { Clip, ClipInstance, Filter, Project, Track } from "../utils/interfaces";
 import GLFX_Filters from "../components/filters/filter-selector/filter-definitions/GLFX_Filters.json";
@@ -56,7 +56,8 @@ export class ProjectFileService {
 	constructor(
 		private messageService: MessageService,
 		private ngZone: NgZone,
-		private titleService: Title
+		private titleService: Title,
+		private confirmationService: ConfirmationService
 	) {
 		const glfx_filters = GLFX_Filters.map((filter) => Object.assign(filter, {type: FilterLibrary.GLFX})) as Filter[];
 
@@ -77,14 +78,21 @@ export class ProjectFileService {
 				this.projectJustSaved = false;
 				return;
 			}
-			let projectIndex = this.projects.findIndex(project => project.location === data.location);
+			const projectIndex = this.projects.findIndex(project => project.location === data.location);
+			const projectSavedIndex = this.projectSavedIndexInHistory[projectIndex];
+			const currentIndex = this.historyIndexes[projectIndex];
 			if(projectIndex > -1) {
-				this.projects[projectIndex] = this.prepareLoadFile(data.project);
-				const project = this.projects[projectIndex];
-				this.loadTracksSubject.next({ tracks: project.tracks, resetPreview: true, projectId: projectIndex });
-				this.loadProjectNameSubject.next(project.name);
-
-				this.projectHistory[projectIndex] = [JSON.parse(JSON.stringify(project))];
+				if(currentIndex !== projectIndex) {
+					this.confirmationService.confirm({
+						message: "Your project isn't saved. Do you wish to override it before reloading from disk?",
+						icon: "pi pi-exclamation-triangle",
+						accept: () => {
+							this.loadProjectFromDisk(data.project, projectIndex);
+						}
+					});
+				}else {
+					this.loadProjectFromDisk(data.project, projectIndex)
+				}
 			}
 		}));
 
@@ -146,6 +154,14 @@ export class ProjectFileService {
 
 			this.loadClipsSubject.next(activeProject.clips);
 		});
+	}
+
+	loadProjectFromDisk(project, projectIndex: number) {
+		this.addProjectToHistory(JSON.parse(JSON.stringify(this.prepareLoadFile(project))))
+
+		if (projectIndex === this.activeProject) {
+			this.updateFromHistory(true);
+		}
 	}
 
 	checkIfClipsExist() {
@@ -369,13 +385,15 @@ export class ProjectFileService {
 		this.updateFromHistory();
 	}
 
-	updateFromHistory() {
+	updateFromHistory(onLoadFromDisk: boolean = false) {
 		const history = this.projectHistory[this.activeProject];
 		//Skips the update if the prject is the same as the one in the history
 		if(deepCompare(this.projects[this.activeProject], history[this.historyIndexes[this.activeProject]])) {
 			return;
 		}else {
-			this.titleService.setTitle(`GraphX - * ${this.location}`);
+			if(!onLoadFromDisk) {
+				this.titleService.setTitle(`GraphX - * ${this.location}`);
+			}
 		}
 		
 		if(this.historyIndexes[this.activeProject] === this.projectSavedIndexInHistory[this.activeProject]) {
@@ -389,6 +407,7 @@ export class ProjectFileService {
 		this.clips = JSON.parse(JSON.stringify(activeProject.clips));
 		this.loadTracksSubject.next({ tracks: activeProject.tracks, projectId: this.activeProject });
 		this.tracks = JSON.parse(JSON.stringify(activeProject.tracks));
+		this.loadProjectNameSubject.next(activeProject.name);
 	}
 
 	setProjectName(name: string) {

@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { MenuItem, SelectItem } from "primeng/api";
 import { Clip } from "src/app/utils/interfaces";
 import { ClipService } from "src/app/services/clip.service";
 import { TrackType } from "src/app/utils/constants";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
+import { Subscription } from "rxjs";
 
 @Component({
 	selector: "app-imports-panel",
@@ -11,7 +12,7 @@ import { ProjectFileService } from "src/app/services/project-file-service.servic
 	styleUrls: ["./imports-panel.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ImportsPanelComponent implements OnInit {
+export class ImportsPanelComponent implements OnInit, OnDestroy {
 
 	//reference dv ViewChild
 	@ViewChild("dv") dv!: any;
@@ -26,6 +27,8 @@ export class ImportsPanelComponent implements OnInit {
 	brokenImage: string = "assets/clip-icon.png";
 
 	selectedClip: Clip | null = null;
+
+	loadClipsSubscription!: Subscription;
 
 	clipMenu: MenuItem[] = [
 		// {
@@ -103,7 +106,7 @@ export class ImportsPanelComponent implements OnInit {
 			this.changeDetector.detectChanges();
 		}));
 
-		this.pfService.loadClipsSubject.subscribe((clips: Clip[]) => {
+		this.loadClipsSubscription = this.pfService.loadClipsSubject.subscribe((clips: Clip[]) => {
 			this.clips = [...clips];
 			this.changeDetector.detectChanges();
 		});
@@ -137,5 +140,9 @@ export class ImportsPanelComponent implements OnInit {
 
 	relinkClip(clip: Clip) {
 		this.pfService.relinkClip(clip);
+	}
+
+	ngOnDestroy() {
+		this.loadClipsSubscription.unsubscribe();
 	}
 }
