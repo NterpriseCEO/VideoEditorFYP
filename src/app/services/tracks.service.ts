@@ -1,14 +1,13 @@
-import { Injectable, NgZone } from "@angular/core";
-import { Subject } from "rxjs";
+import { Injectable, NgZone, OnDestroy } from "@angular/core";
+import { Subject, Subscription } from "rxjs";
 import { TrackType } from "../utils/constants";
 import { ClipInstance, Filter, FilterInstance, Track, ZoomSliderPosition } from "../utils/interfaces";
 import { ProjectFileService } from "./project-file-service.service";
-import { deepCopyObject } from "../utils/utils";
 
 @Injectable({
 	providedIn: "root"
 })
-export class TracksService {
+export class TracksService implements OnDestroy {
 	
 	//Subject to add filter to the current track
 	public filtersChangedSubject = new Subject<boolean>();
@@ -36,6 +35,8 @@ export class TracksService {
 
 	sourceSelectorTriggerSubject: Subject<void> = new Subject<void>();
 
+	subscriptions: Subscription[] = [];
+
 	constructor(
 		private pfService: ProjectFileService,
 		private ngZone: NgZone,
@@ -45,7 +46,7 @@ export class TracksService {
 
 	listenForEvents() {
 		let interval;
-		this.pfService.loadTracksSubject.subscribe((data: any) => {
+		this.subscriptions.push(this.pfService.loadTracksSubject.subscribe((data: any) => {
 			this.tracks = data.tracks;
 			this.selectedTrack = this.tracks.find(track => track.id === this.selectedTrack?.id) ?? this.tracks[0];
 			this.selectedTrackIndex = this.tracks.findIndex(track => track.id === this.selectedTrack?.id);
@@ -63,7 +64,7 @@ export class TracksService {
 					interval = null;
 				}
 			}, 10);
-		});
+		}));
 
 		window.api.on("preview-opened", () => this.ngZone.run(() => {
 			this.canSendTracks = true;
@@ -115,6 +116,11 @@ export class TracksService {
 	// 	}) as FilterInstance[];
 	// 	window.api.emit("update-filters", track);
 	// }
+
+	ngOnDestroy() {
+		this.subscriptions.forEach(subscription => subscription.unsubscribe());
+		this.subscriptions = [];
+	}
 
 	addFilter(filter: Filter) {
 		//Creates a new instance of the filter and sets it to enabled

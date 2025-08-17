@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from "@angular/core";
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
 import { MenuItem } from "primeng/api";
-import { debounceTime, Subject } from "rxjs";
+import { debounceTime, Subject, Subscription } from "rxjs";
 import { Filter, FilterInstance } from "src/app/utils/interfaces";
 import GLFX_Filters from "../filter-selector/filter-definitions/GLFX_Filters.json";
 import ImageFilters from "../filter-selector/filter-definitions/ImageFilters.json";
@@ -11,7 +11,7 @@ import { FilterLibrary } from "src/app/utils/constants";
 	templateUrl: "./filter-instance.component.html",
 	styleUrls: ["./filter-instance.component.scss"]
 })
-export class FilterInstanceComponent implements OnInit, OnChanges {
+export class FilterInstanceComponent implements OnInit, OnChanges, OnDestroy {
 
 	@Input() filter!: FilterInstance;
 	@Output() filterChange = new EventEmitter<FilterInstance>();
@@ -21,6 +21,8 @@ export class FilterInstanceComponent implements OnInit, OnChanges {
 
 	filterDefinition!: Filter;
 	allFilters: Filter[] = [];
+
+	subscription!: Subscription;
 
 	dropdownItems: MenuItem[] = [];
 
@@ -77,8 +79,12 @@ export class FilterInstanceComponent implements OnInit, OnChanges {
 		});
 	}
 
+	ngOnDestroy() {
+		this.subscription.unsubscribe();
+	}
+
 	listenForEvents() {
-		this.modelChanged.pipe(debounceTime(400)).subscribe((data) => {
+		this.subscription = this.modelChanged.pipe(debounceTime(400)).subscribe((data) => {
 			//Waits 200 milliseconds before applying the filter
 			//This prevents the project history from being spammed with filter changes
 			this.filter!.properties![data[1].name] = data[0];

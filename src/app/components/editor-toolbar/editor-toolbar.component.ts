@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ConfirmationService, ConfirmEventType, MenuItem, PrimeIcons } from "primeng/api";
 import { Router } from "@angular/router";
 
@@ -6,6 +6,7 @@ import { TracksService } from "src/app/services/tracks.service";
 import { TrackType } from "src/app/utils/constants";
 import { SourceSelectorComponent } from "../tracks/source-selector/source-selector.component";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
+import { Subscription } from "rxjs";
 
 @Component({
 	selector: "app-editor-toolbar",
@@ -13,11 +14,13 @@ import { ProjectFileService } from "src/app/services/project-file-service.servic
 	styleUrls: ["./editor-toolbar.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EditorToollbarComponent implements OnInit {
+export class EditorToollbarComponent implements OnInit, OnDestroy {
 
 	@ViewChild("sourceSelector") sourceSelector!: SourceSelectorComponent;
 
 	title = "Editor Toolbar";
+
+	subscriptions: Subscription[] = [];
 
 	items:MenuItem[] = [
 		{
@@ -33,9 +36,9 @@ export class EditorToollbarComponent implements OnInit {
 								icon: "pi pi-exclamation-triangle",
 								accept: () => {
 									this.pfService.saveProject();
-									this.pfService.projectSavedSubject.subscribe(() => {
+									this.subscriptions.push(this.pfService.projectSavedSubject.subscribe(() => {
 										this.pfService.createBlankProject();
-									});
+									}));
 								},
 								reject: (type: ConfirmEventType) => {
 									if(type === ConfirmEventType.REJECT) {
@@ -134,10 +137,10 @@ export class EditorToollbarComponent implements OnInit {
 								icon: "pi pi-exclamation-triangle",
 								accept: () => {
 									this.pfService.saveProject();
-									this.pfService.projectSavedSubject.subscribe(() => {
+									const subscription = this.pfService.projectSavedSubject.subscribe(() => {
 										window.api.emit("exit-to-start-view");
 										this.router.navigate(["/startup"]);
-										this.pfService.projectSavedSubject.unsubscribe();
+										subscription.unsubscribe();
 									});
 								},
 								reject: (type: ConfirmEventType) => {
@@ -241,19 +244,24 @@ export class EditorToollbarComponent implements OnInit {
 		this.listenForEvents();
 	}
 
+	ngOnDestroy() {
+		this.subscriptions.forEach(subscription => subscription.unsubscribe());
+		this.subscriptions = [];
+	}
+
 	listenForEvents() {
 		//Is triggered when a project is loaded
-		this.pfService.loadProjectNameSubject.subscribe((name: string) => {
+		this.subscriptions.push(this.pfService.loadProjectNameSubject.subscribe((name: string) => {
 			this.projectName = name;
 			this.changeDetector.detectChanges();
-		});
+		}));
 
 		// Is triggered when the source selector is reqested to be shown
 		// from inside the track service
-		this.tracksService.sourceSelectorTriggerSubject.subscribe(() => {
+		this.subscriptions.push(this.tracksService.sourceSelectorTriggerSubject.subscribe(() => {
 			this.sourceSelector.showDialog();
 			this.changeDetector.detectChanges();
-		});
+		}));
 
 		window.api.on("update-play-video-button", (_:any, data: any) => this.ngZone.run(() => {
 			this.isPlaying = data.isPlaying;

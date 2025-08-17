@@ -1,7 +1,8 @@
-import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { Filter, FilterInstance, Track } from "src/app/utils/interfaces";
 import { TracksService } from "src/app/services/tracks.service";
 import { ProjectFileService } from "src/app/services/project-file-service.service";
+import { Subscription } from "rxjs";
 
 @Component({
 	selector: "app-track-properties-panel",
@@ -9,7 +10,7 @@ import { ProjectFileService } from "src/app/services/project-file-service.servic
 	styleUrls: ["./track-properties-panel.component.scss"],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked {
+export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked, OnDestroy {
 
 	//Get dropzone viewchild
 	@ViewChild("dropzone") dropzone!: ElementRef;
@@ -29,6 +30,8 @@ export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked {
 
 	selectedTrack: Track | null = null;
 
+	subscriptions: Subscription[] = [];
+
 	constructor(
 		private trackService: TracksService,
 		private changeDetector: ChangeDetectorRef,
@@ -47,23 +50,28 @@ export class TrackPropertiesPanelComponent implements OnInit, AfterViewChecked {
 		}
 	}
 
+	ngOnDestroy() {
+		this.subscriptions.forEach(subscription => subscription.unsubscribe());
+		this.subscriptions = [];
+	}
+
 	listenForEvents() {
-		this.trackService.filtersChangedSubject.subscribe((updateProject: boolean) => {
+		this.subscriptions.push(this.trackService.filtersChangedSubject.subscribe((updateProject: boolean) => {
 			//Checks if a filter is being added not removed
 			this.addingFilter = this.filtersCount < this.filters.length;
 			this.filtersCount = this.filters.length;
 
 			this.changeFilters(updateProject);
-		});
+		}));
 
-		this.trackService.tracksSubject.subscribe(() => {
+		this.subscriptions.push(this.trackService.tracksSubject.subscribe(() => {
 			this.changeFilters(false);
-		});
+		}));
 
-		this.trackService.selectedTrackChangedSubject.subscribe(track => {
+		this.subscriptions.push(this.trackService.selectedTrackChangedSubject.subscribe(track => {
 			this.selectedTrack = track;
 			this.changeDetector.detectChanges();
-		});
+		}));
 	}
 
 	dragStart(event: DragEvent, filter: FilterInstance) {
